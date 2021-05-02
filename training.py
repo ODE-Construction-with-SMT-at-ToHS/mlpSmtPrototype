@@ -3,6 +3,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
 from functions import *
 
 import numpy as np
@@ -16,21 +17,23 @@ import matplotlib.pyplot as plt
 def train1d(funcClass):
 
     # Sample some training data.
-    xValues = np.linspace(0, 10, 50)
-    yValues = []
-    for x in xValues:
-        yValues.append(funcClass.f(x))
+    X_samples = np.linspace(-10, 10, 1000+1)
+    y_samples = []
+    for x in X_samples:
+        y_samples.append(funcClass.f(x))
 
-    X, y = shuffle(xValues, yValues, random_state=0)
-    xVals = np.array(X)
-    yVals = np.array(y)
+    X, y = shuffle(X_samples, y_samples, random_state=0)
+    X_samples_shuffled = np.array(X)
+    y_samples_shuffled = np.array(y)
+
+    X_train, X_test, y_train, y_test = train_test_split(X_samples_shuffled, y_samples_shuffled, test_size=0.2)
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(20, activation=tf.nn.relu, input_shape=[1]),
-        keras.layers.Dense(20, activation=tf.nn.relu),
-        keras.layers.Dense(20, activation=tf.nn.relu),
+        keras.layers.Dense(10, activation=tf.nn.relu, input_shape=[1]),
         keras.layers.Dense(10, activation=tf.nn.relu),
+        keras.layers.Dense(10, activation=tf.nn.relu),
+        keras.layers.Dense(5, activation=tf.nn.relu),
         keras.layers.Dense(1)
     ])
 
@@ -42,15 +45,15 @@ def train1d(funcClass):
                 metrics=['mean_absolute_error', 'mean_squared_error'])
     
     # Train & save the model.
-    model.fit(xVals, yVals, epochs = 100)
+    model.fit(X_train, y_train, epochs = 500, validation_data=(X_test, y_test))
     model_filename = 'models/' + funcClass.name + '_model.h5'
     model.save(model_filename)
 
     # Plot the results.
-    predsY = model.predict(xVals)
+    y_preds = model.predict(X_test)
 
-    plt.plot(xValues, yValues, 'r')
-    plt.scatter(xVals, predsY)
+    plt.plot(X_samples, y_samples, 'r')
+    plt.scatter(X_test, y_preds)
     plt.savefig('plots/' + funcClass.name + '_learned.png')
     plt.clf()
 
