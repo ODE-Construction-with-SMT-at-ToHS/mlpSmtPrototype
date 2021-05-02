@@ -1,21 +1,22 @@
-
-class linearA:
-    name = 'linearA'
-
-    @staticmethod
-    def f(x):
-        return (-x + 2)
-
-class quadraticA:
-    name = 'quadraticA'
+class LinearA:
+    name = 'LinearA'
 
     @staticmethod
     def f(x):
-        return ((x-3)*(x-3) + 1)
+        return -x + 2
 
-class quadraticB:
-    name = 'quadraticB'
+
+class QuadraticA:
+    name = 'QuadraticA'
 
     @staticmethod
     def f(x):
-        return ((x-1)*(x-1)*0.3 -1)
+        return (x-3)*(x-3) + 1
+
+
+class QuadraticB:
+    name = 'QuadraticB'
+
+    @staticmethod
+    def f(x):
+        return (x-1)*(x-1)*0.3-1

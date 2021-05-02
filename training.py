@@ -1,4 +1,4 @@
-import os, sys
+import os
 import tensorflow as tf
 
 from tensorflow import keras
@@ -7,26 +7,26 @@ from sklearn.model_selection import train_test_split
 from functions import *
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 ''' Simple function to train a simple MLP.
     Should receive an object with a static 
-    function and a name attribute.'''
+    function and a name attribute.
+'''
 
-def train1d(funcClass):
+
+def train1d(func_class):
 
     # Sample some training data.
-    X_samples = np.linspace(-10, 10, 1000+1)
+    x_samples = np.linspace(-10, 10, 1000+1)
     y_samples = []
-    for x in X_samples:
-        y_samples.append(funcClass.f(x))
+    for x in x_samples:
+        y_samples.append(func_class.f(x))
+    y_samples = np.array(y_samples)
 
-    X, y = shuffle(X_samples, y_samples, random_state=0)
-    X_samples_shuffled = np.array(X)
-    y_samples_shuffled = np.array(y)
-
-    X_train, X_test, y_train, y_test = train_test_split(X_samples_shuffled, y_samples_shuffled, test_size=0.2)
+    # process samples, get test training data
+    x, y = shuffle(x_samples, y_samples, random_state=0)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
     # Create a simple mlp model.
     model = keras.Sequential([
@@ -41,28 +41,31 @@ def train1d(funcClass):
     optimizer = tf.keras.optimizers.RMSprop(0.01)
 
     model.compile(loss='mean_squared_error',
-                optimizer=optimizer,
-                metrics=['mean_absolute_error', 'mean_squared_error'])
+                  optimizer=optimizer,
+                  metrics=['mean_absolute_error', 'mean_squared_error'])
     
-    # Train & save the model.
-    model.fit(X_train, y_train, epochs = 500, validation_data=(X_test, y_test))
-    model_filename = 'models/' + funcClass.name + '_model.h5'
+    # Train, validate & save the model.
+    model.fit(x_train, y_train, epochs=500, validation_data=(x_test, y_test))
+    model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
     # Plot the results.
-    y_preds = model.predict(X_test)
+    y_predictions = model.predict(x_test)
 
-    plt.plot(X_samples, y_samples, 'r')
-    plt.scatter(X_test, y_preds)
-    plt.savefig('plots/' + funcClass.name + '_learned.png')
+    plt.plot(x_samples, y_samples, 'r')
+    plt.scatter(x_test, y_predictions)
+    plt.savefig('plots/' + func_class.name + '_learned.png')
     plt.clf()
 
-''' Sample funtion to demonstrate how models trained to fit a
-    specified funtion can be restored. '''
 
-def openModel(funcClass):
+''' Sample function to demonstrate how models trained to fit a
+    specified function can be restored.
+'''
 
-    path = 'models/' + funcClass.name + '_model.h5'
+
+def open_model(func_class):
+
+    path = 'models/' + func_class.name + '_model.h5'
     if not(os.path.isfile(path)):
         print('No model trained yet.')
         return
@@ -75,10 +78,11 @@ def openModel(funcClass):
         print('Layer ' + str(it) + ' weights:')
         print(weights)
 
+
 if __name__ == '__main__':
 
-    #train1d(linearA)
-    #train1d(quadraticA)
-    #train1d(quadraticB)
+    train1d(LinearA)
+    train1d(QuadraticA)
+    train1d(QuadraticB)
 
-    openModel(quadraticA)
+    open_model(QuadraticA)
