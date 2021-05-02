@@ -58,6 +58,11 @@ def train1d(func_class):
     plt.clf()
 
 
+# def plot_dist_map(x_test, y_test, y_prediction)
+#    dist = np.linalg.norm(y_test-y_prediction)
+#    plot dist for all x_test in 3d Diagram...
+
+
 ''' Sample function to demonstrate how models trained to fit a
     specified function can be restored.
 '''
