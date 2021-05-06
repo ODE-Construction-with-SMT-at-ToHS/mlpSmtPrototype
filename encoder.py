@@ -8,14 +8,6 @@ class Encoder():
 
     def __init__(self, modelpath):
         self.model = keras.models.load_model(modelpath)
-        self.weights = []
-        for layer in self.model.layers:
-            self.weights.append(layer.get_weights())
-
-    def encode(self,x):
-        """
-        Encodes keras model as SMT forumla.
-        """
 
         # Potential bug
         input_shape = self.model.input_shape 
@@ -32,14 +24,35 @@ class Encoder():
                 print('Error: only the input_shape = [1] is supported currently.')
                 print('Exiting ...')
                 sys.exit()
+        
+        self.weights = []
+        for layer in self.model.layers:
+            self.weights.append(layer.get_weights())
 
-        #Kreate variables
+    def encode(self,x):
+        """
+        Encodes keras model as SMT forumla.
+        """
+        formula = {}
+
+        # Create variables
         self.create_variables()
         print(self.variables_x)
         print(self.variables_y)
 
+        # Encode affine layers
+        formula['Affine layers:'] = self.encode_affine_layers()
 
-        return 'Nothing to see here.'
+        # Encode activation functions (relu_0)
+        formula['Activation function:'] = self.encode_activation_function()
+
+        # Encode input (currently only 1x1)
+        formula['Input:'] = [self.variables_x[0][0] == x]
+
+        result_vars = self.variables_x.pop()
+        self.variables_x.append(result_vars)
+
+        return formula, result_vars
 
     def create_variables(self):
         self.variables_x = []
@@ -56,7 +69,30 @@ class Encoder():
             for j in range(len(self.weights[i][0][0])):
                 self.variables_y[i].append(Real('y_{}_{}'.format(i,j)))
                 self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1,j)))
-            
 
-            
-        pass
+    # Encode affine layers
+    def encode_affine_layers(self):
+        affine_layers = []
+
+        # Basically matrix multiplication
+        for i in range(len(self.variables_y)):
+            for j in range(len(self.variables_y[i])):
+                affine_layers.append(self.variables_y[i][j] == 
+                    Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j]
+                    + self.weights[i][1][j])
+                    for j_x in range(len(self.variables_x[i]))]))
+    
+        return affine_layers
+    
+    def encode_activation_function(self):
+        function_encoding = []
+
+        # This currently only encodes relu_0
+        for i in range(len(self.variables_y)):
+            for j in range(len(self.variables_y[i])):
+                function_encoding.append(Implies(0 >= self.variables_y[i][j], 
+                    self.variables_x[i+1][j] == 0))
+                function_encoding.append(Implies(0 < self.variables_y[i][j], 
+                    self.variables_x[i+1][j] == self.variables_y[i][j]))
+
+        return function_encoding
