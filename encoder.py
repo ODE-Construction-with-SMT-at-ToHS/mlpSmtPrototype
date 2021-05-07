@@ -74,13 +74,14 @@ class Encoder():
     def encode_affine_layers(self):
         affine_layers = []
 
-        # Basically matrix multiplication
         for i in range(len(self.variables_y)):
             for j in range(len(self.variables_y[i])):
+                # Basically matrix multiplication
+                # y_i_j = weights * ouput of last layer + bias
                 affine_layers.append(self.variables_y[i][j] == 
-                    Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j]
+                    Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j])
+                    for j_x in range(len(self.variables_x[i]))])
                     + self.weights[i][1][j])
-                    for j_x in range(len(self.variables_x[i]))]))
     
         return affine_layers
     
