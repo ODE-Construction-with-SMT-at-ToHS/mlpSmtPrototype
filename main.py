@@ -5,7 +5,7 @@ import arguments
 
 if __name__ == '__main__':
     
-    #TODO Arguments are ignored for now
+    # TODO Arguments are ignored for now
     args = arguments.parse_args()
     
     x = 0
@@ -14,13 +14,13 @@ if __name__ == '__main__':
     myEncoder = Encoder(model_path)
     model_formula, result_vars = myEncoder.encode(x)
 
-    #print(model_formula)
+    # print(model_formula)
     print(result_vars)
 
     # Create a solver instance
     solver = Solver()
 
-    # Assert subformulas
+    # Assert sub formulas
     for k, v in model_formula.items():
         solver.add(v)
 

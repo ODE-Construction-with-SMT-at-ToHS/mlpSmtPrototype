@@ -1,3 +1,5 @@
 z3
 tensorflow
 numpy
+matplotlib
+sklearn
