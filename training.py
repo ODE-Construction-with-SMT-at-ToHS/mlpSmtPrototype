@@ -85,7 +85,7 @@ def open_model(func_class):
 def train2d(func_class):
 
     # Sample 2D training data.
-    a, b = np.mgrid[-2:2:40j, -2:2:40j]
+    a, b = np.mgrid[-10:10:100j, -10:10:100j]
     x_samples = np.vstack((a.flatten(), b.flatten())).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
@@ -94,15 +94,12 @@ def train2d(func_class):
     x, y = shuffle(x_samples, y_samples, random_state=0)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
-    # y_prediction = numpy.zeros((20, 2))
-
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(10, activation=tf.nn.relu, input_shape=(2,)),
+        keras.layers.Dense(20, activation=tf.nn.relu),
         keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(5, activation=tf.nn.relu),
-        keras.layers.Dense(2)
+        keras.layers.Dense( 5, activation=tf.nn.relu),
+        keras.layers.Dense( 2)
     ])
 
     # Use the MSE regression loss
@@ -113,7 +110,7 @@ def train2d(func_class):
                   metrics=['mean_absolute_error', 'mean_squared_error'])
 
     # Train, validate & save the model.
-    model.fit(x_train, y_train, epochs=500, validation_data=(x_test, y_test))
+    model.fit(x_train, y_train, epochs=200, validation_data=(x_test, y_test))
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 

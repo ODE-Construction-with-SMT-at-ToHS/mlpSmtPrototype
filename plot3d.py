@@ -24,6 +24,7 @@ def plot_dist_map(x_test, y_test, y_prediction, name):
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('prediction error')
+    plt.draw()
+    fig.savefig('plots/' + name + '_learned.png')
     plt.show()
-    plt.savefig('plots/' + name + '_learned.png')
     plt.clf()
