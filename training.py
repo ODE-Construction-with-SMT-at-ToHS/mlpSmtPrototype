@@ -5,6 +5,7 @@ from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from functions import *
+from plot3d import *
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,10 +80,24 @@ def open_model(func_class):
         print(weights)
 
 
+def train2d(func_class):
+    # get sample-positions
+    a, b = np.mgrid[-2:2:5j, -2:2:5j]
+    x_test = np.vstack((a.flatten(), b.flatten())).T
+
+    # simulate learned input
+    y_test = numpy.random.uniform(-10, 10, (25, 2))
+    y_prediction = numpy.random.uniform(-10, 10, (25, 2))
+
+    # plot distances of y_test and y_prediction
+    plot_dist_map(x_test, y_test, y_prediction)
+
+
 if __name__ == '__main__':
 
-    train1d(LinearA)
-    train1d(QuadraticA)
-    train1d(QuadraticB)
+    train2d(0)
+    # train1d(LinearA)
+    # train1d(QuadraticA)
+    # train1d(QuadraticB)
 
-    open_model(QuadraticA)
+    # open_model(QuadraticA)
