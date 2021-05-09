@@ -3,7 +3,7 @@ import numpy as np
 import pylab
 
 
-def plot_dist_map(x_test, y_test, y_prediction):
+def plot_dist_map(x_test, y_test, y_prediction, name):
 
     # reshape sample-points
     plot_dim_1 = [i[0] for i in x_test]
@@ -25,3 +25,5 @@ def plot_dist_map(x_test, y_test, y_prediction):
     ax.set_ylabel('Y')
     ax.set_zlabel('prediction error')
     plt.show()
+    plt.savefig('plots/' + name + '_learned.png')
+    plt.clf()
