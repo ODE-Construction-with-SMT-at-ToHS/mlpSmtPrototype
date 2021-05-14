@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 def train1d(func_class):
 
     # Sample some training data.
-    x_samples = np.linspace(-10, 10, 1000+1)
+    x_samples = np.linspace(-10, 10, 1000+1).T
     y_samples = []
     for x in x_samples:
         y_samples.append(func_class.f(x))
@@ -33,7 +33,7 @@ def train1d(func_class):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(10, activation=tf.nn.relu, input_shape=[1]),
+        keras.layers.Dense(10, activation=tf.nn.relu, input_shape=(1,)),
         keras.layers.Dense(10, activation=tf.nn.relu),
         keras.layers.Dense(10, activation=tf.nn.relu),
         keras.layers.Dense(5, activation=tf.nn.relu),
@@ -127,4 +127,4 @@ if __name__ == '__main__':
     # train1d(QuadraticA)
     # train1d(QuadraticB)
 
-    # open_model(QuadraticA)
+    #open_model(LinearA2D)

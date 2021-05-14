@@ -19,7 +19,7 @@ def parse_args():
 
     # Optional Arguments
 
-    parser.add_argument('-model', help='Path to Keras .h5 model file', default='models\LinearA_model.h5')
+    parser.add_argument('-model', help='Path to Keras .h5 model file', default='models\Linear2DA_model.h5')
 
     parser.add_argument('-template', help='Specification of which template is to be configured') #possibly enum type?
 
