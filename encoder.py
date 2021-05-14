@@ -30,9 +30,7 @@ class Encoder():
         self.weights = []
         for layer in self.model.layers:
             self.weights.append(layer.get_weights())
-        print(self.weights)
 
-    #TODO change to general encoding independent of x 
     def encode(self):
         """
         Encodes keras model as SMT forumla for an input x.
@@ -48,12 +46,13 @@ class Encoder():
         # Encode activation functions (relu_0).
         formula['Activation function'] = self.encode_activation_function()
 
-        # This specifies where to expect the output of the NN
+        # This specifies where to expect the output,input of the NN
         # in the model of an SMT-solver.
-        result_vars = self.variables_x.pop()
-        self.variables_x.append(result_vars)
+        output_vars = self.variables_x.pop()
+        self.variables_x.append(output_vars)
+        input_vars = self.variables_x[0]
 
-        return formula, result_vars
+        return formula, output_vars, input_vars
 
     def encode_input(self,x):
         """
@@ -125,7 +124,8 @@ class Encoder():
                     function_encoding.append(self.variables_x[i+1][j] == self.variables_y[i][j])
                 
                 else:
-                    print('Error: only relu and linear are supported as activation function. Not: '+ str(activation))
+                    print('Error: only relu and linear are supported as activation function. Not: '
+                        + str(activation))
                     print('Exiting ...')
                     sys.exit()
         

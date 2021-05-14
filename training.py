@@ -12,13 +12,11 @@ from plot3d import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-''' Simple function to train a simple MLP.
+def train1d(func_class):
+    ''' Simple function to train a simple MLP.
     Should receive an object with a static 
     function and a name attribute.
-'''
-
-
-def train1d(func_class):
+    '''
 
     # Sample some training data.
     x_samples = np.linspace(-10, 10, 1000+1).T
@@ -60,13 +58,10 @@ def train1d(func_class):
     plt.savefig('plots/' + func_class.name + '_learned.png')
     plt.clf()
 
-
-''' Sample function to demonstrate how models trained to fit a
-    specified function can be restored.
-'''
-
-
 def open_model(func_class):
+    ''' Sample function to demonstrate how models trained to fit a
+    specified function can be restored.
+    '''
 
     path = 'models/' + func_class.name + '_model.h5'
     if not(os.path.isfile(path)):
@@ -80,7 +75,6 @@ def open_model(func_class):
         weights = layer.get_weights()
         print('Layer ' + str(it) + ' weights:')
         print(weights)
-
 
 def train2d(func_class):
 
