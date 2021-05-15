@@ -14,4 +14,4 @@ if __name__ == '__main__':
     #logic.test_encoding(model_path,(42,))
 
     myLinTemplate = LinearTemplate()
-    logic.optimize_template(model_path, myLinTemplate, ((-10,),(10,)) )
+    logic.optimize_template(model_path, myLinTemplate, ((-8,),(8,)) )

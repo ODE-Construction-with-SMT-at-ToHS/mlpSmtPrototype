@@ -38,7 +38,7 @@ class LinearTemplate(Template):
         self.params = {'a':0,'b':0}
         self.input_vars = [Real('x')]
         self.output_vars = [Real('y')]
-        self.param_vars = [Real('a'),Real('b')]
+        self.param_vars = {'a': Real('a'), 'b': Real('b')}
     
     # overriding abstract method
     def func(self,x):
@@ -47,11 +47,11 @@ class LinearTemplate(Template):
 
     # overriding abstract method
     def smt_encoding(self):
-        encoding = self.output_vars[0] == self.param_vars[0]*self.input_vars[0] + self.param_vars[1]
+        encoding = self.output_vars[0] == self.params['a']*self.input_vars[0] + self.params['b']
         return encoding
 
     def generic_smt_encoding(self, input, output_var):
-        encoding = output_var[0] == self.param_vars[0]*input[0] + self.param_vars[1]
+        encoding = output_var[0] == self.param_vars['a']*input[0] + self.param_vars['b']
         return encoding
 
     # overriding abstract method
