@@ -1,14 +1,15 @@
 from encoder import *
 from z3 import *
 
-def optimize_template(model_path, template, interval, epsilon = 1):
+
+def optimize_template(model_path, template, interval, epsilon=1):
     """Function for optimizing parameters of a function-template
-    to optimally fit a MLP.
+    to optimally fit an MLP.
     
     Attributes:
         model_path: path to export of keras model file.
         template: Template() instance # TODO has to be made compatible with args-parser
-        range: tuple of tuples representing an intervall,
+        range: tuple of tuples representing an interval,
                 limiting the function domain.
         epsilon = 5: Tolerance of template.
     """
@@ -22,8 +23,8 @@ def optimize_template(model_path, template, interval, epsilon = 1):
     x = lb
 
     # Encode the NN-model.
-    myEncoder = Encoder(model_path)
-    nn_model_formula, nn_output_vars, nn_input_vars = myEncoder.encode()
+    my_encoder = Encoder(model_path)
+    nn_model_formula, nn_output_vars, nn_input_vars = my_encoder.encode()
 
     # Restore the actual NN.
     nn_model = keras.models.load_model(model_path)

@@ -7,7 +7,8 @@ if __name__ == '__main__':
     
     # TODO Arguments are ignored for now
     args = arguments.parse_args()
-    
+
+    # extract path to trained keras-model from arguments
     model_path = args.model
 
     # Test encoding
