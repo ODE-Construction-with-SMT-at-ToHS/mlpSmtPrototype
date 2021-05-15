@@ -116,9 +116,9 @@ def train2d(func_class):
 
 if __name__ == '__main__':
 
-    train2d(LinearA2D)
-    # train1d(LinearA)
+    # train2d(LinearA2D)
+    train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
 
-    #open_model(LinearA2D)
+    open_model(LinearA)

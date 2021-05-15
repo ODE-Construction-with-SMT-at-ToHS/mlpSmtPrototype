@@ -1,6 +1,7 @@
 import os
 import argparse
 
+
 def _is_valid_file(arg):
 
     if not os.path.exists(arg):
@@ -10,18 +11,20 @@ def _is_valid_file(arg):
     else:
         return arg
 
+
 def parse_args():
     """
     Specifies valid arguments
     """
 
-    parser = argparse.ArgumentParser(description= "DESCRIPTION", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description="DESCRIPTION", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Optional Arguments
 
-    parser.add_argument('-model', help='Path to Keras .h5 model file', default='models\LinearA_model.h5', type=_is_valid_file)
+    path_to_model = os.path.join('models', 'LinearA_model.h5')
+    parser.add_argument('-model', help='Path to Keras .h5 model file', default=path_to_model, type=_is_valid_file)
 
-    #parser.add_argument('-template', help='Specification of which template is to be configured') #possibly enum type?
+    # parser.add_argument('-template', help='Specification of which template is to be configured') #possibly enum type?
 
     args = parser.parse_args()
 
