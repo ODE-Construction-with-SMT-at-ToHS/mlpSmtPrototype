@@ -4,20 +4,23 @@ from tensorflow import keras
 import tensorflow as tf
 
 
-class Encoder():
+class Encoder:
     """
     Class for encoding Keras models as SMT formulas.
     Only flat inputs and flat layers are supported.
     """
 
+    # constructor
     def __init__(self, modelpath):
+        # load model stored at modelpath
         self.model = keras.models.load_model(modelpath)
 
+        # check whether model sequential and ??? (what does the exception do?)
         try:
             # Potential bug
-            _ , self.dimension_one = self.model.input_shape
+            _, self.dimension_one = self.model.input_shape
 
-            if (self.model.__class__.__name__ != 'Sequential'):
+            if self.model.__class__.__name__ != 'Sequential':
                 print('Error: only sequential models are supported currently.')
                 print('Exiting ...')
                 sys.exit()
@@ -25,10 +28,12 @@ class Encoder():
                 print('Error: only flat input shapes (input_shape = (None, x)) is supported currently.')
                 print('Exiting ...')
                 sys.exit()
-        
+
+        # reshape weights in layers
         self.weights = []
         for layer in self.model.layers:
             self.weights.append(layer.get_weights())
+        # self.weights = [layer.get_weights() for layer in self.model.layers] -> should do the same, maybe use this instead.
 
     def encode(self):
         """

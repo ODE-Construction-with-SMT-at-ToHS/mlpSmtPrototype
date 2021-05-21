@@ -1,28 +1,21 @@
 import os
-
-import numpy
 import tensorflow as tf
-
 from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from functions import *
 from plot3d import *
 
-import numpy as np
-import matplotlib.pyplot as plt
 
 def train1d(func_class):
-    ''' Simple function to train a simple MLP.
-    Should receive an object with a static 
-    function and a name attribute.
-    '''
+    """Simple function to train a simple MLP.
+       Should receive an object with a static
+       function and a name attribute.
+    """
 
     # Sample some training data.
     x_samples = np.linspace(-10, 10, 1000+1).T
-    y_samples = []
-    for x in x_samples:
-        y_samples.append(func_class.f(x))
+    y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
 
     # process samples, get test training data
@@ -38,9 +31,10 @@ def train1d(func_class):
         keras.layers.Dense(1)
     ])
 
-    # Use the MSE regression loss 
+    # Use the MSE regression loss (learning rate !?)
     optimizer = tf.keras.optimizers.RMSprop(0.01)
 
+    # configure model
     model.compile(loss='mean_squared_error',
                   optimizer=optimizer,
                   metrics=['mean_absolute_error', 'mean_squared_error'])
@@ -50,31 +44,15 @@ def train1d(func_class):
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
-    # Plot the results.
+    # calculate predictions
     y_predictions = model.predict(x_test)
 
+    # Plot the results
     plt.plot(x_samples, y_samples, 'r')
     plt.scatter(x_test, y_predictions)
     plt.savefig('plots/' + func_class.name + '_learned.png')
     plt.clf()
 
-def open_model(func_class):
-    ''' Sample function to demonstrate how models trained to fit a
-    specified function can be restored.
-    '''
-
-    path = 'models/' + func_class.name + '_model.h5'
-    if not(os.path.isfile(path)):
-        print('No model trained yet.')
-        return
-
-    model = keras.models.load_model(path)
-    it = 0
-    for layer in model.layers:
-        it += 1
-        weights = layer.get_weights()
-        print('Layer ' + str(it) + ' weights:')
-        print(weights)
 
 def train2d(func_class):
 
@@ -92,13 +70,14 @@ def train2d(func_class):
     model = keras.Sequential([
         keras.layers.Dense(20, activation=tf.nn.relu),
         keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense( 5, activation=tf.nn.relu),
-        keras.layers.Dense( 2)
+        keras.layers.Dense(5, activation=tf.nn.relu),
+        keras.layers.Dense(2)
     ])
 
-    # Use the MSE regression loss
+    # Use the MSE regression loss (learning rate!?)
     optimizer = tf.keras.optimizers.RMSprop(0.01)
 
+    # configure model
     model.compile(loss='mean_squared_error',
                   optimizer=optimizer,
                   metrics=['mean_absolute_error', 'mean_squared_error'])
@@ -108,11 +87,31 @@ def train2d(func_class):
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
-    # Plot the results.
+    # calculate predictions
     y_prediction = model.predict(x_test)
 
     # plot distances of y_test and y_prediction
     plot_dist_map(x_test, y_test, y_prediction, func_class.name)
+
+
+def open_model(func_class):
+    """Sample function to demonstrate how models trained to fit a
+       specified function can be restored.
+    """
+
+    path = 'models/' + func_class.name + '_model.h5'
+    if not(os.path.isfile(path)):
+        print('No model trained yet.')
+        return
+
+    model = keras.models.load_model(path)
+    it = 0
+    for layer in model.layers:
+        it += 1
+        weights = layer.get_weights()
+        print('Layer ' + str(it) + ' weights:')
+        print(weights)
+
 
 if __name__ == '__main__':
 
