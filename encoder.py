@@ -44,13 +44,13 @@ class Encoder:
         formula = {}
 
         # Create variables.
-        self.create_variables()
+        self._create_variables()
 
         # Encode affine layers (affine layers = application of weights and bias).
-        formula['Affine layers'] = self.encode_affine_layers()
+        formula['Affine layers'] = self._encode_affine_layers()
 
         # Encode activation functions (relu_0).
-        formula['Activation function'] = self.encode_activation_function()
+        formula['Activation function'] = self._encode_activation_function()
 
         # This specifies where to expect the output,input of the NN
         # in the model of an SMT-solver.
@@ -78,7 +78,7 @@ class Encoder:
         
         return {'Input': input_value}
 
-    def create_variables(self):
+    def _create_variables(self):
         # one array entry for each layer, one additional input layer.
         # Variables x for the output of each layer (after applying ReLU).
         # Auxiliary variables y for applying the weights in each layer (after applying weights and bias).
@@ -103,7 +103,7 @@ class Encoder:
                 self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1, j)))
 
     # Encode affine layers
-    def encode_affine_layers(self):
+    def _encode_affine_layers(self):
         affine_layers = []
 
         # iterate over each layer
@@ -120,7 +120,7 @@ class Encoder:
     
         return affine_layers
     
-    def encode_activation_function(self):
+    def _encode_activation_function(self):
         function_encoding = []
 
         # This currently only encodes relu_0 or linear
