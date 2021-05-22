@@ -1,7 +1,5 @@
-from operator import index
 from z3 import *
 from tensorflow import keras
-import tensorflow as tf
 
 
 class Encoder:
@@ -25,26 +23,30 @@ class Encoder:
                 print('Exiting ...')
                 sys.exit()
         except:
-                print('Error: only flat input shapes (input_shape = (None, x)) is supported currently.')
-                print('Exiting ...')
-                sys.exit()
+            print('Error: only flat input shapes (input_shape = (None, x)) is supported currently.')
+            print('Exiting ...')
+            sys.exit()
 
-        # reshape weights in layers
+        """get and reshape weights in all layers.
+           form for layer n with i nodes and layer n+1 with j nodes: 
+           array([[<weight_1->1>,...,<weight_1->j>],...,[<weight_i->1>,...,<weight_i->j>]], dtype = <type>),
+           array([<bias_1>, ..., <bias_2>], dtype = <type>)
+        """
         self.weights = []
         for layer in self.model.layers:
             self.weights.append(layer.get_weights())
-        # self.weights = [layer.get_weights() for layer in self.model.layers] -> should do the same, maybe use this instead.
+        # self.weights_new = [layer.get_weights() for layer in self.model.layers]
 
     def encode(self):
         """
-        Encodes keras model as SMT forumla for an input x.
+        Encodes keras model as SMT formula for an input x.
         """
         formula = {}
 
         # Create variables.
         self.create_variables()
 
-        # Encode affine layers.
+        # Encode affine layers (affine layers = application of weights and bias).
         formula['Affine layers'] = self.encode_affine_layers()
 
         # Encode activation functions (relu_0).
@@ -58,55 +60,63 @@ class Encoder:
 
         return formula, output_vars, input_vars
 
-    def encode_input(self,x):
+    def encode_input(self, x):
         """
         Encodes the value of the input.
         """
 
-        input = []
+        input_value = []
         
         # x should be a list of a length corresponding to the input shape.
-        if (len(x) != self.dimension_one):
-            print('The input hast a wrong shape. Required: {} vs actual: {}'.format(len(x),self.dimension_one))
+        if len(x) != self.dimension_one:
+            print('The input hast a wrong shape. Required: {} vs actual: {}'.format(len(x), self.dimension_one))
             print('Exiting ...')
             sys.exit()
 
         for j in range(self.dimension_one):
-            input.append(self.variables_x[0][j] == x[j])
+            input_value.append(self.variables_x[0][j] == x[j])
         
-        return {'Input' : input}
+        return {'Input': input_value}
 
     def create_variables(self):
+        # one array entry for each layer, one additional input layer.
+        # Variables x for the output of each layer (after applying ReLU).
+        # Auxiliary variables y for applying the weights in each layer (after applying weights and bias).
         self.variables_x = []
         self.variables_y = []
 
-        # Variables for the flat input. 
+        # create variables for the (flat) input layer.
         self.variables_x.append([])
         for j in range(self.dimension_one):
             self.variables_x[0].append(Real('x_0_{}'.format(j)))
         
-        # Variables x for the output of each layer.
-        # Auxiliary variables y for applying the weights in each layer.
+        # create variables for the actual layers
+        # iterate over the layers
         for i in range(len(self.weights)):
             self.variables_x.append([])
             self.variables_y.append([])
-
+            # iterate over nodes of one layer
             for j in range(len(self.weights[i][0][0])):
-                self.variables_y[i].append(Real('y_{}_{}'.format(i,j)))
-                self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1,j)))
+                # y-var for output after applying weights+bias
+                self.variables_y[i].append(Real('y_{}_{}'.format(i, j)))
+                # x-var for output of layer (after applying ReLU)
+                self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1, j)))
 
     # Encode affine layers
     def encode_affine_layers(self):
         affine_layers = []
 
+        # iterate over each layer
         for i in range(len(self.variables_y)):
+            # iterate over each node of layer i
             for j in range(len(self.variables_y[i])):
                 # Basically matrix multiplication
-                # y_i_j = weights * ouput of last layer + bias
+                # y_i_j = weights * output of last layer + bias
+                # the equation ("==") is appended as a constraint for a solver
                 affine_layers.append(self.variables_y[i][j] == 
-                    Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j])
-                    for j_x in range(len(self.variables_x[i]))])
-                    + self.weights[i][1][j])
+                                     Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j])
+                                         for j_x in range(len(self.variables_x[i]))])
+                                     + self.weights[i][1][j])
     
         return affine_layers
     
@@ -114,22 +124,26 @@ class Encoder:
         function_encoding = []
 
         # This currently only encodes relu_0 or linear
+        # iterate over layers
         for i in range(len(self.variables_y)):
+            # iterate over variables of the layers
             for j in range(len(self.variables_y[i])):
                 # Determine which function to encode.
-                activation = self.model.get_layer(index = i).activation.__name__ 
-                if (activation == 'relu'):
+                activation = self.model.get_layer(index=i).activation.__name__
+                # encode ReLU (ReLU(x) = { 0, 0 >= x
+                #                          x, else   }
+                if activation == 'relu':
                     function_encoding.append(Implies(0 >= self.variables_y[i][j], 
-                        self.variables_x[i+1][j] == 0))
+                                             self.variables_x[i+1][j] == 0))
                     function_encoding.append(Implies(0 < self.variables_y[i][j], 
-                        self.variables_x[i+1][j] == self.variables_y[i][j]))
+                                                     self.variables_x[i+1][j] == self.variables_y[i][j]))
                 # This case also applies, if no activation is specified.
-                elif (activation == 'linear'):
+                elif activation == 'linear':
                     function_encoding.append(self.variables_x[i+1][j] == self.variables_y[i][j])
                 
                 else:
                     print('Error: only relu and linear are supported as activation function. Not: '
-                        + str(activation))
+                          + str(activation))
                     print('Exiting ...')
                     sys.exit()
         
