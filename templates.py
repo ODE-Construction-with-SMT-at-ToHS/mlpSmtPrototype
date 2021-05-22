@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from z3 import *
 
+
+# abstract class for all templates
 class Template(ABC):
 
     @abstractmethod
@@ -8,7 +10,7 @@ class Template(ABC):
         pass
 
     @abstractmethod
-    def set_params(self,params):
+    def set_params(self, params):
         pass
 
     @abstractmethod
@@ -24,24 +26,25 @@ class Template(ABC):
         pass
 
     @abstractmethod
-    def func(self,x):
+    def func(self, x):
         pass
 
     @abstractmethod
     def smt_encoding(self):
         pass
 
+
 class LinearTemplate(Template):
 
     # f(x) = a*x + b
     def __init__(self):
-        self.params = {'a':0,'b':0}
+        self.params = {'a': 0, 'b': 0}
         self.input_vars = [Real('x')]
         self.output_vars = [Real('y')]
         self.param_vars = {'a': Real('a'), 'b': Real('b')}
     
     # overriding abstract method
-    def func(self,x):
+    def func(self, x):
         y = self.params['a']*x[0] + self.params['b']
         return y
 
@@ -50,8 +53,8 @@ class LinearTemplate(Template):
         encoding = self.output_vars[0] == self.params['a']*self.input_vars[0] + self.params['b']
         return encoding
 
-    def generic_smt_encoding(self, input, output_var):
-        encoding = output_var[0] == self.param_vars['a']*input[0] + self.param_vars['b']
+    def generic_smt_encoding(self, input_value, output_var):
+        encoding = output_var[0] == self.param_vars['a'] * input_value[0] + self.param_vars['b']
         return encoding
 
     # overriding abstract method
@@ -59,7 +62,7 @@ class LinearTemplate(Template):
         return self.params
 
     # overriding abstract method
-    def set_params(self,params):
+    def set_params(self, params):
         self.params = params
 
     # overriding abstract method
@@ -73,4 +76,3 @@ class LinearTemplate(Template):
     # overriding abstract method
     def param_variables(self):
         return self.param_vars
-

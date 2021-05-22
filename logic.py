@@ -16,7 +16,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
 
     # TODO add some sanity check to detect dimension errors early on.
 
-    # Bounds
+    # lower and upper Bound
     lb, ub = interval
 
     # Initial input
