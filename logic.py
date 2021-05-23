@@ -17,6 +17,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
     # TODO add some sanity check to detect dimension errors early on.
 
     # lower and upper Bound
+    # TODO all values within this bound should be estimated within the epsilon-tolerance?
     lb, ub = interval
 
     # Initial input
@@ -33,20 +34,29 @@ def optimize_template(model_path, template, interval, epsilon=1):
     solver_1 = Solver()
     solver_2 = Solver()
 
-    cntr = 0
+    counter = 0
+
+    # initialize the result with "satisfiable"
     res = sat
 
-    while (res == sat):
+    # while the encoding is satisfiable
+    while res == sat:
 
-        # Encode 1. condition.
-        nn_y = nn_model.predict([x])[0]
-        # We need fresh output variables for each new, x value.
-        t_output_vars = [Real('y1_{}_{}'.format(cntr,i)) for i in range(len(nn_output_vars))]
-        cntr = cntr +1
+        # Encode 1st condition, stored in formula_1:
+        # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
         formula_1 = []
+
+        # use NN to calculate output y for input x (x may be a tuple of values in succeeding iterations
+        nn_y = nn_model.predict([x])[0]
+        # create variables for each output value.
+        t_output_vars = [Real('y1_{}_{}'.format(counter, i)) for i in range(len(nn_output_vars))]
+
+        counter = counter + 1 # is it easier to understand this if its put at the end of the loop?
+
+        # add encoding for function f according to template
         formula_1.append(template.generic_smt_encoding(x,t_output_vars))
 
-        # norm 1 distance
+        # ensure output is within tolerance
         for i in range(len(nn_output_vars)):
             formula_1.append(nn_y[i] - t_output_vars[i] <= epsilon)
             formula_1.append(t_output_vars[i] - nn_y[i] <= epsilon)
@@ -73,7 +83,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
             break
             
         
-        # Encode 2. condition
+        # Encode 2nd condition:
 
         # Encode the template.
         template_formula = template.smt_encoding()

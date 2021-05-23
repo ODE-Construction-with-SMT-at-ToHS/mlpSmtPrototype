@@ -32,10 +32,7 @@ class Encoder:
            array([[<weight_1->1>,...,<weight_1->j>],...,[<weight_i->1>,...,<weight_i->j>]], dtype = <type>),
            array([<bias_1>, ..., <bias_2>], dtype = <type>)
         """
-        self.weights = []
-        for layer in self.model.layers:
-            self.weights.append(layer.get_weights())
-        # self.weights_new = [layer.get_weights() for layer in self.model.layers]
+        self.weights = [layer.get_weights() for layer in self.model.layers]
 
     def encode(self):
         """
@@ -54,9 +51,8 @@ class Encoder:
 
         # This specifies where to expect the output,input of the NN
         # in the model of an SMT-solver.
-        output_vars = self.variables_x.pop()
-        self.variables_x.append(output_vars)
         input_vars = self.variables_x[0]
+        output_vars = self.variables_x[-1]
 
         return formula, output_vars, input_vars
 
