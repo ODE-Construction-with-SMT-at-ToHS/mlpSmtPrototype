@@ -17,7 +17,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
     # TODO add some sanity check to detect dimension errors early on.
 
     # lower and upper Bound
-    # TODO all values within this bound should be estimated within the epsilon-tolerance?
+    # all values within this bound should be estimated within the epsilon-tolerance
     lb, ub = interval
 
     # Initial input
@@ -51,10 +51,10 @@ def optimize_template(model_path, template, interval, epsilon=1):
         # create variables for each output value.
         t_output_vars = [Real('y1_{}_{}'.format(counter, i)) for i in range(len(nn_output_vars))]
 
-        counter = counter + 1 # is it easier to understand this if its put at the end of the loop?
+        counter = counter + 1  # is it easier to understand this if its put at the end of the loop?
 
         # add encoding for function f according to template
-        formula_1.append(template.generic_smt_encoding(x,t_output_vars))
+        formula_1.append(template.generic_smt_encoding(x, t_output_vars))
 
         # ensure output is within tolerance
         for i in range(len(nn_output_vars)):
@@ -81,8 +81,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
         else:
             print('No parameters within bound found.')
             break
-            
-        
+
         # Encode 2nd condition:
 
         # Encode the template.
@@ -97,21 +96,22 @@ def optimize_template(model_path, template, interval, epsilon=1):
 
         # norm 1 distance
         formula_2.append(Or(
-                Or(
-                    [nn_output_vars[i] - template.output_variables()[i] > epsilon 
-                    for i in range(len(nn_output_vars))]),
-                Or(
-                    [template.output_variables()[i] - nn_output_vars[i] > epsilon 
-                    for i in range(len(nn_output_vars))])
-                ))
+                            Or(
+                               [nn_output_vars[i] - template.output_variables()[i] > epsilon
+                                for i in range(len(nn_output_vars))]),
+                            Or(
+                               [template.output_variables()[i] - nn_output_vars[i] > epsilon
+                                for i in range(len(nn_output_vars))])
+                           )
+                         )
         
         print(formula_2)
         # Assert subformulas.
         solver_2.reset()
         for sub in formula_2:
             solver_2.add(sub)
-        for _,v in nn_model_formula.items():
-            solver_2.add(v)
+        for _, nn_encoding_constraint in nn_model_formula.items():
+            solver_2.add(nn_encoding_constraint)
         
         # Check for satisfiability.
         res = solver_2.check()
@@ -120,12 +120,12 @@ def optimize_template(model_path, template, interval, epsilon=1):
             # Extract new input for parameter correction.
             # This causes precision loss, but is necessary to be suitable as 
             # input for the NN in the next iteration.
-            x_list = [float(fo_model[var].as_fraction().numerator)/float(fo_model[var].as_fraction().denominator) for var in nn_input_vars]
+            x_list = [float(fo_model[var].as_fraction().numerator)/float(fo_model[var].as_fraction().denominator)
+                      for var in nn_input_vars]
             x = tuple(x_list)
             print('New input: ' + str(x))
         else:
             print('Parameters within bound found.')
-
 
 
 def test_encoding(model_path, input):
@@ -138,8 +138,8 @@ def test_encoding(model_path, input):
     """
 
     # Encode the NN-model.
-    myEncoder = Encoder(model_path)
-    model_formula, result_vars, _ = myEncoder.encode()
+    my_encoder = Encoder(model_path)
+    model_formula, result_vars, _ = my_encoder.encode()
 
     # Create a solver instance.
     solver = Solver()
@@ -149,7 +149,7 @@ def test_encoding(model_path, input):
         solver.add(v)
 
     # Encode the input.
-    input_formula = myEncoder.encode_input(input)
+    input_formula = my_encoder.encode_input(input)
     for k, v in input_formula.items():
         solver.add(v)
 
@@ -165,7 +165,6 @@ def test_encoding(model_path, input):
     for var in result_vars:
         res_dec.append(fo_model[var].as_decimal(6))
 
-    
     # Print the result for comparison.
     print('The calculated result is: ' + str(res_dec))
-    print('However it should be:' + str(myEncoder.model.predict([input])))
+    print('However it should be:' + str(my_encoder.model.predict([input])))
