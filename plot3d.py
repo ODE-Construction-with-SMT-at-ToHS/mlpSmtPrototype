@@ -1,9 +1,24 @@
+"""
+This module can be used to plot the (2 norm) distance between two 2D points for a given grid. Its aim is to visualize
+the prediction error of an MLP with 2D input and 2D output.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pylab
 
 
 def plot_dist_map(x_test, y_test, y_prediction, name):
+    """
+    Plot the distance (2 norm) between `y_test[i]` and `y_prediction[i]` for all points `x_test[i]` on the grid `x_test`
+
+    Parameters
+    ----------
+    x_test : (n,2) array
+             list of all points in the grid
+    y_test : (n,2) array
+    TODO: add other parameters
+    """
 
     # reshape sample-points
     plot_dim_1 = [i[0] for i in x_test]
