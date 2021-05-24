@@ -1,3 +1,7 @@
+"""
+This module can be used to create an MLP, train it on linear functions, save it, and plot the results. So far, 1D to 1D
+and 2D to 2D functions are supported
+"""
 import os
 import tensorflow as tf
 from tensorflow import keras
@@ -8,9 +12,13 @@ from plot3d import *
 
 
 def train1d(func_class):
-    """Simple function to train a simple MLP.
-       Should receive an object with a static
-       function and a name attribute.
+    """
+    Create an MLP, train it on the 1D to 1D function `func_class`, save it, and plot the results
+
+    Parameters
+    ----------
+    func_class :
+                 must contain a static, 1D to 1D function `f` and a `name` attribute
     """
 
     # Sample some training data.
@@ -55,6 +63,14 @@ def train1d(func_class):
 
 
 def train2d(func_class):
+    """
+    Create an MLP, train it on the 2D to 2D function `func_class`, save it, and plot the results
+
+    Parameters
+    ----------
+    func_class :
+                 must contain a static, 2D to 2D function `f` and a `name` attribute
+    """
 
     # Sample 2D training data.
     a, b = np.mgrid[-10:10:100j, -10:10:100j]
@@ -95,16 +111,25 @@ def train2d(func_class):
 
 
 def open_model(func_class):
-    """Sample function to demonstrate how models trained to fit a
-       specified function can be restored.
+    """
+    Print the saved model/parameters of an MLP trained on `func_class` if the model was trained on `func_class` already
+
+    Parameters
+    ----------
+    func_class :
+                 function for which the model should be printed
     """
 
+    # get path to model
     path = 'models/' + func_class.name + '_model.h5'
     if not(os.path.isfile(path)):
         print('No model trained yet.')
         return
 
+    # load the model
     model = keras.models.load_model(path)
+
+    # iterate over layers to print them
     it = 0
     for layer in model.layers:
         it += 1
