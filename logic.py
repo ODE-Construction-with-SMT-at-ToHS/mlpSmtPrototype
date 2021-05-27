@@ -2,7 +2,7 @@ from encoder import *
 from z3 import *
 
 
-def optimize_template(model_path, template, interval, epsilon=1):
+def optimize_template(model_path, template, interval, epsilon: float=0.5):
     """Function for optimizing parameters of a function-template
     to optimally fit an MLP.
     
@@ -46,10 +46,10 @@ def optimize_template(model_path, template, interval, epsilon=1):
         # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
         formula_1 = []
 
-        # use NN to calculate output y for input x (x may be a tuple of values in succeeding iterations
+        # use NN to calculate output y for input x
         nn_y = nn_model.predict([x])[0]
         # create variables for each output value.
-        t_output_vars = [Real('y1_{}_{}'.format(counter, i)) for i in range(len(nn_output_vars))]
+        t_output_vars = [FP(('y1_{}_{}'.format(counter, i)), Float32()) for i in range(len(nn_output_vars))]
 
         counter = counter + 1  # is it easier to understand this if its put at the end of the loop?
 
@@ -58,8 +58,8 @@ def optimize_template(model_path, template, interval, epsilon=1):
 
         # ensure output is within tolerance
         for i in range(len(nn_output_vars)):
-            formula_1.append(nn_y[i] - t_output_vars[i] <= epsilon)
-            formula_1.append(t_output_vars[i] - nn_y[i] <= epsilon)
+            formula_1.append(float(nn_y[i]) - t_output_vars[i] <= epsilon)
+            formula_1.append(t_output_vars[i] - float(nn_y[i]) <= epsilon)
         
         print(formula_1)
 
@@ -75,7 +75,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
             # Update parameters.
             new_params = {}
             for key in template.get_params():
-                new_params[key] = fo_model[template.param_variables()[key]]
+                new_params[key] = get_float(fo_model, template.param_variables()[key])
             print(new_params)
             template.set_params(new_params)
         else:
@@ -118,10 +118,7 @@ def optimize_template(model_path, template, interval, epsilon=1):
         if res == sat:
             fo_model = solver_2.model()
             # Extract new input for parameter correction.
-            # This causes precision loss, but is necessary to be suitable as 
-            # input for the NN in the next iteration.
-            x_list = [float(fo_model[var].as_fraction().numerator)/float(fo_model[var].as_fraction().denominator)
-                      for var in nn_input_vars]
+            x_list = [get_float(fo_model, var) for var in nn_input_vars]
             x = tuple(x_list)
             print('New input: ' + str(x))
         else:
@@ -163,7 +160,9 @@ def test_encoding(model_path, input):
     # Convert to readable decimal representation.
     res_dec = []
     for var in result_vars:
-        res_dec.append(fo_model[var].as_decimal(6))
+        # This is a suspiciously hacky solution.
+        #TODO make this cleaner?! 
+        res_dec.append(get_float(fo_model, var))
 
     # Print the result for comparison.
     print('The calculated result is: ' + str(res_dec))

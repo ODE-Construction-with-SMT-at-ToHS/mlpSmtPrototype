@@ -12,7 +12,8 @@ if __name__ == '__main__':
     model_path = args.model
 
     # Test encoding
-    logic.test_encoding(model_path,(42,))
+    #logic.test_encoding(model_path,(42,))
 
+    # Test template optimization
     myLinTemplate = LinearTemplate()
     logic.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))
