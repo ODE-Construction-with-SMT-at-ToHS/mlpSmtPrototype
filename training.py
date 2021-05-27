@@ -32,9 +32,7 @@ def train1d(func_class):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(10, activation=tf.nn.relu, input_shape=(1,)),
-        keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.relu),
+        keras.layers.Dense(5, activation=tf.nn.relu, input_shape=(1,)),
         keras.layers.Dense(5, activation=tf.nn.relu),
         keras.layers.Dense(1)
     ])

@@ -39,9 +39,9 @@ class LinearTemplate(Template):
     # f(x) = a*x + b
     def __init__(self):
         self.params = {'a': 0, 'b': 0}
-        self.input_vars = [Real('x')]
-        self.output_vars = [Real('y')]
-        self.param_vars = {'a': Real('a'), 'b': Real('b')}
+        self.input_vars = [FP('x', Float32())]
+        self.output_vars = [FP('y', Float32())]
+        self.param_vars = {'a': FP('a', Float32()), 'b': FP('b', Float32())}
     
     # overriding abstract method
     def func(self, x):

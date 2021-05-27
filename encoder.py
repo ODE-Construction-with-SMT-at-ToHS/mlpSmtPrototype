@@ -1,6 +1,8 @@
 from z3 import *
 from tensorflow import keras
 
+import functools
+
 
 class Encoder:
     """
@@ -84,7 +86,7 @@ class Encoder:
         # create variables for the (flat) input layer.
         self.variables_x.append([])
         for j in range(self.dimension_one):
-            self.variables_x[0].append(Real('x_0_{}'.format(j)))
+            self.variables_x[0].append(FP('x_0_{}'.format(j), Float32()))
         
         # create variables for the actual layers
         # iterate over the layers
@@ -94,9 +96,9 @@ class Encoder:
             # iterate over nodes of one layer
             for j in range(len(self.weights[i][0][0])):
                 # y-var for output after applying weights+bias
-                self.variables_y[i].append(Real('y_{}_{}'.format(i, j)))
+                self.variables_y[i].append(FP('y_{}_{}'.format(i, j), Float32()))
                 # x-var for output of layer (after applying ReLU)
-                self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1, j)))
+                self.variables_x[i+1].append(FP('x_{}_{}'.format(i+1, j), Float32()))
 
     # Encode affine layers
     def _encode_affine_layers(self):
@@ -109,10 +111,12 @@ class Encoder:
                 # Basically matrix multiplication
                 # y_i_j = weights * output of last layer + bias
                 # the equation ("==") is appended as a constraint for a solver
-                affine_layers.append(self.variables_y[i][j] == 
-                                     Sum([(self.variables_x[i][j_x]*self.weights[i][0][j_x][j])
-                                         for j_x in range(len(self.variables_x[i]))])
-                                     + self.weights[i][1][j])
+                affine_layers.append(
+                    self.variables_y[i][j] == 
+                    gen_sum([(self.variables_x[i][j_x]* 
+                        float(self.weights[i][0][j_x][j]))
+                        for j_x in range(len(self.variables_x[i]))])
+                    + float(self.weights[i][1][j]))
     
         return affine_layers
     
@@ -144,3 +148,15 @@ class Encoder:
                     sys.exit()
         
         return function_encoding
+
+
+# Creates a sum of all elements in the list.
+def gen_sum(lst):
+    return functools.reduce(lambda a, b: a+b, lst, 0)
+
+
+# Converts FP to float
+def get_float(fo_model, var):
+    # This is a suspiciously hacky solution.
+    #TODO make this cleaner?! 
+    return float(eval(str(fo_model.eval(var,model_completion=True))))
