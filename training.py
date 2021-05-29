@@ -62,7 +62,7 @@ def train1d(func_class):
 
 def train2d(func_class):
     """
-    Create an MLP, train it on the 2D to 2D function `func_class`, save it, and plot the results
+    Create an MLP, train it on the :math:`\mathbb{R}^2`  to 2D function `func_class`, save it, and plot the results
 
     Parameters
     ----------

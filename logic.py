@@ -6,7 +6,7 @@ def optimize_template(model_path, template, interval, epsilon: float=0.5):
     """Function for optimizing parameters of a function-template
     to optimally fit an MLP.
     
-    Attributes:
+    Parameters:
         model_path: path to export of keras model file.
         template: Template() instance # TODO has to be made compatible with args-parser
         range: tuple of tuples representing an interval,
@@ -129,7 +129,7 @@ def test_encoding(model_path, input):
     """Function that tests whether solving the encoding for a 
     MLP-model produces a correct model of the encoding.
     
-    Attributes:
+    Parameters:
         model_path: path to export of keras model file.
         input: tuple representing the input.
     """
