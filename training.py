@@ -1,6 +1,7 @@
 """
-This module can be used to create an MLP, train it on linear functions, save it, and plot the results. So far, 1D to 1D
-and 2D to 2D functions are supported
+This module can be used to create an MLP, train it  a function `f`, save it, and plot the error. So far,
+`f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` or `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` is
+supported
 """
 import os
 import tensorflow as tf
@@ -12,13 +13,13 @@ from plot3d import *
 
 
 def train1d(func_class):
-    """
-    Create an MLP, train it on the 1D to 1D function `func_class`, save it, and plot the results
+    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` contained in `func_class`,
+    save it, and plot the error
 
-    Parameters
-    ----------
-    func_class :
-                 must contain a static, 1D to 1D function `f` and a `name` attribute
+    Args:
+        func_class:
+            a class which must contain a static function `f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` and a `name`
+            attribute
     """
 
     # Sample some training data.
@@ -61,13 +62,13 @@ def train1d(func_class):
 
 
 def train2d(func_class):
-    """
-    Create an MLP, train it on the :math:`\mathbb{R}^2`  to 2D function `func_class`, save it, and plot the results
+    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` contained in `func_class`,
+    save it, and plot the error
 
-    Parameters
-    ----------
-    func_class :
-                 must contain a static, 2D to 2D function `f` and a `name` attribute
+    Args:
+        func_class:
+            a class which must contain a static function `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` and a
+            `name` attribute
     """
 
     # Sample 2D training data.
@@ -112,10 +113,8 @@ def open_model(func_class):
     """
     Print the saved model/parameters of an MLP trained on `func_class` if the model was trained on `func_class` already
 
-    Parameters
-    ----------
-    func_class :
-                 function for which the model should be printed
+    Args:
+        func_class: function for which the model should be printed
     """
 
     # get path to model
