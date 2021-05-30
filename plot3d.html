@@ -13,6 +13,7 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="templates module" href="templates.html" />
@@ -35,18 +36,25 @@
             
   <section id="module-plot3d">
 <span id="plot3d-module"></span><h1>plot3d module<a class="headerlink" href="#module-plot3d" title="Permalink to this headline">¶</a></h1>
-<p>This module can be used to plot the (2 norm) distance between two 2D points for a given grid. Its aim is to visualize
-the prediction error of an MLP with 2D input and 2D output.</p>
+<p>Plot the distance between pairs of 2D points on a 2D grid in 3D.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="plot3d.plot_dist_map">
 <span class="sig-prename descclassname"><span class="pre">plot3d.</span></span><span class="sig-name descname"><span class="pre">plot_dist_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#plot3d.plot_dist_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the distance (2 norm) between <cite>y_test[i]</cite> and <cite>y_prediction[i]</cite> for all points <cite>x_test[i]</cite> on the grid <cite>x_test</cite></p>
+<dd><p>Plot the distance between pairs of 2D points on a 2D grid in 3D.</p>
+<p>This module can be used to plot the (2 norm) distance between two points <span class="math notranslate nohighlight">\(y, y' \in \mathbb{R}^2\)</span> for a given
+grid (<span class="math notranslate nohighlight">\(\subset \mathbb{R}^2\)</span>) of pairs. Its aim is to visualize the prediction error of an MLP trained on a
+function <span class="math notranslate nohighlight">\(f \in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> with input <span class="math notranslate nohighlight">\(x \in \mathbb{R}^2\)</span> and output
+<span class="math notranslate nohighlight">\(y' \in \mathbb{R}^2\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x_test</strong> (<em>(</em><em>n</em><em>,</em><em>2</em><em>) </em><em>array</em>) – list of all points in the grid</p></li>
-<li><p><strong>y_test</strong> (<em>(</em><em>n</em><em>,</em><em>2</em><em>) </em><em>array</em>) – </p></li>
-<li><p><strong>TODO</strong> (<em>add other parameters</em>) – </p></li>
+<li><p><strong>x_test</strong> – (n,2)-array; list of all points <code class="docutils literal notranslate"><span class="pre">x_test[i]</span></code> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2\)</span> in the grid. (inputs for the MLP)</p></li>
+<li><p><strong>y_test</strong> – (n,2)-array; list of all points <code class="docutils literal notranslate"><span class="pre">y_test[i]</span> <span class="pre">=</span> <span class="pre">f(x_test[i])</span></code> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2\)</span>, where <code class="docutils literal notranslate"><span class="pre">f</span></code> is the
+function on which the MLP was trained</p></li>
+<li><p><strong>y_prediction</strong> – (n,2)-array; list of all points <code class="docutils literal notranslate"><span class="pre">y_prediction[i]</span></code> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2\)</span>, where <code class="docutils literal notranslate"><span class="pre">y_prediction[i]</span> <span class="pre">is</span> <span class="pre">the</span>
+<span class="pre">prediction</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">MLP</span> <span class="pre">trained</span> <span class="pre">on</span> <span class="pre">``f</span></code> for input <code class="docutils literal notranslate"><span class="pre">x_test[i]</span></code></p></li>
+<li><p><strong>name</strong> – name of the function <code class="docutils literal notranslate"><span class="pre">f</span></code> on which the MLP was trained, used to name the file in which the visualization is
+saved.</p></li>
 </ul>
 </dd>
 </dl>
