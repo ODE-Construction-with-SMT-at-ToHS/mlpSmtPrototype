@@ -13,8 +13,8 @@ from plot3d import *
 
 
 def train1d(func_class):
-    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` contained in `func_class`,
-    save it, and plot the error
+    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` contained in
+    `func_class`, save it, and plot the error
 
     Args:
         func_class:
@@ -62,8 +62,8 @@ def train1d(func_class):
 
 
 def train2d(func_class):
-    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` contained in `func_class`,
-    save it, and plot the error
+    """Create an MLP, train it on a function `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` contained in
+    `func_class`, save it, and plot the error
 
     Args:
         func_class:
