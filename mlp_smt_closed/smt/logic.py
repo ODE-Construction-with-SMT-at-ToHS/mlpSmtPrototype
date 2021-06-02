@@ -1,4 +1,4 @@
-from encoder import *
+from smt.encoder import *
 from z3 import *
 
 

@@ -1,7 +1,7 @@
 from logging import log
 import arguments
-import logic
-from templates import *
+import smt.logic
+from smt.templates import *
 
 if __name__ == '__main__':
     
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 
     # Test template optimization
     myLinTemplate = LinearTemplate()
-    logic.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))
+    smt.logic.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))

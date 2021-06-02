@@ -1,4 +1,4 @@
 /.idea
-/models
-/plots
 __pycache__/
+mlp_smt_closed/mlp/models
+mlp_smt_closed/mlp/plots/
