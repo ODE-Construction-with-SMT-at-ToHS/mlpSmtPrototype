@@ -189,9 +189,8 @@ def gen_sum(list):
     return functools.reduce(lambda a, b: a+b, list, 0)
 
 
-# TODO: what is an FP?
 def get_float(fo_model, var):
-    """Converts FP to float."""
+    """Converts z3 value to python float."""
     # This is a suspiciously hacky solution.
     # TODO make this cleaner?!
     return float(eval(str(fo_model.eval(var, model_completion=True))))

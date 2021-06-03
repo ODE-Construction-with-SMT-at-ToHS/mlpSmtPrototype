@@ -1,17 +1,19 @@
+from itertools import count
+from math import dist
 from smt.encoder import *
 from z3 import *
 
 
-def optimize_template(model_path, template, interval, epsilon: float=0.5):
-    """Function for optimizing parameters of a function-template
-    to optimally fit an MLP.
+def adjust_template(model_path, template, interval, epsilon: float=0.5):
+    """Function for finding parameters of a function-template
+    to fit an MLP with a specified maximal deviation.
     
     Parameters:
         model_path: path to export of keras model file.
         template: Template() instance # TODO has to be made compatible with args-parser
         range: tuple of tuples representing an interval,
                 limiting the function domain.
-        epsilon = 5: Tolerance of template.
+        epsilon = 0.5: Tolerance of template.
     """
 
     # TODO add some sanity check to detect dimension errors early on.
@@ -60,8 +62,6 @@ def optimize_template(model_path, template, interval, epsilon: float=0.5):
         for i in range(len(nn_output_vars)):
             formula_1.append(float(nn_y[i]) - t_output_vars[i] <= epsilon)
             formula_1.append(t_output_vars[i] - float(nn_y[i]) <= epsilon)
-        
-        print(formula_1)
 
         # Assert subformulas.
         for sub in formula_1:
@@ -71,12 +71,11 @@ def optimize_template(model_path, template, interval, epsilon: float=0.5):
         res = solver_1.check()
         if res == sat:
             fo_model = solver_1.model()
-            print(fo_model)
             # Update parameters.
             new_params = {}
             for key in template.get_params():
                 new_params[key] = get_float(fo_model, template.param_variables()[key])
-            print(new_params)
+            print('New parameters: ' + str(new_params))
             template.set_params(new_params)
         else:
             print('No parameters within bound found.')
@@ -124,6 +123,157 @@ def optimize_template(model_path, template, interval, epsilon: float=0.5):
         else:
             print('Parameters within bound found.')
 
+def optimize_template(model_path, template, interval):
+    """Function for optimizing parameters of a function-template
+    to fit an MLP optimally.
+    
+    Parameters:
+        model_path: path to export of keras model file.
+        template: Template() instance # TODO has to be made compatible with args-parser
+        range: tuple of tuples representing an interval,
+                limiting the function domain.
+    """
+
+    # TODO add some sanity check to detect dimension errors early on.
+
+    # lower and upper Bound
+    # all values within this bound should be estimated within the epsilon-tolerance
+    lb, ub = interval
+
+    # Initial input
+    x = lb
+
+    # Encode the NN-model.
+    my_encoder = Encoder(model_path)
+    nn_model_formula, nn_output_vars, nn_input_vars = my_encoder.encode()
+
+    # Restore the actual NN.
+    nn_model = keras.models.load_model(model_path)
+
+    # Create a solver instances.
+    solver_1 = Optimize()
+    solver_2 = Solver()
+
+    counter = 0
+    prev_distance = None
+
+    # initialize the result with "satisfiable"
+    res = sat
+
+    # while the encoding is satisfiable
+    while res == sat:
+
+        # Encode 1st condition, stored in formula_1:
+        # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
+        formula_1 = []
+
+        # use NN to calculate output y for input x
+        nn_y = nn_model.predict([x])[0]
+        # create variables for each output value.
+        t_output_vars = [Real('y1_{}_{}'.format(counter, i)) for i in range(len(nn_output_vars))]
+
+        # add encoding for function f according to template
+        formula_1.append(template.generic_real_smt_encoding(x, t_output_vars))
+
+        # Define the deviation incrementally
+
+        # Firstly, encode the distance in each dimension
+        absolutes = [Real('abs_{}_{}'.format(counter, i)) for i in range(len(nn_output_vars))]
+        for i in range(len(nn_output_vars)):
+            formula_1.append(absolutes[i] ==
+                If(float(nn_y[i]) - t_output_vars[i] >= 0,
+                    float(nn_y[i]) - t_output_vars[i],
+                    t_output_vars[i] - float(nn_y[i])
+                )
+            )
+        
+        # Secondly, sum up those distances
+        sum_abs = gen_sum(absolutes)
+        distance = Real('distance_{}'.format(counter))
+        if prev_distance is None:
+            dist_enc = distance == sum_abs
+        else:
+            # TODO check whether runtime improves if prev_distance is
+            # not stored, but instead push(), pop() are used with a
+            # new sum over all inputs in each iteration.
+            dist_enc = distance == sum_abs + prev_distance
+            prev_distance = sum_abs
+            
+            solver_1.pop()
+
+        # Assert subformulas.
+        for sub in formula_1:
+            solver_1.add(sub)
+        solver_1.push()
+        solver_1.add(dist_enc)
+
+        print(formula_1)
+        
+        # Optimize parameters
+        solver_1.minimize(distance)
+        res = solver_1.check()
+        if res == sat:
+            fo_model = solver_1.model()
+            #print(fo_model)
+
+            # Update parameters.
+            new_params = {}
+            for key in template.get_params():
+                new_params[key] = get_float(fo_model, template.real_param_variables()[key])
+            print('New parameters: ' + str(new_params))
+            template.set_params(new_params)
+
+            # Optimal tolerance for the considered set of input values:
+            epsilon = get_float(fo_model, distance)
+            print('With a deviation of: ' + str(epsilon))
+        else:
+            print('Error! No satisfying parameters found.')
+            print(res)
+            break
+
+        counter += 1
+
+        # Encode 2nd condition:
+
+        # Encode the template.
+        template_formula = template.smt_encoding()
+        formula_2 = [template_formula]
+
+        # Input conditions.
+        for i in range(len(nn_input_vars)):
+            formula_2.append(nn_input_vars[i] == template.input_variables()[i])
+            formula_2.append(nn_input_vars[i] >= lb[i])
+            formula_2.append(nn_input_vars[i] <= ub[i])
+
+        # norm 1 distance
+        formula_2.append(Or(
+                            Or(
+                               [nn_output_vars[i] - template.output_variables()[i] > epsilon
+                                for i in range(len(nn_output_vars))]),
+                            Or(
+                               [template.output_variables()[i] - nn_output_vars[i] > epsilon
+                                for i in range(len(nn_output_vars))])
+                           )
+                         )
+        
+        # Assert subformulas.
+        solver_2.reset()
+        for sub in formula_2:
+            solver_2.add(sub)
+        for _, nn_encoding_constraint in nn_model_formula.items():
+            solver_2.add(nn_encoding_constraint)
+        
+        # Check for satisfiability.
+        res = solver_2.check()
+        if res == sat:
+            fo_model = solver_2.model()
+            # Extract new input for parameter correction.
+            x_list = [get_float(fo_model, var) for var in nn_input_vars]
+            x = tuple(x_list)
+            print('New input: ' + str(x))
+        else:
+            print('Optimal parameters found.')
+            print('For a minimal deviation of: ' + str(epsilon))
 
 def test_encoding(model_path, input):
     """Function that tests whether solving the encoding for a 

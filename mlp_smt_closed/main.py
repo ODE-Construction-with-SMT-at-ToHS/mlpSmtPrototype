@@ -14,6 +14,10 @@ if __name__ == '__main__':
     # Test encoding
     #logic.test_encoding(model_path,(42,))
 
-    # Test template optimization
     myLinTemplate = LinearTemplate()
+
+    # Test template adjustment
+    #smt.logic.adjust_template(model_path, myLinTemplate, ((-8,), (8,)))
+
+    # Test template optimization
     smt.logic.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))

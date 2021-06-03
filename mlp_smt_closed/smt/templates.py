@@ -42,6 +42,8 @@ class LinearTemplate(Template):
         self.input_vars = [FP('x', Float32())]
         self.output_vars = [FP('y', Float32())]
         self.param_vars = {'a': FP('a', Float32()), 'b': FP('b', Float32())}
+
+        self.real_param_vars = {'a': Real('a'), 'b': Real('b')}
     
     # overriding abstract method
     def func(self, x):
@@ -55,6 +57,10 @@ class LinearTemplate(Template):
 
     def generic_smt_encoding(self, input_value, output_var):
         encoding = output_var[0] == self.param_vars['a'] * input_value[0] + self.param_vars['b']
+        return encoding
+
+    def generic_real_smt_encoding(self, input_value, output_var):
+        encoding = output_var[0] == self.real_param_vars['a'] * input_value[0] + self.real_param_vars['b']
         return encoding
 
     # overriding abstract method
@@ -76,3 +82,6 @@ class LinearTemplate(Template):
     # overriding abstract method
     def param_variables(self):
         return self.param_vars
+    
+    def real_param_variables(self):
+        return self.real_param_vars
