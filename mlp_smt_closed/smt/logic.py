@@ -156,6 +156,7 @@ def optimize_template(model_path, template, interval):
 
     counter = 0
     prev_distance = None
+    epsilon = None
 
     # initialize the result with "satisfiable"
     res = sat
@@ -199,6 +200,7 @@ def optimize_template(model_path, template, interval):
             dist_enc = distance == sum_abs + prev_distance
             prev_distance = sum_abs
             
+            # pop prev_distance
             solver_1.pop()
 
         # Assert subformulas.
@@ -224,7 +226,13 @@ def optimize_template(model_path, template, interval):
             template.set_params(new_params)
 
             # Optimal tolerance for the considered set of input values:
-            epsilon = get_float(fo_model, distance)
+            new_epsilon = get_float(fo_model, distance)
+            if not (epsilon is None) and new_epsilon < epsilon:
+                # Casting issue from Real to pyhton value
+                print('Optimal parameters found.')
+                print('For a minimal deviation of: ' + str(epsilon))
+                break
+            epsilon = new_epsilon
             print('With a deviation of: ' + str(epsilon))
         else:
             print('Error! No satisfying parameters found.')
