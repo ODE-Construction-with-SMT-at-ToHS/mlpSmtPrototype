@@ -136,6 +136,9 @@ def optimize_template(model_path, template, interval):
 
     # TODO add some sanity check to detect dimension errors early on.
 
+    # Define number of iterations in the input refining heuristic
+    refine = 2
+
     # lower and upper Bound
     # all values within this bound should be estimated within the epsilon-tolerance
     lb, ub = interval
@@ -221,6 +224,7 @@ def optimize_template(model_path, template, interval):
             # Update parameters.
             new_params = {}
             for key in template.get_params():
+                print('Real: ' + str(fo_model.eval(template.real_param_variables()[key])))
                 new_params[key] = get_float(fo_model, template.real_param_variables()[key])
             print('New parameters: ' + str(new_params))
             template.set_params(new_params)
@@ -254,7 +258,7 @@ def optimize_template(model_path, template, interval):
             formula_2.append(nn_input_vars[i] <= ub[i])
 
         # norm 1 distance
-        formula_2.append(Or(
+        deviation = Or(
                             Or(
                                [nn_output_vars[i] - template.output_variables()[i] > epsilon
                                 for i in range(len(nn_output_vars))]),
@@ -262,7 +266,6 @@ def optimize_template(model_path, template, interval):
                                [template.output_variables()[i] - nn_output_vars[i] > epsilon
                                 for i in range(len(nn_output_vars))])
                            )
-                         )
         
         # Assert subformulas.
         solver_2.reset()
@@ -270,10 +273,36 @@ def optimize_template(model_path, template, interval):
             solver_2.add(sub)
         for _, nn_encoding_constraint in nn_model_formula.items():
             solver_2.add(nn_encoding_constraint)
+
+        # Create backtracking point for searching with greater epsilon
+        solver_2.push()
+        solver_2.add(deviation)
+        
         
         # Check for satisfiability.
         res = solver_2.check()
         if res == sat:
+
+            # Heuristically search for a greater deviation
+            exp_eps = epsilon
+            for _ in range(refine):
+                # Double epsilon
+                exp_eps = exp_eps*2
+                #solver_2.pop()
+                deviation = (Or(
+                    Or(
+                        [nn_output_vars[i] - template.output_variables()[i] > exp_eps
+                        for i in range(len(nn_output_vars))]),
+                    Or(
+                        [template.output_variables()[i] - nn_output_vars[i] > exp_eps
+                        for i in range(len(nn_output_vars))])
+                        )
+                    )
+                solver_2.add(deviation)
+                # Break the for loop, if no such input can be found
+                if not solver_2.check():
+                    break
+
             fo_model = solver_2.model()
             # Extract new input for parameter correction.
             x_list = [get_float(fo_model, var) for var in nn_input_vars]
