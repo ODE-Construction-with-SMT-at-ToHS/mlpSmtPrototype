@@ -1,7 +1,7 @@
-functions module
+templates module
 ================
 
-.. automodule:: functions
+.. automodule:: smt.templates
    :members:
    :undoc-members:
    :show-inheritance:
