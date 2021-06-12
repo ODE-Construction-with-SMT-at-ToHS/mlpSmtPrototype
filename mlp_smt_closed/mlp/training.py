@@ -29,7 +29,9 @@ def train1d(func_class):
     x_samples = np.linspace(-10, 10, 1000+1).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
-    print(y_samples.shape)
+    # Add noise to y-values
+    y_scatter = np.random.normal(0.0, 0.2, y_samples.shape)
+    y_samples = y_samples + y_scatter
 
     # process samples, get test training data
     x, y = shuffle(x_samples, y_samples, random_state=0)
@@ -62,6 +64,7 @@ def train1d(func_class):
     plt.plot(x_samples, y_samples, 'r')
     plt.scatter(x_test, y_predictions)
     plt.savefig('plots/' + func_class.name + '_learned.png')
+    plt.show()
     plt.clf()
 
 
@@ -80,6 +83,9 @@ def train2d(func_class):
     x_samples = np.vstack((a.flatten(), b.flatten())).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
+    # Add noise to y-values
+    y_scatter = np.random.normal(0, 0.05, y_samples.shape)
+    y_samples = y_samples + y_scatter
 
     # process samples, get test training data
     x, y = shuffle(x_samples, y_samples, random_state=0)
@@ -141,8 +147,8 @@ def open_model(func_class):
 
 if __name__ == '__main__':
 
-    # train2d(LinearA2D)
-    train1d(LinearA)
+    train2d(LinearA2D)
+    # train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
 
