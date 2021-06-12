@@ -1,7 +1,7 @@
 plot3d module
 =============
 
-.. automodule:: plot3d
+.. automodule:: mlp.plot3d
    :members:
    :undoc-members:
    :show-inheritance:

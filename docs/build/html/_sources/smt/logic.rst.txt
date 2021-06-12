@@ -1,7 +1,7 @@
 logic module
 ============
 
-.. automodule:: logic
+.. automodule:: smt.logic
    :members:
    :undoc-members:
    :show-inheritance:

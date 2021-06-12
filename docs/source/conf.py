@@ -14,13 +14,13 @@ import os
 import sys
 
 
-path_to_root = os.path.join('..', '..')
+path_to_root = os.path.join('..', '..', 'mlp_smt_closed')
 sys.path.insert(0, os.path.abspath(path_to_root))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'mlpSmtPrototype'
+project = 'mlp_smt_closed'
 copyright = '2021, László Dirks, Nicolai Radke'
 author = 'László Dirks, Nicolai Radke'
 

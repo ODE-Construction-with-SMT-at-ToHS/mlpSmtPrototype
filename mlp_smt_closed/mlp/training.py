@@ -4,10 +4,13 @@ This module can be used to create an MLP, train it  a function `f`, save it, and
 supported
 """
 import os
+import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+
 from functions import *
 from plot3d import *
 
@@ -98,7 +101,7 @@ def train2d(func_class):
                   metrics=['mean_absolute_error', 'mean_squared_error'])
 
     # Train, validate & save the model.
-    model.fit(x_train, y_train, epochs=200, validation_data=(x_test, y_test))
+    model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
@@ -137,9 +140,9 @@ def open_model(func_class):
 
 if __name__ == '__main__':
 
-    # train2d(LinearA2D)
-    train1d(LinearA)
+    train2d(LinearA2D)
+    # train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
 
-    open_model(LinearA)
+    # open_model(LinearA)
