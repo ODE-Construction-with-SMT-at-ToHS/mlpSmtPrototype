@@ -11,8 +11,8 @@ from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 
-from functions import *
-from plot3d import *
+from mlp_smt_closed.mlp.functions import *
+from mlp_smt_closed.mlp.plot3d import *
 
 
 def train1d(func_class):
@@ -29,6 +29,7 @@ def train1d(func_class):
     x_samples = np.linspace(-10, 10, 1000+1).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
+    print(y_samples.shape)
 
     # process samples, get test training data
     x, y = shuffle(x_samples, y_samples, random_state=0)
@@ -140,8 +141,8 @@ def open_model(func_class):
 
 if __name__ == '__main__':
 
-    train2d(LinearA2D)
-    # train1d(LinearA)
+    # train2d(LinearA2D)
+    train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
 

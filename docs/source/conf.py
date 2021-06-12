@@ -14,7 +14,7 @@ import os
 import sys
 
 
-path_to_root = os.path.join('..', '..', 'mlp_smt_closed')
+path_to_root = os.path.join('..', '..')
 sys.path.insert(0, os.path.abspath(path_to_root))
 
 
