@@ -34,14 +34,14 @@
 
           <div class="body" role="main">
             
-  <section id="module-mlp.training">
-<span id="training-module"></span><h1>training module<a class="headerlink" href="#module-mlp.training" title="Permalink to this headline">¶</a></h1>
+  <section id="module-mlp_smt_closed.mlp.training">
+<span id="training-module"></span><h1>training module<a class="headerlink" href="#module-mlp_smt_closed.mlp.training" title="Permalink to this headline">¶</a></h1>
 <p>This module can be used to create an MLP, train it  a function <cite>f</cite>, save it, and plot the error. So far,
 <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R} \rightarrow \mathbb{R}\)</span> or <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> is
 supported</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp.training.open_model">
-<span class="sig-prename descclassname"><span class="pre">mlp.training.</span></span><span class="sig-name descname"><span class="pre">open_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp.training.open_model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.open_model">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">open_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.open_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the saved model/parameters of an MLP trained on <cite>func_class</cite> if the model was trained on <cite>func_class</cite> already</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -51,8 +51,8 @@ supported</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp.training.train1d">
-<span class="sig-prename descclassname"><span class="pre">mlp.training.</span></span><span class="sig-name descname"><span class="pre">train1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp.training.train1d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.train1d">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">train1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an MLP, train it on a function <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R} \rightarrow \mathbb{R}\)</span> contained in
 <cite>func_class</cite>, save it, and plot the error</p>
 <dl class="field-list simple">
@@ -64,8 +64,8 @@ attribute</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp.training.train2d">
-<span class="sig-prename descclassname"><span class="pre">mlp.training.</span></span><span class="sig-name descname"><span class="pre">train2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp.training.train2d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.train2d">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">train2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an MLP, train it on a function <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> contained in
 <cite>func_class</cite>, save it, and plot the error</p>
 <dl class="field-list simple">
