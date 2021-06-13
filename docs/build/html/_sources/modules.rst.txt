@@ -5,6 +5,7 @@ mlp_smt_closed
    :maxdepth: 4
    :glob:
 
+   readme_link
    arguments
    main
    mlp/*
