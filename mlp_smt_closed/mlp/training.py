@@ -4,9 +4,7 @@ This module can be used to create an MLP, train it  a function `f`, save it, and
 supported
 """
 import os
-import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
