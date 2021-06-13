@@ -1,7 +1,7 @@
 logic module
 ============
 
-.. automodule:: smt.logic
+.. automodule:: mlp_smt_closed.smt.logic
    :members:
    :undoc-members:
    :show-inheritance:

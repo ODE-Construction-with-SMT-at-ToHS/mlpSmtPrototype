@@ -1,5 +1,5 @@
-from smt.encoder import *
 from z3 import *
+from mlp_smt_closed.smt.encoder import *
 
 
 def optimize_template(model_path, template, interval, epsilon: float=0.5):

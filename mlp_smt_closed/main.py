@@ -1,12 +1,12 @@
 from logging import log
-import arguments
-import smt.logic
-from smt.templates import *
+from mlp_smt_closed.smt.logic import *
+from mlp_smt_closed.arguments import *
+from mlp_smt_closed.smt.templates import *
 
 if __name__ == '__main__':
     
     # TODO Arguments are ignored for now
-    args = arguments.parse_args()
+    args = parse_args()
 
     # extract path to trained keras-model from arguments
     model_path = args.model
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 
     # Test template optimization
     myLinTemplate = LinearTemplate()
-    smt.logic.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))
+    optimize_template(model_path, myLinTemplate, ((-8,), (8,)))

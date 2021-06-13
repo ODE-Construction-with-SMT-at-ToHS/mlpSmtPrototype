@@ -1,7 +1,7 @@
 functions module
 ================
 
-.. automodule:: mlp.functions
+.. automodule:: mlp_smt_closed.mlp.functions
    :members:
    :undoc-members:
    :show-inheritance:
