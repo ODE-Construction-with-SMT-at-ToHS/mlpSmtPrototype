@@ -1,7 +1,7 @@
 templates module
 ================
 
-.. automodule:: smt.templates
+.. automodule:: mlp_smt_closed.smt.templates
    :members:
    :undoc-members:
    :show-inheritance:

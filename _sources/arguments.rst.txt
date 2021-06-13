@@ -1,7 +1,7 @@
 arguments module
 ================
 
-.. automodule:: arguments
+.. automodule:: mlp_smt_closed.arguments
    :members:
    :undoc-members:
    :show-inheritance:
