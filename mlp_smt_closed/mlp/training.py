@@ -8,8 +8,8 @@ import tensorflow as tf
 from tensorflow import keras
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from functions import *
-from plot3d import *
+from mlp_smt_closed.mlp.functions import *
+from mlp_smt_closed.mlp.plot3d import *
 
 
 def train1d(func_class):
@@ -26,6 +26,9 @@ def train1d(func_class):
     x_samples = np.linspace(-10, 10, 1000+1).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
+    # Add noise to y-values
+    y_scatter = np.random.normal(0.0, 0.2, y_samples.shape)
+    y_samples = y_samples + y_scatter
 
     # process samples, get test training data
     x, y = shuffle(x_samples, y_samples, random_state=0)
@@ -76,6 +79,9 @@ def train2d(func_class):
     x_samples = np.vstack((a.flatten(), b.flatten())).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
+    # Add noise to y-values
+    y_scatter = np.random.normal(0, 0.05, y_samples.shape)
+    y_samples = y_samples + y_scatter
 
     # process samples, get test training data
     x, y = shuffle(x_samples, y_samples, random_state=0)
