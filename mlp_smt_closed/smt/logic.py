@@ -1,17 +1,29 @@
-from z3 import *
+"""
+This module contains the function ``optimize_template``, the core algorithm of this project, which tries to find a
+closed form for a given trained MLP (or "model").
+
+Also, this module contains the algorithm ``test_encoding``, which can be used to check whether the class ``Encoder`` is
+working correctly.
+"""
 from mlp_smt_closed.smt.encoder import *
 
 
 def optimize_template(model_path, template, interval, epsilon: float=0.5):
-    """Function for optimizing parameters of a function-template
-    to optimally fit an MLP.
-    
+    """Function for finding a closed form for a given trained MLP (or "model") through optimizing the parameters of a
+    given function-template.
+
+    This algorithm is the core of the ``mlp_smt_closed`` project. It describes an algorithm tries to find a closed form
+    for the input-output relation of a given trained MLP. To do so, a template function needs to be passed. Using SMT
+    methods, the algorithm then optimizes the parameters of the template function. Therefore, the model is formalized
+    using ``z3``.
+
     Parameters:
-        model_path: path to export of keras model file.
-        template: Template() instance # TODO has to be made compatible with args-parser
-        range: tuple of tuples representing an interval,
-                limiting the function domain.
-        epsilon = 5: Tolerance of template.
+        model_path: path to export of keras model file. The model represents the MLP for which a closed form needs to be found
+        template (Template() instance): contains a template for the closed form for the model. # TODO has to be made compatible with args-parser
+        range:
+            tuple of tuples representing an interval, limiting the function domain. Within this domain, the output of
+            the closed form and the MLP are not allowed to differ more than ``epsilon``
+        epsilon: Tolerance of template, for more information read above.
     """
 
     # TODO add some sanity check to detect dimension errors early on.

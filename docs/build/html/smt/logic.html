@@ -35,19 +35,27 @@
             
   <section id="module-mlp_smt_closed.smt.logic">
 <span id="logic-module"></span><h1>logic module<a class="headerlink" href="#module-mlp_smt_closed.smt.logic" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the function <code class="docutils literal notranslate"><span class="pre">optimize_template</span></code>, the core algorithm of this project, which tries to find a
+closed form for a given trained MLP (or “model”).</p>
+<p>Also, this module contains the algorithm <code class="docutils literal notranslate"><span class="pre">test_encoding</span></code>, which can be used to check whether the class <code class="docutils literal notranslate"><span class="pre">Encoder</span></code> is
+working correctly.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.optimize_template">
 <span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">optimize_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.optimize_template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for optimizing parameters of a function-template
-to optimally fit an MLP.</p>
+<dd><p>Function for finding a closed form for a given trained MLP (or “model”) through optimizing the parameters of a
+given function-template.</p>
+<p>This algorithm is the core of the <code class="docutils literal notranslate"><span class="pre">mlp_smt_closed</span></code> project. It describes an algorithm tries to find a closed form
+for the input-output relation of a given trained MLP. To do so, a template function needs to be passed. Using SMT
+methods, the algorithm then optimizes the parameters of the template function. Therefore, the model is formalized
+using <code class="docutils literal notranslate"><span class="pre">z3</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_path</strong> – path to export of keras model file.</p></li>
-<li><p><strong>template</strong> – Template() instance # TODO has to be made compatible with args-parser</p></li>
-<li><p><strong>range</strong> – tuple of tuples representing an interval,
-limiting the function domain.</p></li>
-<li><p><strong>= 5</strong> (<em>epsilon</em>) – Tolerance of template.</p></li>
+<li><p><strong>model_path</strong> – path to export of keras model file. The model represents the MLP for which a closed form needs to be found</p></li>
+<li><p><strong>template</strong> (<a class="reference internal" href="templates.html#mlp_smt_closed.smt.templates.Template" title="mlp_smt_closed.smt.templates.Template"><em>Template</em></a><em>(</em><em>) </em><em>instance</em>) – contains a template for the closed form for the model. # TODO has to be made compatible with args-parser</p></li>
+<li><p><strong>range</strong> – tuple of tuples representing an interval, limiting the function domain. Within this domain, the output of
+the closed form and the MLP are not allowed to differ more than <code class="docutils literal notranslate"><span class="pre">epsilon</span></code></p></li>
+<li><p><strong>epsilon</strong> – Tolerance of template, for more information read above.</p></li>
 </ul>
 </dd>
 </dl>
