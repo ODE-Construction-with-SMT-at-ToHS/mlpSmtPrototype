@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>logic module &#8212; mlp_smt_closed  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="templates module" href="templates.html" />
+    <link rel="prev" title="encoder module" href="encoder.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-mlp_smt_closed.smt.logic">
+<span id="logic-module"></span><h1>logic module<a class="headerlink" href="#module-mlp_smt_closed.smt.logic" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.adjust_template">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">adjust_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.adjust_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for finding parameters of a function-template
+to fit an MLP with a specified maximal deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_path</strong> – path to export of keras model file.</p></li>
+<li><p><strong>template</strong> – Template() instance # TODO has to be made compatible with args-parser</p></li>
+<li><p><strong>range</strong> – tuple of tuples representing an interval,
+limiting the function domain.</p></li>
+<li><p><strong>= 0.5</strong> (<em>epsilon</em>) – Tolerance of template.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.optimize_template">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">optimize_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.optimize_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for optimizing parameters of a function-template
+to fit an MLP optimally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_path</strong> – path to export of keras model file.</p></li>
+<li><p><strong>template</strong> – Template() instance # TODO has to be made compatible with args-parser</p></li>
+<li><p><strong>range</strong> – tuple of tuples representing an interval,
+limiting the function domain.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.test_encoding">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">test_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.test_encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that tests whether solving the encoding for a
+MLP-model produces a correct model of the encoding.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_path</strong> – path to export of keras model file.</p></li>
+<li><p><strong>input</strong> – tuple representing the input.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">mlp_smt_closed</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">mlp_smt_closed</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../arguments.html">arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlp/functions.html">functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlp/plot3d.html">plot3d module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlp/training.html">training module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoder.html">encoder module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">logic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">templates module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">mlp_smt_closed</a><ul>
+      <li>Previous: <a href="encoder.html" title="previous chapter">encoder module</a></li>
+      <li>Next: <a href="templates.html" title="next chapter">templates module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, László Dirks, Nicolai Radke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/smt/logic.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

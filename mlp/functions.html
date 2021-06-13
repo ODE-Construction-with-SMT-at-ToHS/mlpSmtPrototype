@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>functions module &#8212; mlp_smt_closed  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="plot3d module" href="plot3d.html" />
+    <link rel="prev" title="main module" href="../main.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-mlp_smt_closed.mlp.functions">
+<span id="functions-module"></span><h1>functions module<a class="headerlink" href="#module-mlp_smt_closed.mlp.functions" title="Permalink to this headline">¶</a></h1>
+<p>This module contains classes for functions which the MLP can learn.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">LinearA</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = x-2\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.f">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'LinearA'</span></em><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">LinearA2D</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R}^2 \rightarrow \mathbb{R}^2, f(x) = \begin{bmatrix} -0.1 &amp; -1.0 \\ 1.0 &amp; -0.1 \end{bmatrix} \cdot x\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.f">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Linear2DA'</span></em><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">QuadraticA</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for the quadratic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = (x-3)^2 + 1\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.f">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'QuadraticA'</span></em><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticB">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">QuadraticB</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for the quadratic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = (x-1)^2 \cdot 0.3 - 1\)</span></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticB.f">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticB.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'QuadraticB'</span></em><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">mlp_smt_closed</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">mlp_smt_closed</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../arguments.html">arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot3d.html">plot3d module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="training.html">training module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../smt/encoder.html">encoder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../smt/logic.html">logic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../smt/templates.html">templates module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">mlp_smt_closed</a><ul>
+      <li>Previous: <a href="../main.html" title="previous chapter">main module</a></li>
+      <li>Next: <a href="plot3d.html" title="next chapter">plot3d module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, László Dirks, Nicolai Radke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/mlp/functions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

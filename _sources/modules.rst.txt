@@ -1,14 +1,11 @@
-mlpSmtPrototype
-===============
+mlp_smt_closed
+==============
 
 .. toctree::
    :maxdepth: 4
+   :glob:
 
    arguments
-   encoder
-   functions
-   logic
    main
-   plot3d
-   templates
-   training
+   mlp/*
+   smt/*
