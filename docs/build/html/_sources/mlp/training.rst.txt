@@ -1,7 +1,7 @@
 training module
 ===============
 
-.. automodule:: training
+.. automodule:: mlp_smt_closed.mlp.training
    :members:
    :undoc-members:
    :show-inheritance:
