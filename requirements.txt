@@ -1,7 +1,8 @@
-z3
+z3-solver
 tensorflow
 numpy
 matplotlib
 sklearn
 pylab
 keras
+sphinx

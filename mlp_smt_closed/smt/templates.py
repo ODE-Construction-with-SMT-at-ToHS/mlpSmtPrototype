@@ -1,3 +1,9 @@
+"""
+This module contains ``z3``-encodings of the templates for the closed form of the MLP. The function
+``optimize_template`` from ``logic.py`` tries to fit the parameters of a given templates to the input/output relation of
+the MLP.
+"""
+
 from abc import ABC, abstractmethod
 from z3 import *
 
@@ -35,6 +41,9 @@ class Template(ABC):
 
 
 class LinearTemplate(Template):
+    """
+    Class representing the set of linear functions :math:`f` with :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
+    """
 
     # f(x) = a*x + b
     def __init__(self):
