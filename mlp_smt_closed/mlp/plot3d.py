@@ -1,4 +1,4 @@
-"""Plot the distance between pairs of 2D points on a 2D grid in 3D."""
+"""Plot the distance between pairs of 2D points on a 2D grid in 3D. test gh-pages"""
 
 import matplotlib.pyplot as plt
 import numpy as np
