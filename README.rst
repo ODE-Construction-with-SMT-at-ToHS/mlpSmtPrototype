@@ -33,4 +33,4 @@ TODO...
 
 Documentation
 #############
-A Documentation of the project is hosted `here <link-to.docs>`_.
+A Documentation of the project is hosted `here <https://ode-construction-with-smt-at-tohs.github.io/mlpSmtPrototype/>`_.
