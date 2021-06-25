@@ -46,7 +46,7 @@ class Brusselator:
         self.a = a
         self.b = b
     
-    def f(x):
+    def f(self, x):
         x_prime = self.a + x[0]*x[0]*x[1] - self.b*x[0] - x[0]
-        y_prime = b*x[0] - x[0]*x[0]*x[1]
+        y_prime = self.b*x[0] - x[0]*x[0]*x[1]
         return (x_prime, y_prime)

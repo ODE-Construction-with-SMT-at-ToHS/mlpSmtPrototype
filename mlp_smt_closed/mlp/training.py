@@ -4,6 +4,13 @@ This module can be used to create an MLP, train it  a function `f`, save it, and
 supported
 """
 import os
+import sys
+import inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.utils import shuffle
@@ -75,7 +82,7 @@ def train2d(func_class):
     """
 
     # Sample 2D training data.
-    a, b = np.mgrid[-10:10:100j, -10:10:100j]
+    a, b = np.mgrid[-2:2:100j, -2:2:100j]
     x_samples = np.vstack((a.flatten(), b.flatten())).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
@@ -90,13 +97,12 @@ def train2d(func_class):
     # Create a simple mlp model.
     model = keras.Sequential([
         keras.layers.Dense(20, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(5, activation=tf.nn.relu),
+        keras.layers.Dense(20, activation=tf.nn.relu),
         keras.layers.Dense(2)
     ])
 
     # Use the MSE regression loss (learning rate!?)
-    optimizer = tf.keras.optimizers.RMSprop(0.01)
+    optimizer = tf.keras.optimizers.RMSprop(0.0005)
 
     # configure model
     model.compile(loss='mean_squared_error',
@@ -104,7 +110,7 @@ def train2d(func_class):
                   metrics=['mean_absolute_error', 'mean_squared_error'])
 
     # Train, validate & save the model.
-    model.fit(x_train, y_train, epochs=200, validation_data=(x_test, y_test))
+    model.fit(x_train, y_train, epochs=400, validation_data=(x_test, y_test))
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
@@ -143,9 +149,10 @@ def open_model(func_class):
 
 if __name__ == '__main__':
 
-    # train2d(LinearA2D)
-    train1d(LinearA)
-    # train1d(QuadraticA)
-    # train1d(QuadraticB)
+    #train2d(LinearA2D)
+    #train1d(LinearA)
+    #train1d(QuadraticA)
+    #train1d(QuadraticB)
+    train2d(Brusselator(1,1.5))
 
-    open_model(LinearA)
+    #open_model(LinearA)
