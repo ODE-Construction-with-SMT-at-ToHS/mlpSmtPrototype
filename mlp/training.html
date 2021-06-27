@@ -4,20 +4,19 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>training module &#8212; mlp_smt_closed  documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="encoder module" href="../smt/encoder.html" />
-    <link rel="prev" title="plot3d module" href="plot3d.html" />
+    <link rel="prev" title="sampling module" href="sampling.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,14 +33,14 @@
 
           <div class="body" role="main">
             
-  <section id="module-mlp_smt_closed.mlp.training">
+  <div class="section" id="module-mlp_smt_closed.mlp.training">
 <span id="training-module"></span><h1>training module<a class="headerlink" href="#module-mlp_smt_closed.mlp.training" title="Permalink to this headline">¶</a></h1>
 <p>This module can be used to create an MLP, train it  a function <cite>f</cite>, save it, and plot the error. So far,
 <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R} \rightarrow \mathbb{R}\)</span> or <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> is
 supported</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.open_model">
-<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">open_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.open_model" title="Permalink to this definition">¶</a></dt>
+<dt id="mlp_smt_closed.mlp.training.open_model">
+<code class="sig-prename descclassname">mlp_smt_closed.mlp.training.</code><code class="sig-name descname">open_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.open_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the saved model/parameters of an MLP trained on <cite>func_class</cite> if the model was trained on <cite>func_class</cite> already</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -51,8 +50,8 @@ supported</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.train1d">
-<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">train1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train1d" title="Permalink to this definition">¶</a></dt>
+<dt id="mlp_smt_closed.mlp.training.train1d">
+<code class="sig-prename descclassname">mlp_smt_closed.mlp.training.</code><code class="sig-name descname">train1d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an MLP, train it on a function <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R} \rightarrow \mathbb{R}\)</span> contained in
 <cite>func_class</cite>, save it, and plot the error</p>
 <dl class="field-list simple">
@@ -64,8 +63,8 @@ attribute</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlp_smt_closed.mlp.training.train2d">
-<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.training.</span></span><span class="sig-name descname"><span class="pre">train2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train2d" title="Permalink to this definition">¶</a></dt>
+<dt id="mlp_smt_closed.mlp.training.train2d">
+<code class="sig-prename descclassname">mlp_smt_closed.mlp.training.</code><code class="sig-name descname">train2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.training.train2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an MLP, train it on a function <cite>f</cite> <span class="math notranslate nohighlight">\(\in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> contained in
 <cite>func_class</cite>, save it, and plot the error</p>
 <dl class="field-list simple">
@@ -76,7 +75,7 @@ attribute</p>
 </dl>
 </dd></dl>
 
-</section>
+</div>
 
 
           </div>
@@ -103,6 +102,7 @@ attribute</p>
 <li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">functions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot3d.html">plot3d module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sampling.html">sampling module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">training module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../smt/encoder.html">encoder module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../smt/logic.html">logic module</a></li>
@@ -116,7 +116,7 @@ attribute</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">mlp_smt_closed</a><ul>
-      <li>Previous: <a href="plot3d.html" title="previous chapter">plot3d module</a></li>
+      <li>Previous: <a href="sampling.html" title="previous chapter">sampling module</a></li>
       <li>Next: <a href="../smt/encoder.html" title="next chapter">encoder module</a></li>
   </ul></li>
   </ul></li>
@@ -148,7 +148,7 @@ attribute</p>
       &copy;2021, László Dirks, Nicolai Radke.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
