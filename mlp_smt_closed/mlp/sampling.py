@@ -44,7 +44,7 @@ def sample_1d(func_class, size, interval, scatter):
 
 def sample_2d(func_class, x1_size, x2_size, x1_interval, x2_interval, scatter):
     """This function takes ``x1_size`` * ``x2_size`` samples of the function ``func_class``
-    :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` within ``x1_interval`` :math:`\times` ``x2_interval``.
+    :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` within ``x1_interval`` :math:`\\times` ``x2_interval``.
     It also scatters the function values (normally distributed) according to ``scatter``. Then, it divides the samples
     into training and test samples and stores everything in a file in the folder ``/samples``.
 
