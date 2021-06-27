@@ -1,5 +1,8 @@
 """
-This module contains functions to take samples from a given function and store the samples in a file.
+This module contains functions to
+
+* take samples from a given function and store the samples in a file
+* load saved samples for a given function
 """
 
 import numpy as np
@@ -41,6 +44,7 @@ def sample_1d(func_class, size, interval, scatter):
     # save samples to file
     sample_path = 'samples/' + func_class.name
     np.savez(sample_path, x_samples=x_samples, y_samples=y_samples, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+
 
 def sample_2d(func_class, x1_size, x2_size, x1_interval, x2_interval, scatter):
     """This function takes ``x1_size`` * ``x2_size`` samples of the function ``func_class``
@@ -84,4 +88,27 @@ def sample_2d(func_class, x1_size, x2_size, x1_interval, x2_interval, scatter):
 
     # save samples to file
     sample_path = 'samples/' + func_class.name
-    np.savez(sample_path, x_samples = x_samples, y_samples=y_samples, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+    np.savez(sample_path, x_samples=x_samples, y_samples=y_samples, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+
+
+def load_samples(func_class):
+    """
+    Load saved samples of the specified ``func_class``
+
+    Args:
+        func_class: class for which to load the samples
+
+    Returns:
+        (list): List containing ``x_samples``, ``y_samples``, ``x_train``, ``x_test``, ``y_train``, ``y_test`` in that order
+    """
+    sample_path = 'samples/' + func_class.name + '.npz'
+    samples = np.load(sample_path)
+
+    x_samples = samples['x_samples']
+    y_samples = samples['y_samples']
+    x_train = samples['x_train']
+    x_test = samples['x_test']
+    y_train = samples['y_train']
+    y_test = samples['y_test']
+
+    return x_samples, y_samples, x_train, x_test, y_train, y_test

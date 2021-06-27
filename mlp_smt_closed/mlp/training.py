@@ -23,14 +23,7 @@ def train1d(func_class):
     """
 
     # load samples
-    sample_path = 'samples/' + func_class.name + '.npz'
-    samples = np.load(sample_path)
-    x_samples = samples['x_samples']
-    y_samples = samples['y_samples']
-    x_train = samples['x_train']
-    x_test = samples['x_test']
-    y_train = samples['y_train']
-    y_test = samples['y_test']
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(func_class)
 
     # Create a simple mlp model.
     model = keras.Sequential([
@@ -74,12 +67,7 @@ def train2d(func_class):
     """
 
     # load samples
-    sample_path = 'samples/' + func_class.name + '.npz'
-    samples = np.load(sample_path)
-    x_train = samples['x_train']
-    x_test = samples['x_test']
-    y_train = samples['y_train']
-    y_test = samples['y_test']
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(func_class)
 
     # Create a simple mlp model.
     model = keras.Sequential([
