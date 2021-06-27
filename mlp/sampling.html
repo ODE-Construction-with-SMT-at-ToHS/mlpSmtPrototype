@@ -35,7 +35,28 @@
             
   <div class="section" id="module-mlp_smt_closed.mlp.sampling">
 <span id="sampling-module"></span><h1>sampling module<a class="headerlink" href="#module-mlp_smt_closed.mlp.sampling" title="Permalink to this headline">¶</a></h1>
-<p>This module contains functions to take samples from a given function and store the samples in a file.</p>
+<p>This module contains functions to</p>
+<ul class="simple">
+<li><p>take samples from a given function and store the samples in a file</p></li>
+<li><p>load saved samples for a given function</p></li>
+</ul>
+<dl class="py function">
+<dt id="mlp_smt_closed.mlp.sampling.load_samples">
+<code class="sig-prename descclassname">mlp_smt_closed.mlp.sampling.</code><code class="sig-name descname">load_samples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.sampling.load_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load saved samples of the specified <code class="docutils literal notranslate"><span class="pre">func_class</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func_class</strong> – class for which to load the samples</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List containing <code class="docutils literal notranslate"><span class="pre">x_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">y_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">x_train</span></code>, <code class="docutils literal notranslate"><span class="pre">x_test</span></code>, <code class="docutils literal notranslate"><span class="pre">y_train</span></code>, <code class="docutils literal notranslate"><span class="pre">y_test</span></code> in that order</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt id="mlp_smt_closed.mlp.sampling.sample_1d">
 <code class="sig-prename descclassname">mlp_smt_closed.mlp.sampling.</code><code class="sig-name descname">sample_1d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">scatter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.sampling.sample_1d" title="Permalink to this definition">¶</a></dt>
