@@ -99,12 +99,6 @@ class Adaptor:
     def optimize_template(self):
         """Function for optimizing parameters of a function-template
         to fit an MLP optimally.
-        
-        Parameters:
-            model_path: path to export of keras model file.
-            template: Template() instance # TODO has to be made compatible with args-parser
-            range: tuple of tuples representing an interval,
-                    limiting the function domain.
         """
 
         # Initial input
@@ -179,11 +173,11 @@ class Adaptor:
 
                 # Update parameters.
                 new_params = {}
-                for key in template.get_params():
-                    print('Real: ' + str(fo_model.eval(template.real_param_variables()[key])))
-                    new_params[key] = get_float(fo_model, template.real_param_variables()[key])
+                for key in self.template.get_params():
+                    print('Real: ' + str(fo_model.eval(self.template.real_param_variables()[key])))
+                    new_params[key] = get_float(fo_model, self.template.real_param_variables()[key])
                 print('New parameters: ' + str(new_params))
-                template.set_params(new_params)
+                self.template.set_params(new_params)
 
                 # Optimal tolerance for the considered set of input values:
                 new_epsilon = get_float(fo_model, distance)
@@ -202,9 +196,10 @@ class Adaptor:
             counter += 1
 
             # Encode 2nd condition:
-            res = self._find_deviation(epsilon)
+            res, x = self._find_deviation(epsilon, refine=0)
+            print('End of while: ' + str(res)+str(x))
 
-    def _find_deviation(self, epsilon, refine=2):
+    def _find_deviation(self, epsilon, refine=1):
         # Encode the template.
         template_formula = self.template.smt_encoding()
         formula_2 = [template_formula]
@@ -226,18 +221,17 @@ class Adaptor:
                         )
         
         # Assert subformulas.
-        self.solver_2 = Solver()
+        self.solver_2.reset()
+        formula_2.extend(self.nn_model_formula.values())
         for sub in formula_2:
             self.solver_2.add(sub)
-        for nn_encoding_constraint in self.nn_model_formula.values():
-            self.solver_2.add(nn_encoding_constraint)
 
         # Create backtracking point for searching with greater epsilon
         #self.solver_2.push()
         self.solver_2.add(deviation)
         
         # Check for satisfiability.
-        print('checking')
+        print('checking violation')
         res = self.solver_2.check()
         print('done checking')
         if res == sat:
@@ -245,22 +239,31 @@ class Adaptor:
             # Heuristically search for a greater deviation
             exp_eps = epsilon
             for _ in range(refine):
-                # Double epsilon
+
+                # Incremental solver does not seem to work
+                self.solver_2.reset()
+                for sub in formula_2:
+                    self.solver_2.add(sub)
+
+                # Double epsilon and encode it
                 exp_eps = exp_eps*2
-                #self.solver_2.pop()
-                deviation = (Or(
+                deviation = Or(
                     Or(
                         [self.nn_output_vars[i] - self.template.output_variables()[i] > exp_eps
                         for i in range(len(self.nn_output_vars))]),
                     Or(
                         [self.template.output_variables()[i] - self.nn_output_vars[i] > exp_eps
                         for i in range(len(self.nn_output_vars))])
-                        )
                     )
+                
+                print(deviation)
                 self.solver_2.add(deviation)
+
                 # Break the for loop, if no such input can be found
                 if not self.solver_2.check():
                     break
+                else:
+                    print('Found better new input.')
 
             fo_model = self.solver_2.model()
             # Extract new input for parameter correction.
@@ -270,7 +273,7 @@ class Adaptor:
             return res, x
         else:
             print('Parameters found.')
-            print('For a minimal Deviation of: ' + str(epsilon))
+            print('With epsilon = ' + str(epsilon))
             return res, None
 
     def test_encoding(self, input):

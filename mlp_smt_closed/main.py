@@ -24,16 +24,16 @@ if __name__ == '__main__':
     myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)))
     # LinearA2D was trained on ((-10,10),(-10,10))
     # Brusselator was trained on ((-2,2),(-2,2))
-    
+
     start_time = time.time()
 
     # Test encoding
     #myAdaptor.test_encoding((42,))
 
     # Test template adjustment
-    myAdaptor.adjust_template()
+    #myAdaptor.adjust_template()
 
     # Test template optimization
-    #myAdaptor.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))
+    myAdaptor.optimize_template()
 
     print('Total time: '+ str(time.time()-start_time))

@@ -9,6 +9,7 @@ import inspect
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
+parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 
 import tensorflow as tf
@@ -150,9 +151,9 @@ def open_model(func_class):
 if __name__ == '__main__':
 
     #train2d(LinearA2D)
-    #train1d(LinearA)
+    train1d(LinearA)
     #train1d(QuadraticA)
     #train1d(QuadraticB)
-    train2d(Brusselator(1,1.5))
+    #train2d(Brusselator(1,1.5))
 
     #open_model(LinearA)
