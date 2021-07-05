@@ -2,10 +2,11 @@ from itertools import count
 from math import dist
 from z3 import *
 from mlp_smt_closed.smt.encoder import *
+import multiprocessing, time
 
 class Adaptor:
 
-    def __init__(self, model_path, template, interval) -> None:
+    def __init__(self, model_path, template, interval, splitting = False) -> None:
         """Class for finding parameters of a function-template
         to fit an MLP.
         
@@ -26,7 +27,11 @@ class Adaptor:
 
         # Encode the NN-model.
         self.my_encoder = Encoder(model_path)
-        self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+        self.splitting = splitting
+        if not splitting:
+            self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+        else:
+            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
 
         # Restore the actual NN.
         self.nn_model = keras.models.load_model(model_path)
@@ -80,6 +85,7 @@ class Adaptor:
                 solver_1.add(sub)
             
             # Check for satisfiability.
+            print('Looking for new parameters...')
             res = solver_1.check()
             if res == sat:
                 fo_model = solver_1.model()
@@ -94,7 +100,10 @@ class Adaptor:
                 break
 
             # 2nd condition:
-            res, x = self._find_deviation(epsilon, refine=0)
+            if not self.splitting:
+                res, x = self._find_deviation(epsilon, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(epsilon)
 
     def optimize_template(self):
         """Function for optimizing parameters of a function-template
@@ -276,6 +285,80 @@ class Adaptor:
             print('With epsilon = ' + str(epsilon))
             return res, None
 
+    def _find_deviation_splitting(self, epsilon):
+        # Encode the template.
+        template_formula = self.template.smt_encoding()
+        formula_2 = [template_formula]
+
+        # Input conditions.
+        for i in range(len(self.nn_input_vars)):
+            formula_2.append(self.nn_input_vars[i] == self.template.input_variables()[i])
+            formula_2.append(self.nn_input_vars[i] >= self.lb[i])
+            formula_2.append(self.nn_input_vars[i] <= self.ub[i])
+
+        # norm 1 distance
+        deviation = Or(
+                            Or(
+                            [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
+                                for i in range(len(self.nn_output_vars))]),
+                            Or(
+                            [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
+                                for i in range(len(self.nn_output_vars))])
+                        )
+        formula_2.append(deviation)
+
+        # Solve the splitted encoding in parallel
+        processes = []
+        result_q = multiprocessing.Queue()
+        for split_formula in self.nn_model_formulas:
+            split_formula.extend(formula_2)
+            # This is neccesarry to be pickable
+            formula_as_string = toSMT2Benchmark(And(split_formula), logic='QF_FPA')
+            p = multiprocessing.Process(
+                target=solve_single_split,
+                args=(
+                    formula_as_string,
+                    [],
+                    result_q)
+                )
+            processes.append(p)
+            p.start()
+        
+        # Wait until one process returns sat, or all processes are done.
+        waiting = True
+        while waiting:
+            #time.sleep(0.1)
+            waiting = False
+            for p in processes:
+                if p.is_alive():
+                    waiting = True
+            if not result_q.empty():
+                waiting = False
+        
+        # Terminate all processes, which are still alive.
+        for p in processes:
+            if p.is_alive():
+                p.terminate()
+        
+        # Pop the new input, if found.
+        res, x = unsat, None
+        if not result_q.empty():
+            res, x = result_q.get()
+
+        print('done checking')
+        if res == sat:
+
+            #fo_model = self.solver_2.model()
+            # Extract new input for parameter correction.
+            #x_list = [get_float(fo_model, var) for var in self.nn_input_vars]
+            #x = tuple(x_list)
+            print('New input: ' + str(x))
+            return unsat, None
+        else:
+            print('Parameters found.')
+            print('With epsilon = ' + str(epsilon))
+            return res, None
+
     def test_encoding(self, input):
         """Function that tests whether solving the encoding for a 
         MLP-model produces a correct model of the encoding.
@@ -314,3 +397,32 @@ class Adaptor:
         # Print the result for comparison.
         print('The calculated result is: ' + str(res_dec))
         print('However it should be:' + str(self.my_encoder.model.predict([input])))
+
+def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
+    """Stolen from Stackoverflow
+    not sure whats happening"""
+
+    v = (Ast * 0)()
+    return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
+
+def solve_single_split(formula_str, nn_input_vars, result):
+    '''Target function for solving workers'''
+
+    # Parse formula string
+    formula = parse_smt2_string(formula_str)
+    #print(formula)
+
+    # Solve the formula
+    solver = Solver()
+    for subformula in formula:
+        solver.add(subformula)
+    print('solving')
+    res = solver.check()
+    print('solved: ' + str(res))
+
+    # Extract the model, if sat
+    if res == sat:
+        fo_model = solver.model()
+        x_list = [get_float(fo_model, var) for var in nn_input_vars]
+        x = tuple(x_list)
+        result.put((res,x))
