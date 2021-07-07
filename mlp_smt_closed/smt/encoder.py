@@ -245,7 +245,8 @@ class Encoder:
                     if ctr < number:
                         ctr += 1
                         # Split the encoding according to the case defferentiation
-                        case2 = function_encodings.copy()
+                        # As function_encodings is a list of lists a simple shallow copy does not suffice
+                        case2 = [list.copy() for list in function_encodings]
 
                         # Fist case:
                         single_encoding = [0 >= self.variables_y[i][j],

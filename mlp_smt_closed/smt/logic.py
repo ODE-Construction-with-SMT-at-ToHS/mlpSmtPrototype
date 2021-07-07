@@ -32,6 +32,8 @@ class Adaptor:
             self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
         else:
             self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
+            # To make it pickleable
+            self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
         # Restore the actual NN.
         self.nn_model = keras.models.load_model(model_path)
@@ -319,7 +321,7 @@ class Adaptor:
                 target=solve_single_split,
                 args=(
                     formula_as_string,
-                    [],
+                    self.nn_input_vars_as_str,
                     result_q)
                 )
             processes.append(p)
@@ -349,11 +351,11 @@ class Adaptor:
         print('done checking')
         if res == sat:
             print('New input: ' + str(x))
-            return unsat, None
         else:
             print('Parameters found.')
             print('With epsilon = ' + str(epsilon))
-            return res, None
+        
+        return res, x
 
     def test_encoding(self, input):
         """Function that tests whether solving the encoding for a 
@@ -406,7 +408,6 @@ def solve_single_split(formula_str, nn_input_vars, result):
 
     # Parse formula string
     formula = parse_smt2_string(formula_str)
-    print(nn_input_vars)
 
     # Solve the formula
     solver = Solver()
@@ -418,7 +419,24 @@ def solve_single_split(formula_str, nn_input_vars, result):
 
     # Extract the model, if sat
     if res == sat:
+        # Preperation for extracting the new input
+        # The order of the input vars has to be consistent
+        x_list = [None for x in nn_input_vars]
+        x_name_map = dict()
+        for i in range(len(nn_input_vars)):
+            x_name_map[nn_input_vars[i]] = i
+        # This looses the order, but should speed up the look-up
+        nn_input_vars = set(nn_input_vars)
+
         fo_model = solver.model()
-        x_list = [get_float(fo_model, var) for var in nn_input_vars]
+        for var in fo_model:
+            # This is a bit hacky, but not possible otherwise
+            name = str(var)
+            print(name)
+            if name in nn_input_vars:
+                value = fo_model[var]
+                float_value = float(eval(str(value)))
+                x_list[x_name_map[name]] = float_value
+        
         x = tuple(x_list)
         result.put((res,x))
