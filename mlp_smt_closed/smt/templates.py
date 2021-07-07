@@ -107,16 +107,19 @@ class Linear2DTemplate(Template):
 
     # overriding abstract method
     def smt_encoding(self):
-        encoding = self.output_vars[0] == self.params['a']*self.input_vars[0] + self.params['b']
-        return encoding
+        y1 = self.output_vars[0] == self.params['a11']*self.input_vars[0] + self.params['a12']*self.input_vars[1]  + self.params['b1']
+        y2 = self.output_vars[1] == self.params['a21']*self.input_vars[0] + self.params['a22']*self.input_vars[1]  + self.params['b2']
+        return And(y1,y2)
 
     def generic_smt_encoding(self, input_value, output_var):
-        encoding = output_var[0] == self.param_vars['a'] * input_value[0] + self.param_vars['b']
-        return encoding
+        y1 = output_var[0] == self.param_vars['a11']*input_value[0] + self.param_vars['a12']*input_value[1]  + self.param_vars['b1']
+        y2 = output_var[1] == self.param_vars['a21']*input_value[0] + self.param_vars['a22']*input_value[1]  + self.param_vars['b2']
+        return And(y1,y2)
 
     def generic_real_smt_encoding(self, input_value, output_var):
-        encoding = output_var[0] == self.real_param_vars['a'] * input_value[0] + self.real_param_vars['b']
-        return encoding
+        y1 = output_var[0] == self.real_param_vars['a11']*input_value[0] + self.real_param_vars['a12']*input_value[1]  + self.real_param_vars['b1']
+        y2 = output_var[1] == self.real_param_vars['a21']*input_value[0] + self.real_param_vars['a22']*input_value[1]  + self.real_param_vars['b2']
+        return And(y1,y2)
 
     # overriding abstract method
     def get_params(self):

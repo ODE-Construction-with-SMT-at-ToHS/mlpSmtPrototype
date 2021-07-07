@@ -61,6 +61,7 @@ def train1d(func_class):
     model.fit(x_train, y_train, epochs=500, validation_data=(x_test, y_test))
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
+    
 
     # calculate predictions
     y_predictions = model.predict(x_test)
@@ -83,7 +84,7 @@ def train2d(func_class):
     """
 
     # Sample 2D training data.
-    a, b = np.mgrid[-2:2:100j, -2:2:100j]
+    a, b = np.mgrid[-10:10:100j, -10:10:100j]
     x_samples = np.vstack((a.flatten(), b.flatten())).T
     y_samples = [func_class.f(x) for x in x_samples]
     y_samples = np.array(y_samples)
@@ -97,13 +98,13 @@ def train2d(func_class):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(20, activation=tf.nn.relu),
-        keras.layers.Dense(20, activation=tf.nn.relu),
+        keras.layers.Dense(4, activation=tf.nn.relu),
+        keras.layers.Dense(2, activation=tf.nn.relu),
         keras.layers.Dense(2)
     ])
 
     # Use the MSE regression loss (learning rate!?)
-    optimizer = tf.keras.optimizers.RMSprop(0.0005)
+    optimizer = tf.keras.optimizers.RMSprop(0.01)
 
     # configure model
     model.compile(loss='mean_squared_error',
@@ -150,8 +151,8 @@ def open_model(func_class):
 
 if __name__ == '__main__':
 
-    #train2d(LinearA2D)
-    train1d(LinearA)
+    train2d(LinearA2D)
+    #train1d(LinearA)
     #train1d(QuadraticA)
     #train1d(QuadraticB)
     #train2d(Brusselator(1,1.5))

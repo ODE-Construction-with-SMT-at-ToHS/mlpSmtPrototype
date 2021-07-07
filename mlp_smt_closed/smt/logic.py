@@ -314,6 +314,7 @@ class Adaptor:
             split_formula.extend(formula_2)
             # This is neccesarry to be pickable
             formula_as_string = toSMT2Benchmark(And(split_formula), logic='QF_FPA')
+            #input_vars_as_strings = [toSMT2Benchmark(var, logic='QF_FPA') for var in self.nn_input_vars]
             p = multiprocessing.Process(
                 target=solve_single_split,
                 args=(
@@ -347,11 +348,6 @@ class Adaptor:
 
         print('done checking')
         if res == sat:
-
-            #fo_model = self.solver_2.model()
-            # Extract new input for parameter correction.
-            #x_list = [get_float(fo_model, var) for var in self.nn_input_vars]
-            #x = tuple(x_list)
             print('New input: ' + str(x))
             return unsat, None
         else:
@@ -410,7 +406,7 @@ def solve_single_split(formula_str, nn_input_vars, result):
 
     # Parse formula string
     formula = parse_smt2_string(formula_str)
-    #print(formula)
+    print(nn_input_vars)
 
     # Solve the formula
     solver = Solver()
