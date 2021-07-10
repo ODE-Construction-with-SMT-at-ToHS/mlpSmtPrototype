@@ -3,17 +3,20 @@ from math import dist
 from z3 import *
 from mlp_smt_closed.smt.encoder import *
 
+
 class Adaptor:
+    """This class can be used to find a closed for a trained MLP , given a function template.
+    """
 
     def __init__(self, model_path, template, interval) -> None:
-        """Class for finding parameters of a function-template
-        to fit an MLP.
-        
+        """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
+        ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
+
         Parameters:
             model_path: path to export of keras model file.
             template: Template() instance # TODO has to be made compatible with args-parser
-            interval: tuple of tuples representing an interval,
-                    limiting the function domain.
+            interval: tuple of tuples representing an interval, limiting the function domain. Within this domain, the
+            output of the closed form and the MLP are not allowed to differ more than a (later specified) tolerance
         """
 
         # TODO add some sanity check to detect dimension errors early on.
@@ -25,29 +28,34 @@ class Adaptor:
         self.lb, self.ub = interval
 
         # Encode the NN-model.
+        # call constructor, create Encoder instance
         self.my_encoder = Encoder(model_path)
+        # encode the model
         self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
 
-        # Restore the actual NN.
+        # load the actual NN, used to calculate predictions
         self.nn_model = keras.models.load_model(model_path)
 
-        # Create a solver instances.
+        # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
         self.solver_2 = Solver()
 
-    def adjust_template(self, epsilon: float=0.5):
-        """Function for finding parameters of a function-template
-        to fit an MLP with a specified maximal deviation.
+    def adjust_template(self, epsilon: float = 0.5):
+        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
+        TODO: describe difference to optimize template
         
         Parameters:
-            epsilon = 0.5: Tolerance of template.
+            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
+            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
 
         # Initial input
         x = self.lb
 
-        # Create a solver instance.
+        # Create a solver instance. This solver will be used to find parameters for the template within the epsilon
+        # bound. In every iteration, one additional x value is added that needs to fit the constraints.
         solver_1 = Solver()
 
+        # counts no. of iterations, used to define a new set of output variables in each iteration.
         counter = 0
 
         # initialize the result with "satisfiable"
@@ -57,7 +65,8 @@ class Adaptor:
         while res == sat:
 
             # Encode 1st condition, stored in formula_1:
-            # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
+            # the 1st condition is that the parameters found satisfy f(x) = NN(x) +- epsilon for all x currently
+            # considered
             formula_1 = []
 
             # use NN to calculate output y for input x
@@ -70,12 +79,12 @@ class Adaptor:
             # add encoding for function f according to template
             formula_1.append(self.template.generic_smt_encoding(x, t_output_vars))
 
-            # ensure output is within tolerance
+            # add encoding to ensure output is within tolerance
             for i in range(len(self.nn_output_vars)):
                 formula_1.append(float(nn_y[i]) - t_output_vars[i] <= epsilon)
                 formula_1.append(t_output_vars[i] - float(nn_y[i]) <= epsilon)
 
-            # Assert subformulas.
+            # Assert subformulas to solver.
             for sub in formula_1:
                 solver_1.add(sub)
             
@@ -141,11 +150,11 @@ class Adaptor:
             absolutes = [Real('abs_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
             for i in range(len(self.nn_output_vars)):
                 formula_1.append(absolutes[i] ==
-                    If(float(nn_y[i]) - t_output_vars[i] >= 0,
-                        float(nn_y[i]) - t_output_vars[i],
-                        t_output_vars[i] - float(nn_y[i])
-                    )
-                )
+                                 If(float(nn_y[i]) - t_output_vars[i] >= 0,
+                                    float(nn_y[i]) - t_output_vars[i],
+                                    t_output_vars[i] - float(nn_y[i])
+                                   )
+                                )
             
             # Secondly, sum up those distances
             sum_abs = gen_sum(absolutes)
@@ -175,11 +184,11 @@ class Adaptor:
             res = solver_1.check()
             if res == sat:
                 fo_model = solver_1.model()
-                #print(fo_model)
+                # print(fo_model)
 
                 # Update parameters.
                 new_params = {}
-                for key in template.get_params():
+                for key in template.get_params():  # TODO: this is self.template !?
                     print('Real: ' + str(fo_model.eval(template.real_param_variables()[key])))
                     new_params[key] = get_float(fo_model, template.real_param_variables()[key])
                 print('New parameters: ' + str(new_params))
@@ -205,6 +214,20 @@ class Adaptor:
             res = self._find_deviation(epsilon)
 
     def _find_deviation(self, epsilon, refine=2):
+        """
+        This function is used to find an x value, for which |f(x) - NN(x)| relatively large. Therefore the function
+        iteratively searches in for greater differences in each iteration. The central idea is that using x values for
+        which the difference is large, will improve the parameter-estimation in the first part of the algorithm more
+        than x values closer to the current estimation for f.
+
+        Args:
+            epsilon: distance in which new x values are searched initially. If found: doubled for next iteration
+            refine: number of iterations of searching for new x-values
+        Returns:
+            (tuple):
+                - bool to check whether a new value with minimum deviation ``epsilon`` is found
+                - new x value, if found.,
+        """
         # Encode the template.
         template_formula = self.template.smt_encoding()
         formula_2 = [template_formula]
@@ -215,15 +238,15 @@ class Adaptor:
             formula_2.append(self.nn_input_vars[i] >= self.lb[i])
             formula_2.append(self.nn_input_vars[i] <= self.ub[i])
 
-        # norm 1 distance
+        # norm 1 distance TODO: combine with loop below
         deviation = Or(
-                            Or(
+                        Or(
                             [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
-                                for i in range(len(self.nn_output_vars))]),
-                            Or(
+                             for i in range(len(self.nn_output_vars))]),
+                        Or(
                             [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
-                                for i in range(len(self.nn_output_vars))])
-                        )
+                             for i in range(len(self.nn_output_vars))])
+                      )
         
         # Assert subformulas.
         self.solver_2 = Solver()
@@ -233,11 +256,11 @@ class Adaptor:
             self.solver_2.add(nn_encoding_constraint)
 
         # Create backtracking point for searching with greater epsilon
-        #self.solver_2.push()
+        # self.solver_2.push()
         self.solver_2.add(deviation)
         
         # Check for satisfiability.
-        print('checking')
+        print('checking whether new x-value with minimum deviation epsilon exists')
         res = self.solver_2.check()
         print('done checking')
         if res == sat:
@@ -247,14 +270,14 @@ class Adaptor:
             for _ in range(refine):
                 # Double epsilon
                 exp_eps = exp_eps*2
-                #self.solver_2.pop()
+                # self.solver_2.pop()
                 deviation = (Or(
                     Or(
                         [self.nn_output_vars[i] - self.template.output_variables()[i] > exp_eps
-                        for i in range(len(self.nn_output_vars))]),
+                         for i in range(len(self.nn_output_vars))]),
                     Or(
                         [self.template.output_variables()[i] - self.nn_output_vars[i] > exp_eps
-                        for i in range(len(self.nn_output_vars))])
+                         for i in range(len(self.nn_output_vars))])
                         )
                     )
                 self.solver_2.add(deviation)
@@ -305,7 +328,7 @@ class Adaptor:
         res_dec = []
         for var in self.nn_output_vars:
             # This is a suspiciously hacky solution.
-            #TODO make this cleaner?! 
+            # TODO make this cleaner?!
             res_dec.append(get_float(fo_model, var))
 
         # Print the result for comparison.
