@@ -20,12 +20,10 @@ if __name__ == '__main__':
     # extract path to trained keras-model from arguments
     model_path = args.model
 
-    myLinTemplate = LinearTemplate()
-    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)))
-    # LinearA2D was trained on ((-10,10),(-10,10))
-    # Brusselator was trained on ((-2,2),(-2,2))
-    
     start_time = time.time()
+
+    myLinTemplate = LinearTemplate()
+    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splitting=True)
 
     # Test encoding
     #myAdaptor.test_encoding((42,))
@@ -34,6 +32,22 @@ if __name__ == '__main__':
     myAdaptor.adjust_template()
 
     # Test template optimization
-    #myAdaptor.optimize_template(model_path, myLinTemplate, ((-8,), (8,)))
+    #myAdaptor.optimize_template()
+    
+    '''# LinearA2D was trained on ((-10,-10),(10,10))
+    myLinTemplate = Linear2DTemplate()
+    path_to_model = os.path.join('mlp_smt_closed','mlp', 'models', 'Linear2DA_model.h5')
+    myAdaptor = Adaptor(path_to_model, myLinTemplate, ((-10,-10),(10,10)))
 
-    print('Total time: '+ str(time.time()-start_time))
+    # Test en ding
+    #myAdaptor.test_encoding((1,1))
+
+    # Test template adjustment
+    myAdaptor.adjust_template(epsilon=1)
+
+    # Test template optimization
+    #myAdaptor.optimize_template()
+
+    # Brusselator was trained on ((-2,2),(-2,2))
+
+    print('Total time: '+ str(time.time()-start_time))'''

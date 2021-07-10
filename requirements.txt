@@ -1,4 +1,4 @@
-z3
+z3-solver
 tensorflow
 numpy
 matplotlib

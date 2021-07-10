@@ -2,16 +2,18 @@ from itertools import count
 from math import dist
 from z3 import *
 from mlp_smt_closed.smt.encoder import *
+import multiprocessing, time
 
 
 class Adaptor:
     """This class can be used to find a closed for a trained MLP , given a function template.
     """
 
-    def __init__(self, model_path, template, interval) -> None:
+    def __init__(self, model_path, template, interval, splitting = False) -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
         ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
 
+        
         Parameters:
             model_path: path to export of keras model file.
             template: Template() instance # TODO has to be made compatible with args-parser
@@ -30,8 +32,13 @@ class Adaptor:
         # Encode the NN-model.
         # call constructor, create Encoder instance
         self.my_encoder = Encoder(model_path)
-        # encode the model
-        self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+        self.splitting = splitting
+        if not splitting:
+            self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+        else:
+            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
+            # To make it pickleable
+            self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
         # load the actual NN, used to calculate predictions
         self.nn_model = keras.models.load_model(model_path)
@@ -89,6 +96,7 @@ class Adaptor:
                 solver_1.add(sub)
             
             # Check for satisfiability.
+            print('Looking for new parameters...')
             res = solver_1.check()
             if res == sat:
                 fo_model = solver_1.model()
@@ -103,17 +111,14 @@ class Adaptor:
                 break
 
             # 2nd condition:
-            res, x = self._find_deviation(epsilon, refine=0)
+            if not self.splitting:
+                res, x = self._find_deviation(epsilon, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(epsilon)
 
     def optimize_template(self):
         """Function for optimizing parameters of a function-template
         to fit an MLP optimally.
-        
-        Parameters:
-            model_path: path to export of keras model file.
-            template: Template() instance # TODO has to be made compatible with args-parser
-            range: tuple of tuples representing an interval,
-                    limiting the function domain.
         """
 
         # Initial input
@@ -150,11 +155,11 @@ class Adaptor:
             absolutes = [Real('abs_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
             for i in range(len(self.nn_output_vars)):
                 formula_1.append(absolutes[i] ==
-                                 If(float(nn_y[i]) - t_output_vars[i] >= 0,
-                                    float(nn_y[i]) - t_output_vars[i],
-                                    t_output_vars[i] - float(nn_y[i])
-                                   )
-                                )
+                    If(float(nn_y[i]) - t_output_vars[i] >= 0,
+                        float(nn_y[i]) - t_output_vars[i],
+                        t_output_vars[i] - float(nn_y[i])
+                    )
+                )
             
             # Secondly, sum up those distances
             sum_abs = gen_sum(absolutes)
@@ -188,11 +193,11 @@ class Adaptor:
 
                 # Update parameters.
                 new_params = {}
-                for key in template.get_params():  # TODO: this is self.template !?
-                    print('Real: ' + str(fo_model.eval(template.real_param_variables()[key])))
-                    new_params[key] = get_float(fo_model, template.real_param_variables()[key])
+                for key in self.template.get_params():
+                    print('Real: ' + str(fo_model.eval(self.template.real_param_variables()[key])))
+                    new_params[key] = get_float(fo_model, self.template.real_param_variables()[key])
                 print('New parameters: ' + str(new_params))
-                template.set_params(new_params)
+                self.template.set_params(new_params)
 
                 # Optimal tolerance for the considered set of input values:
                 new_epsilon = get_float(fo_model, distance)
@@ -211,9 +216,10 @@ class Adaptor:
             counter += 1
 
             # Encode 2nd condition:
-            res = self._find_deviation(epsilon)
+            res, x = self._find_deviation(epsilon, refine=0)
+            print('End of while: ' + str(res)+str(x))
 
-    def _find_deviation(self, epsilon, refine=2):
+    def _find_deviation(self, epsilon, refine=1):
         """
         This function is used to find an x value, for which |f(x) - NN(x)| relatively large. Therefore the function
         iteratively searches in for greater differences in each iteration. The central idea is that using x values for
@@ -240,27 +246,26 @@ class Adaptor:
 
         # norm 1 distance TODO: combine with loop below
         deviation = Or(
-                        Or(
+                            Or(
                             [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
-                             for i in range(len(self.nn_output_vars))]),
-                        Or(
+                                for i in range(len(self.nn_output_vars))]),
+                            Or(
                             [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
-                             for i in range(len(self.nn_output_vars))])
-                      )
+                                for i in range(len(self.nn_output_vars))])
+                        )
         
         # Assert subformulas.
-        self.solver_2 = Solver()
+        self.solver_2.reset()
+        formula_2.extend(self.nn_model_formula.values())
         for sub in formula_2:
             self.solver_2.add(sub)
-        for nn_encoding_constraint in self.nn_model_formula.values():
-            self.solver_2.add(nn_encoding_constraint)
 
         # Create backtracking point for searching with greater epsilon
         # self.solver_2.push()
         self.solver_2.add(deviation)
         
-        # Check for satisfiability.
-        print('checking whether new x-value with minimum deviation epsilon exists')
+        # Check for satisfiability. checking whether new x-value with minimum deviation epsilon exists
+        print('checking violation')
         res = self.solver_2.check()
         print('done checking')
         if res == sat:
@@ -268,22 +273,31 @@ class Adaptor:
             # Heuristically search for a greater deviation
             exp_eps = epsilon
             for _ in range(refine):
-                # Double epsilon
+
+                # Incremental solver does not seem to work
+                self.solver_2.reset()
+                for sub in formula_2:
+                    self.solver_2.add(sub)
+
+                # Double epsilon and encode it
                 exp_eps = exp_eps*2
-                # self.solver_2.pop()
-                deviation = (Or(
+                deviation = Or(
                     Or(
                         [self.nn_output_vars[i] - self.template.output_variables()[i] > exp_eps
-                         for i in range(len(self.nn_output_vars))]),
+                        for i in range(len(self.nn_output_vars))]),
                     Or(
                         [self.template.output_variables()[i] - self.nn_output_vars[i] > exp_eps
-                         for i in range(len(self.nn_output_vars))])
-                        )
+                        for i in range(len(self.nn_output_vars))])
                     )
+
+                print(deviation)
                 self.solver_2.add(deviation)
+
                 # Break the for loop, if no such input can be found
                 if not self.solver_2.check():
                     break
+                else:
+                    print('Found better new input.')
 
             fo_model = self.solver_2.model()
             # Extract new input for parameter correction.
@@ -293,8 +307,78 @@ class Adaptor:
             return res, x
         else:
             print('Parameters found.')
-            print('For a minimal Deviation of: ' + str(epsilon))
+            print('With epsilon = ' + str(epsilon))
             return res, None
+
+    def _find_deviation_splitting(self, epsilon):
+        # Encode the template.
+        template_formula = self.template.smt_encoding()
+        formula_2 = [template_formula]
+
+        # Input conditions.
+        for i in range(len(self.nn_input_vars)):
+            formula_2.append(self.nn_input_vars[i] == self.template.input_variables()[i])
+            formula_2.append(self.nn_input_vars[i] >= self.lb[i])
+            formula_2.append(self.nn_input_vars[i] <= self.ub[i])
+
+        # norm 1 distance
+        deviation = Or(
+                            Or(
+                            [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
+                                for i in range(len(self.nn_output_vars))]),
+                            Or(
+                            [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
+                                for i in range(len(self.nn_output_vars))])
+                        )
+        formula_2.append(deviation)
+
+        # Solve the splitted encoding in parallel
+        processes = []
+        result_q = multiprocessing.Queue()
+        for split_formula in self.nn_model_formulas:
+            split_formula.extend(formula_2)
+            # This is neccesarry to be pickable
+            formula_as_string = toSMT2Benchmark(And(split_formula), logic='QF_FPA')
+            #input_vars_as_strings = [toSMT2Benchmark(var, logic='QF_FPA') for var in self.nn_input_vars]
+            p = multiprocessing.Process(
+                target=solve_single_split,
+                args=(
+                    formula_as_string,
+                    self.nn_input_vars_as_str,
+                    result_q)
+                )
+            processes.append(p)
+            p.start()
+
+        # Wait until one process returns sat, or all processes are done.
+        waiting = True
+        while waiting:
+            #time.sleep(0.1)
+            waiting = False
+            for p in processes:
+                if p.is_alive():
+                    waiting = True
+            if not result_q.empty():
+                waiting = False
+
+        # Terminate all processes, which are still alive.
+        for p in processes:
+            if p.is_alive():
+                p.terminate()
+
+        # Pop the new input, if found.
+        res, x = unsat, None
+        if not result_q.empty():
+            res, x = result_q.get()
+
+        print('done checking')
+        if res == sat:
+            print('New input: ' + str(x))
+        else:
+            print('Parameters found.')
+            print('With epsilon = ' + str(epsilon))
+
+        return res, x
 
     def test_encoding(self, input):
         """Function that tests whether solving the encoding for a 
@@ -334,3 +418,48 @@ class Adaptor:
         # Print the result for comparison.
         print('The calculated result is: ' + str(res_dec))
         print('However it should be:' + str(self.my_encoder.model.predict([input])))
+
+def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
+    """Stolen from Stackoverflow
+    not sure whats happening"""
+
+    v = (Ast * 0)()
+    return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
+
+def solve_single_split(formula_str, nn_input_vars, result):
+    '''Target function for solving workers'''
+
+    # Parse formula string
+    formula = parse_smt2_string(formula_str)
+
+    # Solve the formula
+    solver = Solver()
+    for subformula in formula:
+        solver.add(subformula)
+    print('solving')
+    res = solver.check()
+    print('solved: ' + str(res))
+
+    # Extract the model, if sat
+    if res == sat:
+        # Preperation for extracting the new input
+        # The order of the input vars has to be consistent
+        x_list = [None for x in nn_input_vars]
+        x_name_map = dict()
+        for i in range(len(nn_input_vars)):
+            x_name_map[nn_input_vars[i]] = i
+        # This looses the order, but should speed up the look-up
+        nn_input_vars = set(nn_input_vars)
+
+        fo_model = solver.model()
+        for var in fo_model:
+            # This is a bit hacky, but not possible otherwise
+            name = str(var)
+            print(name)
+            if name in nn_input_vars:
+                value = fo_model[var]
+                float_value = float(eval(str(value)))
+                x_list[x_name_map[name]] = float_value
+
+        x = tuple(x_list)
+        result.put((res,x))
