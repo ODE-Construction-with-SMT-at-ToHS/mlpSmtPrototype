@@ -77,7 +77,7 @@ class Encoder:
         """
         Encode Keras model saved at ``modelpath`` as a list of SMT formulas in ``z3`` for a variable input w.r.t. 
         the MLP the model encodes. The set of formulas corresponds to the formula returned by encode(), split
-        into combinatorialy simpler, paralelly solvable formulas.
+        into combinatorially simpler, parallelly solvable formulas.
 
         Returns:
             (tuple): tuple containing:
@@ -224,7 +224,7 @@ class Encoder:
 
         Parameters:
             number: number of splits to be made.
-        
+
         Returns:
             (list): List of 2^number lists of constraints ensuring correct encoding of the activation functions
                     for a set of formulas.
@@ -244,7 +244,7 @@ class Encoder:
                 if activation == 'relu':
                     if ctr < number:
                         ctr += 1
-                        # Split the encoding according to the case defferentiation
+                        # Split the encoding according to the case differentiation
                         # As function_encodings is a list of lists a simple shallow copy does not suffice
                         case2 = [list.copy() for list in function_encodings]
 
@@ -253,13 +253,13 @@ class Encoder:
                             self.variables_x[i+1][j] == 0]
                         for split in function_encodings:
                             split.extend(single_encoding)
-                        
+
                         # Second case:
                         single_encoding = [0 < self.variables_y[i][j],
                             self.variables_x[i+1][j] == self.variables_y[i][j]]
                         for split in case2:
                             split.extend(single_encoding)
-                        
+
                         # Extend function encodings by the second case
                         function_encodings.extend(case2)
 
@@ -267,24 +267,27 @@ class Encoder:
                         # encode ReLU (ReLU(x) = {  0, 0 >= x
                         #                           x, else   }
                         single_encoding = []
-                        single_encoding.append(Implies(0 >= self.variables_y[i][j], 
+                        single_encoding.append(Implies(0 >= self.variables_y[i][j],
                             self.variables_x[i+1][j] == 0))
-                        single_encoding.append(Implies(0 < self.variables_y[i][j], 
+                        single_encoding.append(Implies(0 < self.variables_y[i][j],
                             self.variables_x[i+1][j] == self.variables_y[i][j]))
                         # Extend all prev. encodings
                         for split in function_encodings:
                             split.extend(single_encoding)
                 # This case also applies, if no activation is specified in Keras.
                 elif activation == 'linear':
+                    if ctr < number:
+                        print("warning: no split for linear activation functions implemented yet.")
+                        print("Also there may be less nodes in the networks than the specified number of splits.")
                     for split in function_encodings:
                         split.append(self.variables_x[i+1][j] == self.variables_y[i][j])
-                
+
                 else:
                     print('Error: only relu and linear are supported as activation function. Not: '
                           + str(activation))
                     print('Exiting ...')
                     sys.exit()
-        
+
         return function_encodings
 
 def gen_sum(list):

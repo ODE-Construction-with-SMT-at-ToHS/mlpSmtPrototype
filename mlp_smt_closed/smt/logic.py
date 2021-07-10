@@ -6,7 +6,7 @@ import multiprocessing, time
 
 
 class Adaptor:
-    """This class can be used to find a closed for a trained MLP , given a function template.
+    """This class can be used to find a closed form for a trained MLP , given a function template.
     """
 
     def __init__(self, model_path, template, interval, splitting = False) -> None:
@@ -32,6 +32,7 @@ class Adaptor:
         # Encode the NN-model.
         # call constructor, create Encoder instance
         self.my_encoder = Encoder(model_path)
+        # encode the model
         self.splitting = splitting
         if not splitting:
             self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
@@ -256,7 +257,9 @@ class Adaptor:
         
         # Assert subformulas.
         self.solver_2.reset()
+        # add NN constraints to solver
         formula_2.extend(self.nn_model_formula.values())
+        # add constraints of the
         for sub in formula_2:
             self.solver_2.add(sub)
 
