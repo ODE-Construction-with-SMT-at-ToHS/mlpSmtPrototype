@@ -58,6 +58,7 @@ class Adaptor:
 
         # Initial input
         x = self.lb
+        print('Initial input: ', x)
 
         # Create a solver instance. This solver will be used to find parameters for the template within the epsilon
         # bound. In every iteration, one additional x value is added that needs to fit the constraints.
@@ -97,7 +98,8 @@ class Adaptor:
                 solver_1.add(sub)
             
             # Check for satisfiability.
-            print('Looking for new parameters...')
+            print('Looking for new parameters')
+            start_time_parameter = time.time()
             res = solver_1.check()
             if res == sat:
                 fo_model = solver_1.model()
@@ -105,13 +107,17 @@ class Adaptor:
                 new_params = {}
                 for key in self.template.get_params():
                     new_params[key] = get_float(fo_model, self.template.param_variables()[key])
-                print('New parameters: ' + str(new_params))
+                print('    -> New parameters found: ' + str(new_params))
                 self.template.set_params(new_params)
             else:
-                print('No parameters within bound found.')
+                print('    -> Bound to strict: No parameters found.')
                 break
 
+            end_time_parameter = time.time()
+            print('    -> took', end_time_parameter-start_time_parameter, 'seconds')
+
             # 2nd condition:
+            print('Looking for new input')
             if not self.splitting:
                 res, x = self._find_deviation(epsilon, refine=0)
             else:
@@ -184,7 +190,7 @@ class Adaptor:
             solver_1.add(dist_enc)
 
             print(formula_1)
-            
+
             # Optimize parameters
             solver_1.minimize(distance)
             res = solver_1.check()
@@ -236,6 +242,8 @@ class Adaptor:
                 - new x value, if found.,
         """
         # Encode the template.
+        start_time_deviation = time.time()
+
         template_formula = self.template.smt_encoding()
         formula_2 = [template_formula]
 
@@ -268,15 +276,13 @@ class Adaptor:
         self.solver_2.add(deviation)
         
         # Check for satisfiability. checking whether new x-value with minimum deviation epsilon exists
-        print('checking violation')
+        print('    -> solving')
         res = self.solver_2.check()
-        print('done checking')
+        print('    -> solved')
         if res == sat:
-
             # Heuristically search for a greater deviation
             exp_eps = epsilon
             for _ in range(refine):
-
                 # Incremental solver does not seem to work
                 self.solver_2.reset()
                 for sub in formula_2:
@@ -292,28 +298,34 @@ class Adaptor:
                         [self.template.output_variables()[i] - self.nn_output_vars[i] > exp_eps
                         for i in range(len(self.nn_output_vars))])
                     )
-
-                print(deviation)
+                # print(deviation)
                 self.solver_2.add(deviation)
 
                 # Break the for loop, if no such input can be found
+                print('    -> looking for improved input')
                 if not self.solver_2.check():
+                    print('    -> no improvement found')
                     break
                 else:
-                    print('Found better new input.')
+                    print('    -> improvement found')
 
             fo_model = self.solver_2.model()
             # Extract new input for parameter correction.
             x_list = [get_float(fo_model, var) for var in self.nn_input_vars]
             x = tuple(x_list)
-            print('New input: ' + str(x))
+            print('    -> New input found: ' + str(x))
+            end_time_deviation = time.time()
+            print('    -> took', end_time_deviation-start_time_deviation, 'seconds')
             return res, x
         else:
-            print('Parameters found.')
-            print('With epsilon = ' + str(epsilon))
+            end_time_deviation = time.time()
+            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
+            print('Most recent parameters sufficient (epsilon = ' + str(epsilon), ')')
             return res, None
 
     def _find_deviation_splitting(self, epsilon):
+        start_time_deviation = time.time()
+        # no incremental deviation
         # Encode the template.
         template_formula = self.template.smt_encoding()
         formula_2 = [template_formula]
@@ -336,6 +348,7 @@ class Adaptor:
         formula_2.append(deviation)
 
         # Solve the splitted encoding in parallel
+        print('    -> solving splits')
         processes = []
         result_q = multiprocessing.Queue()
         for split_formula in self.nn_model_formulas:
@@ -374,12 +387,15 @@ class Adaptor:
         if not result_q.empty():
             res, x = result_q.get()
 
-        print('done checking')
+        end_time_deviation = time.time()
+
         if res == sat:
-            print('New input: ' + str(x))
+            print('    -> New input found: ' + str(x))
+            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
         else:
-            print('Parameters found.')
-            print('With epsilon = ' + str(epsilon))
+            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
+            print('Most recent parameters sufficient (epsilon = ' + str(epsilon) + ')')
+            print()
 
         return res, x
 
@@ -439,9 +455,9 @@ def solve_single_split(formula_str, nn_input_vars, result):
     solver = Solver()
     for subformula in formula:
         solver.add(subformula)
-    print('solving')
+    print('        * solving single split')
     res = solver.check()
-    print('solved: ' + str(res))
+    print('        * single split solved: ' + str(res))
 
     # Extract the model, if sat
     if res == sat:
@@ -458,7 +474,7 @@ def solve_single_split(formula_str, nn_input_vars, result):
         for var in fo_model:
             # This is a bit hacky, but not possible otherwise
             name = str(var)
-            print(name)
+            # print(name)
             if name in nn_input_vars:
                 value = fo_model[var]
                 float_value = float(eval(str(value)))

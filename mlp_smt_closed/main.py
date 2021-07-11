@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # extract path to trained keras-model from arguments
     model_path = args.model
 
-    start_time = time.time()
+    start_time_overall = time.time()
 
     myLinTemplate = LinearTemplate()
     myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splitting=True)
@@ -29,7 +29,12 @@ if __name__ == '__main__':
     #myAdaptor.test_encoding((42,))
 
     # Test template adjustment
+
     myAdaptor.adjust_template()
+
+    end_time_overall = time.time()
+
+    print('Overall computation time: ', end_time_overall - start_time_overall, 'seconds')
 
     # Test template optimization
     #myAdaptor.optimize_template()

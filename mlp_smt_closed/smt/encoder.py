@@ -73,7 +73,7 @@ class Encoder:
 
         return formula, output_vars, input_vars
 
-    def encode_splitted(self, number=1):
+    def encode_splitted(self, number=2):
         """
         Encode Keras model saved at ``modelpath`` as a list of SMT formulas in ``z3`` for a variable input w.r.t. 
         the MLP the model encodes. The set of formulas corresponds to the formula returned by encode(), split
