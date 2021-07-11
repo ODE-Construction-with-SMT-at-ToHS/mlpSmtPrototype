@@ -31,6 +31,7 @@ if __name__ == '__main__':
     # Test template adjustment
 
     myAdaptor.adjust_template()
+    # myAdaptor.optimize_template()
 
     end_time_overall = time.time()
 

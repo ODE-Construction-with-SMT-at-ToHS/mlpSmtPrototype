@@ -1,15 +1,13 @@
-from itertools import count
-from math import dist
-from z3 import *
 from mlp_smt_closed.smt.encoder import *
-import multiprocessing, time
+import multiprocessing
+import time
 
 
 class Adaptor:
     """This class can be used to find a closed form for a trained MLP , given a function template.
     """
 
-    def __init__(self, model_path, template, interval, splitting = False) -> None:
+    def __init__(self, model_path, template, interval, splitting=False) -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
         ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
 
@@ -130,7 +128,7 @@ class Adaptor:
 
         # Initial input
         x = self.lb
-
+        print('Initial input: ', x)
         # Create a solver instances.
         solver_1 = Optimize()
 
@@ -143,6 +141,8 @@ class Adaptor:
 
         # while the encoding is satisfiable
         while res == sat:
+            print('Optimizing parameters')
+            start_time_opt = time.time()
 
             # Encode 1st condition, stored in formula_1:
             # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
@@ -162,11 +162,11 @@ class Adaptor:
             absolutes = [Real('abs_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
             for i in range(len(self.nn_output_vars)):
                 formula_1.append(absolutes[i] ==
-                    If(float(nn_y[i]) - t_output_vars[i] >= 0,
-                        float(nn_y[i]) - t_output_vars[i],
-                        t_output_vars[i] - float(nn_y[i])
-                    )
-                )
+                                 If(float(nn_y[i]) - t_output_vars[i] >= 0,
+                                    float(nn_y[i]) - t_output_vars[i],
+                                    t_output_vars[i] - float(nn_y[i])
+                                    )
+                                 )
             
             # Secondly, sum up those distances
             sum_abs = gen_sum(absolutes)
@@ -189,7 +189,7 @@ class Adaptor:
             solver_1.push()
             solver_1.add(dist_enc)
 
-            print(formula_1)
+            # print(formula_1)
 
             # Optimize parameters
             solver_1.minimize(distance)
@@ -201,20 +201,21 @@ class Adaptor:
                 # Update parameters.
                 new_params = {}
                 for key in self.template.get_params():
-                    print('Real: ' + str(fo_model.eval(self.template.real_param_variables()[key])))
+                    # print('Real: ' + str(fo_model.eval(self.template.real_param_variables()[key])))
                     new_params[key] = get_float(fo_model, self.template.real_param_variables()[key])
-                print('New parameters: ' + str(new_params))
+                print('    -> New parameters found: ' + str(new_params))
                 self.template.set_params(new_params)
 
                 # Optimal tolerance for the considered set of input values:
                 new_epsilon = get_float(fo_model, distance)
+                # TODO: I dont think this does something useful. --Nicolai
                 if not (epsilon is None) and new_epsilon < epsilon:
                     # Casting issue from Real to pyhton value
                     print('Optimal parameters found.')
                     print('For a minimal deviation of: ' + str(epsilon))
                     break
                 epsilon = new_epsilon
-                print('With a deviation of: ' + str(epsilon))
+                print('    -> Deviation:', epsilon)
             else:
                 print('Error! No satisfying parameters found.')
                 print(res)
@@ -222,9 +223,13 @@ class Adaptor:
 
             counter += 1
 
+            end_time_opt = time.time()
+            print('    -> Took', end_time_opt-start_time_opt, 'seconds')
+
             # Encode 2nd condition:
+            print('Looking for new input')
             res, x = self._find_deviation(epsilon, refine=0)
-            print('End of while: ' + str(res)+str(x))
+            # print('End of while: ' + str(res)+str(x))
 
     def _find_deviation(self, epsilon, refine=1):
         """
@@ -256,11 +261,11 @@ class Adaptor:
         # norm 1 distance TODO: combine with loop below
         deviation = Or(
                             Or(
-                            [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
-                                for i in range(len(self.nn_output_vars))]),
+                                [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
+                                    for i in range(len(self.nn_output_vars))]),
                             Or(
-                            [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
-                                for i in range(len(self.nn_output_vars))])
+                                [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
+                                    for i in range(len(self.nn_output_vars))])
                         )
         
         # Assert subformulas.
@@ -293,10 +298,10 @@ class Adaptor:
                 deviation = Or(
                     Or(
                         [self.nn_output_vars[i] - self.template.output_variables()[i] > exp_eps
-                        for i in range(len(self.nn_output_vars))]),
+                            for i in range(len(self.nn_output_vars))]),
                     Or(
                         [self.template.output_variables()[i] - self.nn_output_vars[i] > exp_eps
-                        for i in range(len(self.nn_output_vars))])
+                            for i in range(len(self.nn_output_vars))])
                     )
                 # print(deviation)
                 self.solver_2.add(deviation)
@@ -339,11 +344,11 @@ class Adaptor:
         # norm 1 distance
         deviation = Or(
                             Or(
-                            [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
-                                for i in range(len(self.nn_output_vars))]),
+                                [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
+                                    for i in range(len(self.nn_output_vars))]),
                             Or(
-                            [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
-                                for i in range(len(self.nn_output_vars))])
+                                [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
+                                    for i in range(len(self.nn_output_vars))])
                         )
         formula_2.append(deviation)
 
@@ -355,7 +360,7 @@ class Adaptor:
             split_formula.extend(formula_2)
             # This is neccesarry to be pickable
             formula_as_string = toSMT2Benchmark(And(split_formula), logic='QF_FPA')
-            #input_vars_as_strings = [toSMT2Benchmark(var, logic='QF_FPA') for var in self.nn_input_vars]
+            # input_vars_as_strings = [toSMT2Benchmark(var, logic='QF_FPA') for var in self.nn_input_vars]
             p = multiprocessing.Process(
                 target=solve_single_split,
                 args=(
@@ -369,7 +374,7 @@ class Adaptor:
         # Wait until one process returns sat, or all processes are done.
         waiting = True
         while waiting:
-            #time.sleep(0.1)
+            # time.sleep(0.1)
             waiting = False
             for p in processes:
                 if p.is_alive():
@@ -404,7 +409,6 @@ class Adaptor:
         MLP-model produces a correct model of the encoding.
         
         Parameters:
-            model_path: path to export of keras model file.
             input: tuple representing the input.
         """
 
@@ -438,6 +442,7 @@ class Adaptor:
         print('The calculated result is: ' + str(res_dec))
         print('However it should be:' + str(self.my_encoder.model.predict([input])))
 
+
 def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     """Stolen from Stackoverflow
     not sure whats happening"""
@@ -445,8 +450,10 @@ def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     v = (Ast * 0)()
     return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
 
+
 def solve_single_split(formula_str, nn_input_vars, result):
-    '''Target function for solving workers'''
+    """Target function for solving splits
+    """
 
     # Parse formula string
     formula = parse_smt2_string(formula_str)
@@ -481,4 +488,4 @@ def solve_single_split(formula_str, nn_input_vars, result):
                 x_list[x_name_map[name]] = float_value
 
         x = tuple(x_list)
-        result.put((res,x))
+        result.put((res, x))
