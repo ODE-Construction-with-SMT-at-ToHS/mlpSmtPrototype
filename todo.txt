@@ -1,0 +1,7 @@
+-> use regression to generate find input parameters, use SMT to proof max derivation
+-> scale: use input data that is more difficult to solve (more dimensions, trigonometric, a*x+b*u
+-> use a different technique to generate input data: iteratively generate more data -- modell not executable!? -> Ábrahám
+-> write paper
+	* case-study
+	* things to mention:
+		* which input clusters activate certain neurons? -> mark neurons
