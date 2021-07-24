@@ -18,6 +18,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from mlp_smt_closed.mlp.functions import *
 from mlp_smt_closed.mlp.plot3d import *
+from mlp_smt_closed.mlp.sampling import *
 
 
 def train1d(func_class):
@@ -30,17 +31,8 @@ def train1d(func_class):
             attribute
     """
 
-    # Sample some training data.
-    x_samples = np.linspace(-10, 10, 1000+1).T
-    y_samples = [func_class.f(x) for x in x_samples]
-    y_samples = np.array(y_samples)
-    # Add noise to y-values
-    y_scatter = np.random.normal(0.0, 0.2, y_samples.shape)
-    y_samples = y_samples + y_scatter
-
-    # process samples, get test training data
-    x, y = shuffle(x_samples, y_samples, random_state=0)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    # load samples
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(func_class)
 
     # Create a simple mlp model.
     model = keras.Sequential([
@@ -70,6 +62,7 @@ def train1d(func_class):
     plt.plot(x_samples, y_samples, 'r')
     plt.scatter(x_test, y_predictions)
     plt.savefig('plots/' + func_class.name + '_learned.png')
+    plt.show()
     plt.clf()
 
 
@@ -83,18 +76,8 @@ def train2d(func_class):
             `name` attribute
     """
 
-    # Sample 2D training data.
-    a, b = np.mgrid[-10:10:100j, -10:10:100j]
-    x_samples = np.vstack((a.flatten(), b.flatten())).T
-    y_samples = [func_class.f(x) for x in x_samples]
-    y_samples = np.array(y_samples)
-    # Add noise to y-values
-    y_scatter = np.random.normal(0, 0.05, y_samples.shape)
-    y_samples = y_samples + y_scatter
-
-    # process samples, get test training data
-    x, y = shuffle(x_samples, y_samples, random_state=0)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    # load samples
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(func_class)
 
     # Create a simple mlp model.
     model = keras.Sequential([
@@ -150,11 +133,12 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-
+    # sample_1d(LinearA, 1000+1, [-10, 10], 0.2)
+    # sample_1d(QuadraticA, 1000+1, [-10, 10], 0.2)
+    # sample_1d(QuadraticB, 1000+1, [-10, 10], 0.2)
+    # sample_2d(LinearA2D, 100, 100, [-10, 10], [-10, 10], 0.05)
+    # train1d(LinearA)
+    # train1d(QuadraticA)
+    # train1d(QuadraticB)
     train2d(LinearA2D)
-    #train1d(LinearA)
-    #train1d(QuadraticA)
-    #train1d(QuadraticB)
-    #train2d(Brusselator(1,1.5))
-
-    #open_model(LinearA)
+    # open_model(LinearA)
