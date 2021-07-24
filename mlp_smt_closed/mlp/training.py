@@ -36,8 +36,8 @@ def train1d(func_class):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(1, activation=tf.nn.relu, input_shape=(1,)),
-        keras.layers.Dense(2, activation=tf.nn.relu),
+        keras.layers.Dense(5, activation=tf.nn.relu, input_shape=(1,)),
+        keras.layers.Dense(5, activation=tf.nn.relu),
         keras.layers.Dense(1)
     ])
 
@@ -140,5 +140,10 @@ if __name__ == '__main__':
     # train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
-    train2d(LinearA2D)
+    # train2d(LinearA2D)
+    # train1d(LinearA)
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(LinearA)
+    print(x_samples, y_samples, x_train, x_test, y_train, y_test)
+    print(x_samples.shape)
+
     # open_model(LinearA)

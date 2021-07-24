@@ -1,6 +1,10 @@
+import numpy as np
+
 from mlp_smt_closed.smt.encoder import *
 import multiprocessing
 import time
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
 
 
 class Adaptor:
@@ -230,6 +234,55 @@ class Adaptor:
             print('Looking for new input')
             res, x = self._find_deviation(epsilon, refine=0)
             # print('End of while: ' + str(res)+str(x))
+
+    def regression_verification_1d(self, epsilon: float = 0.5, size = 200):
+        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
+        TODO: describe difference to optimize template
+
+        Parameters:
+            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
+            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
+        """
+
+
+        # create samples form input network
+        x_samples = np.linspace(self.lb, self.ub, size)
+        y_samples = self.nn_model.predict(x_samples)
+        
+        reg = LinearRegression().fit(x_samples, y_samples)
+        print("Function found! f(x) = ", reg.coef_[0][0], "x +", reg.intercept_[0])
+
+        # Plot the results
+        # plt.plot(x_samples, y_samples, 'r')
+        plt.scatter(x_samples, y_samples)
+        # plt.savefig('plots/' + func_class.name + '_learned.png')
+        plt.show()
+        plt.clf()
+
+
+
+
+        # do regression to find parameters
+
+        # while the encoding is satisfiable
+
+        # do binary search to find close epsilon ---- or ---- directly do regression with max deviation as loss
+
+        # print('Doing regression to find new parameters')
+        # start_time_parameter = time.time()
+
+
+        # new_params =
+        # print('    -> New parameters found: ' + str(new_params))
+        # end_time_parameter = time.time()
+        # print('    -> took', end_time_parameter - start_time_parameter, 'seconds')
+
+        # print('Looking for new input')
+        # if not self.splitting:
+        #     res, x = self._find_deviation(epsilon, refine=0)
+        # else:
+        #     res, x = self._find_deviation_splitting(epsilon)
+
 
     def _find_deviation(self, epsilon, refine=1):
         """
