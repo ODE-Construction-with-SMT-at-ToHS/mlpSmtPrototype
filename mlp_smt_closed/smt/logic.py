@@ -243,14 +243,49 @@ class Adaptor:
             epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
             output of the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
-
+        start_time_regression_verification1d = time.time()
 
         # create samples form input network
+        print('Taking samples to do regression')
         x_samples = np.linspace(self.lb, self.ub, size)
         y_samples = self.nn_model.predict(x_samples)
-        
+
+
+        # do regression to find parameters
+        print('Doing regression')
+        start_time_regression = time.time()
         reg = LinearRegression().fit(x_samples, y_samples)
-        print("Function found! f(x) = ", reg.coef_[0][0], "x +", reg.intercept_[0])
+        new_params = {'a': float(reg.coef_[0][0]), 'b': float(reg.intercept_[0])}
+        self.template.set_params(new_params)
+
+        print('    -> template parameters: ', self.template.get_params())
+        print('    -> a = ', self.template.get_params()['a'])
+        print('    -> b = ', self.template.get_params()['b'])
+        print('    -> b rounded: ', round(self.template.get_params()['b'], 7))
+        print('    -> type(a) = ', type(self.template.get_params()['a']))
+        print('    -> type(b) = ', type(self.template.get_params()['b']))
+        end_time_regression = time.time()
+        print('    -> Function found: f(x) = ', reg.coef_[0][0], 'x +', reg.intercept_[0])
+        print('    -> took', end_time_regression - start_time_regression, 'seconds')
+        print(self.template.get_params())
+
+        print('Looking for new input')
+        if not self.splitting:
+            res, x = self._find_deviation(epsilon, refine=0)
+        else:
+            res, x = self._find_deviation_splitting(epsilon)
+
+        print(res)
+        print(x)
+
+        # new_params = {}
+        # for key in self.template.get_params():
+        #     new_params[key] = get_float(fo_model, self.template.param_variables()[key])
+        # self.template.set_params(new_params)
+
+        # while the encoding is satisfiable
+
+        # do binary search to find close epsilon ---- or ---- directly do regression with max deviation as loss
 
         # Plot the results
         # plt.plot(x_samples, y_samples, 'r')
@@ -262,27 +297,12 @@ class Adaptor:
 
 
 
-        # do regression to find parameters
-
-        # while the encoding is satisfiable
-
-        # do binary search to find close epsilon ---- or ---- directly do regression with max deviation as loss
-
-        # print('Doing regression to find new parameters')
-        # start_time_parameter = time.time()
-
-
-        # new_params =
-        # print('    -> New parameters found: ' + str(new_params))
-        # end_time_parameter = time.time()
-        # print('    -> took', end_time_parameter - start_time_parameter, 'seconds')
 
         # print('Looking for new input')
         # if not self.splitting:
         #     res, x = self._find_deviation(epsilon, refine=0)
         # else:
         #     res, x = self._find_deviation_splitting(epsilon)
-
 
     def _find_deviation(self, epsilon, refine=1):
         """
