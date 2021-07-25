@@ -36,24 +36,21 @@ class Adaptor:
         self.my_encoder = Encoder(model_path, enc_real=enc_real)
         # encode the model
         self.splitting = splitting
-        if enc_real:
-            print('Not yet implemented.')
-            sys.exit()
+
+        if not splitting:
+            self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
         else:
-            if not splitting:
-                self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
-            else:
-                self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
-                # To make it pickleable
-                self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
+            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
+            # To make it pickleable
+            self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
-            # load the actual NN, used to calculate predictions
-            self.nn_model = keras.models.load_model(model_path)
+        # load the actual NN, used to calculate predictions
+        self.nn_model = keras.models.load_model(model_path)
 
-            # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
-            self.solver_2 = Solver()
+        # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
+        self.solver_2 = Solver()
 
-    def adjust_template(self, epsilon: float = 0.5):
+    def adjust_template(self, epsilon = 0.5):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
         TODO: describe difference to optimize template
         
@@ -83,11 +80,16 @@ class Adaptor:
             # the 1st condition is that the parameters found satisfy f(x) = NN(x) +- epsilon for all x currently
             # considered
             formula_1 = []
-
-            # use NN to calculate output y for input x
-            nn_y = self.nn_model.predict([x])[0]
-            # create variables for each output value.
-            t_output_vars = [FP(('y1_{}_{}'.format(counter, i)), Float32()) for i in range(len(self.nn_output_vars))]
+            
+            if enc_real:
+                print('Not yet implemented.')
+                sys.exit()
+            else:
+                epsilon = float(epsilon)
+                # use NN to calculate output y for input x
+                nn_y = self.nn_model.predict([x])[0]
+                # create variables for each output value.
+                t_output_vars = [FP(('y1_{}_{}'.format(counter, i)), Float32()) for i in range(len(self.nn_output_vars))]
 
             counter = counter + 1  # is it easier to understand this if its put at the end of the loop?
 
@@ -111,10 +113,15 @@ class Adaptor:
                 fo_model = solver_1.model()
                 # Update parameters.
                 new_params = {}
-                for key in self.template.get_params():
-                    new_params[key] = get_float(fo_model, self.template.param_variables()[key])
-                print('    -> New parameters found: ' + str(new_params))
-                self.template.set_params(new_params)
+     
+                if enc_real:
+                    print('Not yet implemented.')
+                    sys.exit()
+                else:
+                    for key in self.template.get_params():
+                        new_params[key] = get_float(fo_model, self.template.param_variables()[key])
+                    print('    -> New parameters found: ' + str(new_params))
+                    self.template.set_params(new_params)
             else:
                 print('    -> Bound to strict: No parameters found.')
                 break
