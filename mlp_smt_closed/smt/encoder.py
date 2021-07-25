@@ -12,7 +12,7 @@ class Encoder:
     The encoding is done as described in `this paper <https://arxiv.org/abs/2008.01204>`_.
     """
 
-    def __init__(self, modelpath):
+    def __init__(self, modelpath, enc_real=False):
         """
         Constructor. Check whether a model is stored at ``modelpath``, it is sequential, and the input is
         flat-shaped. Also, the model is loaded, reshaped and saved in ``self.weights``
@@ -21,6 +21,11 @@ class Encoder:
             modelpath (path):
                 path to the file in which the model that should be encoded is stored.
         """
+
+        # set whether variables are encoded as reals or as FP
+        # TODO: work in progress - one encoding should be eliminated
+        self.enc_real = enc_real
+
         # load model stored at modelpath
         self.model = keras.models.load_model(modelpath)
 
@@ -34,7 +39,7 @@ class Encoder:
                 print('Exiting ...')
                 sys.exit()
         except:
-            print('Error: only flat input shapes (input_shape = (None, x)) is supported currently.')
+            print('Error: only flat input shapes (input_shape = (None, x)) are supported currently.')
             print('Exiting ...')
             sys.exit()
 
@@ -139,22 +144,26 @@ class Encoder:
         self.variables_x = []
         self.variables_y = []
 
-        # create variables for the (flat) input layer.
-        self.variables_x.append([])
-        for j in range(self.dimension_one):
-            self.variables_x[0].append(FP('x_0_{}'.format(j), Float32()))
-        
-        # create variables for the actual layers
-        # iterate over the layers
-        for i in range(len(self.weights)):
+        if enc_real:
+            print('Not yet implemented.')
+            sys.exit()
+        else:
+            # create variables for the (flat) input layer.
             self.variables_x.append([])
-            self.variables_y.append([])
-            # iterate over nodes of one layer
-            for j in range(len(self.weights[i][0][0])):
-                # y-var for output after applying weights+bias
-                self.variables_y[i].append(FP('y_{}_{}'.format(i, j), Float32()))
-                # x-var for output of layer (after applying ReLU)
-                self.variables_x[i+1].append(FP('x_{}_{}'.format(i+1, j), Float32()))
+            for j in range(self.dimension_one):
+                self.variables_x[0].append(FP('x_0_{}'.format(j), Float32()))
+            
+            # create variables for the actual layers
+            # iterate over the layers
+            for i in range(len(self.weights)):
+                self.variables_x.append([])
+                self.variables_y.append([])
+                # iterate over nodes of one layer
+                for j in range(len(self.weights[i][0][0])):
+                    # y-var for output after applying weights+bias
+                    self.variables_y[i].append(FP('y_{}_{}'.format(i, j), Float32()))
+                    # x-var for output of layer (after applying ReLU)
+                    self.variables_x[i+1].append(FP('x_{}_{}'.format(i+1, j), Float32()))
 
     # Encode affine functions
     def _encode_affine_layers(self):
@@ -174,6 +183,8 @@ class Encoder:
                 # Basically matrix multiplication
                 # y_i_j = weights * output of last layer + bias
                 # the equation ("==") is appended as a constraint for a solver
+                # TODO: check whether any precision might be lost, if weights
+                # are not casted into into a float, when using real variables
                 affine_layers.append(
                     self.variables_y[i][j] == 
                     gen_sum([(self.variables_x[i][j_x]* 
@@ -276,9 +287,6 @@ class Encoder:
                             split.extend(single_encoding)
                 # This case also applies, if no activation is specified in Keras.
                 elif activation == 'linear':
-                    if ctr < number:
-                        print("warning: no split for linear activation functions implemented yet.")
-                        print("Also there may be less nodes in the networks than the specified number of splits.")
                     for split in function_encodings:
                         split.append(self.variables_x[i+1][j] == self.variables_y[i][j])
 

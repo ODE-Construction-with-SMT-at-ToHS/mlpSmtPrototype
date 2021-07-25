@@ -2,7 +2,7 @@ import numpy as np
 
 from mlp_smt_closed.smt.encoder import *
 import multiprocessing
-import time
+import time, sys
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
@@ -11,7 +11,7 @@ class Adaptor:
     """This class can be used to find a closed form for a trained MLP , given a function template.
     """
 
-    def __init__(self, model_path, template, interval, splitting=False) -> None:
+    def __init__(self, model_path, template, interval, splitting=False, enc_real=False) -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
         ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
 
@@ -33,21 +33,25 @@ class Adaptor:
 
         # Encode the NN-model.
         # call constructor, create Encoder instance
-        self.my_encoder = Encoder(model_path)
+        self.my_encoder = Encoder(model_path, enc_real=enc_real)
         # encode the model
         self.splitting = splitting
-        if not splitting:
-            self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+        if enc_real:
+            print('Not yet implemented.')
+            sys.exit()
         else:
-            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
-            # To make it pickleable
-            self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
+            if not splitting:
+                self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
+            else:
+                self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
+                # To make it pickleable
+                self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
-        # load the actual NN, used to calculate predictions
-        self.nn_model = keras.models.load_model(model_path)
+            # load the actual NN, used to calculate predictions
+            self.nn_model = keras.models.load_model(model_path)
 
-        # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
-        self.solver_2 = Solver()
+            # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
+            self.solver_2 = Solver()
 
     def adjust_template(self, epsilon: float = 0.5):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
