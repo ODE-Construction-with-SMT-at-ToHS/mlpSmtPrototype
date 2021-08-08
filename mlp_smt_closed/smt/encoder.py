@@ -145,8 +145,22 @@ class Encoder:
         self.variables_y = []
 
         if enc_real:
-            print('Not yet implemented.')
-            sys.exit()
+            # create variables for the (flat) input layer.
+            self.variables_x.append([])
+            for j in range(self.dimension_one):
+                self.variables_x[0].append(Real('x_0_{}'.format(j)))
+            
+            # create variables for the actual layers
+            # iterate over the layers
+            for i in range(len(self.weights)):
+                self.variables_x.append([])
+                self.variables_y.append([])
+                # iterate over nodes of one layer
+                for j in range(len(self.weights[i][0][0])):
+                    # y-var for output after applying weights+bias
+                    self.variables_y[i].append(Real('y_{}_{}'.format(i, j)))
+                    # x-var for output of layer (after applying ReLU)
+                    self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1, j)))
         else:
             # create variables for the (flat) input layer.
             self.variables_x.append([])
