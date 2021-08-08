@@ -36,10 +36,12 @@ class Adaptor:
         self.my_encoder = Encoder(model_path, enc_real=enc_real)
         # encode the model
         self.splitting = splitting
+        self.enc_real = enc_real
 
         if not splitting:
             self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
         else:
+            self.nn_model_formula = None
             self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
             # To make it pickleable
             self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
@@ -81,9 +83,14 @@ class Adaptor:
             # considered
             formula_1 = []
             
-            if enc_real:
+            if self.enc_real:
                 print('Not yet implemented.')
-                sys.exit()
+                #sys.exit()
+                # Use the encoding to calculate output for input x
+                # TODO
+
+                # Create variables for each output variable
+                t_output_vars = [Real('y_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
             else:
                 epsilon = float(epsilon)
                 # use NN to calculate output y for input x
@@ -496,35 +503,57 @@ class Adaptor:
             input: tuple representing the input.
         """
 
+        # Make a prediction
+        prediction = self.predict(input)
+
+        # Convert to readable decimal representation.
+        res_dec = []
+        for var in prediction:
+            # This is a suspiciously hacky solution.
+            # TODO make this cleaner?!
+            res_dec.append(float(eval(str(var))))
+
+        # Print the result for comparison.
+        print('The calculated result is: ' + str(res_dec))
+        print('However it should be:' + str(self.my_encoder.model.predict([input])))
+
+    def predict(self, input):
+        """Function that calculates a prediction of the NN based on its
+        encoding.
+        
+        Parameters:
+            input: tuple representing the input.
+        """
+
+        # Create whole encoding, if not yet done
+        self.nn_model_formula, _, _ = self.my_encoder.encode()
+
         # Create a solver instance.
         solver = Solver()
 
         # Assert sub formulas.
-        for k, v in self.nn_model_formula.items():
+        for v in self.nn_model_formula.values():
             solver.add(v)
 
         # Encode the input.
         input_formula = self.my_encoder.encode_input(input)
-        for k, v in input_formula.items():
+        for v in input_formula.values():
             solver.add(v)
 
         # Check for satisfiability.
         res = solver.check()
         fo_model = solver.model()
         if res != sat:
-            print('ERROR. Formula is not satisfiable.')
+            print('ERROR. NN-Formula is not satisfiable.')
             sys.exit()
 
-        # Convert to readable decimal representation.
-        res_dec = []
+        # Convert to output list according to output vars.
+        res_list = []
         for var in self.nn_output_vars:
-            # This is a suspiciously hacky solution.
-            # TODO make this cleaner?!
-            res_dec.append(get_float(fo_model, var))
+            res_list.append(fo_model.eval(var, model_completion=True))
 
-        # Print the result for comparison.
-        print('The calculated result is: ' + str(res_dec))
-        print('However it should be:' + str(self.my_encoder.model.predict([input])))
+        # TODO double check whether this behaves correctly
+        return res_list
 
 
 def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):

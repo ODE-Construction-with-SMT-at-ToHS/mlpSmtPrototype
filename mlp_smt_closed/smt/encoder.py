@@ -48,6 +48,9 @@ class Encoder:
         # array([[<weight_1->1>,...,<weight_1->j>],...,[<weight_i->1>,...,<weight_i->j>]], dtype = <type>),
         # array([<bias_1>, ..., <bias_2>], dtype = <type>)
         self.weights = [layer.get_weights() for layer in self.model.layers]
+        
+        # Create variables.
+        self._create_variables()
 
     def encode(self):
         """
@@ -61,9 +64,6 @@ class Encoder:
                 - input_vars: list of variables representing the input of the model
         """
         formula = {}
-
-        # Create variables.
-        self._create_variables()
 
         # Encode affine layers (affine layers = application of weights and bias).
         formula['Affine layers'] = self._encode_affine_layers()
@@ -92,9 +92,6 @@ class Encoder:
         """
 
         formula_lists = None
-
-        # Create variables.
-        self._create_variables()
 
         # Encode affine layers (affine layers = application of weights and bias).
         layers = self._encode_affine_layers()
@@ -144,7 +141,7 @@ class Encoder:
         self.variables_x = []
         self.variables_y = []
 
-        if enc_real:
+        if self.enc_real:
             # create variables for the (flat) input layer.
             self.variables_x.append([])
             for j in range(self.dimension_one):
