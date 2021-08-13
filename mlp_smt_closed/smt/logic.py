@@ -11,7 +11,7 @@ class Adaptor:
     """This class can be used to find a closed form for a trained MLP , given a function template.
     """
 
-    def __init__(self, model_path, template, interval, splitting=False, enc_real=False) -> None:
+    def __init__(self, model_path, template, interval, splitting=False, encoding='Real') -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
         ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
 
@@ -36,7 +36,7 @@ class Adaptor:
         self.my_encoder = Encoder(model_path, enc_real=enc_real)
         # encode the model
         self.splitting = splitting
-        self.enc_real = enc_real
+        self.encoding = encoding
 
         if not splitting:
             self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
@@ -83,20 +83,21 @@ class Adaptor:
             # considered
             formula_1 = []
             
-            if self.enc_real:
-                print('Not yet implemented.')
-                #sys.exit()
+            if self.encoding == 'Real':
                 # Use the encoding to calculate output for input x
-                # TODO
+                nn_y = self.predict(x)
 
                 # Create variables for each output variable
                 t_output_vars = [Real('y_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
-            else:
+            elif self.encoding == 'FP':
                 epsilon = float(epsilon)
                 # use NN to calculate output y for input x
                 nn_y = self.nn_model.predict([x])[0]
                 # create variables for each output value.
                 t_output_vars = [FP(('y1_{}_{}'.format(counter, i)), Float32()) for i in range(len(self.nn_output_vars))]
+            else:
+                print('Encoding not supported.')
+                sys.exit()
 
             counter = counter + 1  # is it easier to understand this if its put at the end of the loop?
 
@@ -105,8 +106,8 @@ class Adaptor:
 
             # add encoding to ensure output is within tolerance
             for i in range(len(self.nn_output_vars)):
-                formula_1.append(float(nn_y[i]) - t_output_vars[i] <= epsilon)
-                formula_1.append(t_output_vars[i] - float(nn_y[i]) <= epsilon)
+                formula_1.append(self._value(nn_y[i]) - t_output_vars[i] <= epsilon)
+                formula_1.append(t_output_vars[i] - self._value(nn_y[i]) <= epsilon)
 
             # Assert subformulas to solver.
             for sub in formula_1:
@@ -120,15 +121,13 @@ class Adaptor:
                 fo_model = solver_1.model()
                 # Update parameters.
                 new_params = {}
-     
-                if enc_real:
-                    print('Not yet implemented.')
-                    sys.exit()
-                else:
-                    for key in self.template.get_params():
-                        new_params[key] = get_float(fo_model, self.template.param_variables()[key])
-                    print('    -> New parameters found: ' + str(new_params))
-                    self.template.set_params(new_params)
+
+                for key in self.template.get_params():
+                    var = self.template.param_variables()[key]
+                    new_params[key] = self._value(fo_model, var)
+                    
+                print('    -> New parameters found: ' + str(new_params))
+                self.template.set_params(new_params)
             else:
                 print('    -> Bound to strict: No parameters found.')
                 break
@@ -406,8 +405,8 @@ class Adaptor:
                     print('    -> improvement found')
 
             fo_model = self.solver_2.model()
-            # Extract new input for parameter correction.
-            x_list = [get_float(fo_model, var) for var in self.nn_input_vars]
+            # Extract new input for parameter correction.:
+            x_list = [self._value(fo_model, var) for var in self.nn_input_vars]
             x = tuple(x_list)
             print('    -> New input found: ' + str(x))
             end_time_deviation = time.time()
@@ -420,6 +419,11 @@ class Adaptor:
             return res, None
 
     def _find_deviation_splitting(self, epsilon):
+
+        if self.encoding == 'Real':
+            print('Under construction. Exiting...')
+            sys.exit()
+        
         start_time_deviation = time.time()
         # no incremental deviation
         # Encode the template.
@@ -555,6 +559,14 @@ class Adaptor:
         # TODO double check whether this behaves correctly
         return res_list
 
+    def _value(self, fo_model, var):
+        if encoding == 'Real':
+            return fo_model.eval(var, model_completion=True)
+        elif encoding == 'FP':
+            return get_float(fo_model, var)
+        else:
+            print('Encoding not supported.')
+            sys.exit()
 
 def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     """Stolen from Stackoverflow

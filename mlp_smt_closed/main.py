@@ -22,15 +22,16 @@ if __name__ == '__main__':
 
     start_time_overall = time.time()
 
-    myLinTemplate = LinearTemplate()
-    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splitting=True)
+    encoding = 'Real'
+    encoding = 'FP'
+    myLinTemplate = LinearTemplate(encoding=encoding)
+    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splitting=False,encoding=encoding)
 
     # Test encoding
-    myAdaptor.test_encoding((42,))
+    #myAdaptor.test_encoding((42,))
 
     # Test template adjustment
-
-    #myAdaptor.adjust_template()
+    myAdaptor.adjust_template(epsilon = 0.1)
     # myAdaptor.optimize_template()
 
     end_time_overall = time.time()
