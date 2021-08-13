@@ -426,11 +426,19 @@ class Adaptor:
             return res, None
 
     def _init_worker_solvers(self):
-        for i in range(len(self.nn_model_formulas)):
+
+        # Shared communication objects
+        self.jobs = multiprocessing.Queue()
+        self.solutions = multiprocessing.Queue()
+        self.abort = multiprocessing.Value('i',0)
+
+        for _ in range(len(self.nn_model_formulas)):
             p = multiprocessing.Process(
                 target=worker_solver,
                 args=(
-                    i,
+                    self.jobs,
+                    self.solutions,
+                    self.abort,
                     self.model_path,
                     self.template.__class__.__name__,
                     self.splits,
@@ -442,15 +450,53 @@ class Adaptor:
 
     def _find_deviation_splitting(self, epsilon):
 
-        print('Nothing to see here. Under construction.')
+        start_time_deviation = time.time()
+
         res, x = unsat, None
+
+        # Number of workers
+        workers_n = range(len(self.nn_model_formulas))
+
+        # Announce new jobs
+        for i in workers_n:
+            job = (i,epsilon)
+            self.jobs.put(job)
+        
+        # Await solutions
+        for _ in workers_n:
+            new_res, new_x = self.solutions.get()
+            if new_res == sat:
+                # Safe result
+                res, x = new_res, new_x
+                # Inform other processes to terminate solving-threads
+                with self.abort.get_lock():
+                    self.abort = 1
+        
+        # Inform other processes not to terminate solving-threads
+        with self.abort.get_lock():
+            self.abort = 0
+
+        end_time_deviation = time.time()
+        
+        if res == sat:
+            print('    -> New input found: ' + str(x))
+            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
+        else:
+            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
+            print('Most recent parameters sufficient (epsilon = ' + str(epsilon) + ')')
+            print()
+
+            # Terminate processes 
+            # TODO find out whether automatically done
+            for p in self.processes:
+                p.kill()
+
         return res, x
 
         """if self.encoding == 'Real':
             print('Under construction. Exiting...')
             sys.exit()
         
-        start_time_deviation = time.time()
         # no incremental deviation
         # Encode the template.
         template_formula = self.template.smt_encoding()
@@ -610,7 +656,7 @@ def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     v = (Ast * 0)()
     return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
 
-def worker_solver(number, model_path, template_name, splits, encoding):
+def worker_solver(jobs, solutions, abort, model_path, template_name, splits, encoding):
     
     # initial preparation
     my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
@@ -620,8 +666,15 @@ def worker_solver(number, model_path, template_name, splits, encoding):
     else:
         print('Template \"' + str(template_name) +'\" has to be added here.')
         sys.exit()
-    
-    print('Started.')
+
+    while(1):
+        # Block untlin new job is available
+        i, epsilon = jobs.get()
+        print(i)
+        print('Started.')
+        solutions.put((unsat, None))
+        # Start a thread with the new epsilon
+        # Kill the thread, of signaled, or finish and put result somewhere
 
 def solve_single_split(formula_str, nn_input_vars, result):
     """Target function for solving splits
