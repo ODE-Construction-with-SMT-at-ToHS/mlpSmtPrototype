@@ -23,9 +23,9 @@ if __name__ == '__main__':
     start_time_overall = time.time()
 
     encoding = 'Real'
-    encoding = 'FP'
+    #encoding = 'FP'
     myLinTemplate = LinearTemplate(encoding=encoding)
-    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splitting=False,encoding=encoding)
+    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splits=0, encoding=encoding)
 
     # Test encoding
     #myAdaptor.test_encoding((42,))

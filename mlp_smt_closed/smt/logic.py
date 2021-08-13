@@ -1,9 +1,11 @@
 import numpy as np
 
 from mlp_smt_closed.smt.encoder import *
+from mlp_smt_closed.smt.templates import *
 import multiprocessing
 import time, sys
 import matplotlib.pyplot as plt
+from numpy.lib.shape_base import split
 from sklearn.linear_model import LinearRegression
 
 
@@ -11,7 +13,7 @@ class Adaptor:
     """This class can be used to find a closed form for a trained MLP , given a function template.
     """
 
-    def __init__(self, model_path, template, interval, splitting=False, encoding='Real') -> None:
+    def __init__(self, model_path, template, interval, splits=0, encoding='Real') -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
         ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
 
@@ -33,16 +35,21 @@ class Adaptor:
 
         # Encode the NN-model.
         # call constructor, create Encoder instance
-        self.my_encoder = Encoder(model_path, enc_real=enc_real)
+        self.my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
         # encode the model
-        self.splitting = splitting
+        self.splits = splits
         self.encoding = encoding
 
-        if not splitting:
+        if splits == 0:
             self.nn_model_formula, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode()
         else:
             self.nn_model_formula = None
-            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted()
+            self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted(number=splits)
+
+            self.processes = []
+            self._init_worker_solvers()
+
+            #TODO delete
             # To make it pickleable
             self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
@@ -106,8 +113,8 @@ class Adaptor:
 
             # add encoding to ensure output is within tolerance
             for i in range(len(self.nn_output_vars)):
-                formula_1.append(self._value(nn_y[i]) - t_output_vars[i] <= epsilon)
-                formula_1.append(t_output_vars[i] - self._value(nn_y[i]) <= epsilon)
+                formula_1.append(cast(self.encoding, nn_y[i]) - t_output_vars[i] <= epsilon)
+                formula_1.append(t_output_vars[i] - cast(self.encoding, nn_y[i]) <= epsilon)
 
             # Assert subformulas to solver.
             for sub in formula_1:
@@ -124,7 +131,7 @@ class Adaptor:
 
                 for key in self.template.get_params():
                     var = self.template.param_variables()[key]
-                    new_params[key] = self._value(fo_model, var)
+                    new_params[key] = value(self.encoding,fo_model, var)
                     
                 print('    -> New parameters found: ' + str(new_params))
                 self.template.set_params(new_params)
@@ -137,7 +144,7 @@ class Adaptor:
 
             # 2nd condition:
             print('Looking for new input')
-            if not self.splitting:
+            if self.splits == 0:
                 res, x = self._find_deviation(epsilon, refine=0)
             else:
                 res, x = self._find_deviation_splitting(epsilon)
@@ -287,7 +294,7 @@ class Adaptor:
         print(self.template.get_params())
 
         print('Looking for new input')
-        if not self.splitting:
+        if self.splits == 0:
             res, x = self._find_deviation(epsilon, refine=0)
         else:
             res, x = self._find_deviation_splitting(epsilon)
@@ -406,7 +413,7 @@ class Adaptor:
 
             fo_model = self.solver_2.model()
             # Extract new input for parameter correction.:
-            x_list = [self._value(fo_model, var) for var in self.nn_input_vars]
+            x_list = [value(self.encoding,fo_model, var) for var in self.nn_input_vars]
             x = tuple(x_list)
             print('    -> New input found: ' + str(x))
             end_time_deviation = time.time()
@@ -418,9 +425,28 @@ class Adaptor:
             print('Most recent parameters sufficient (epsilon = ' + str(epsilon), ')')
             return res, None
 
+    def _init_worker_solvers(self):
+        for i in range(len(self.nn_model_formulas)):
+            p = multiprocessing.Process(
+                target=worker_solver,
+                args=(
+                    i,
+                    self.model_path,
+                    self.template.__class__.__name__,
+                    self.splits,
+                    self.encoding
+                    )
+                )
+            self.processes.append(p)
+            p.start()
+
     def _find_deviation_splitting(self, epsilon):
 
-        if self.encoding == 'Real':
+        print('Nothing to see here. Under construction.')
+        res, x = unsat, None
+        return res, x
+
+        """if self.encoding == 'Real':
             print('Under construction. Exiting...')
             sys.exit()
         
@@ -497,7 +523,7 @@ class Adaptor:
             print('Most recent parameters sufficient (epsilon = ' + str(epsilon) + ')')
             print()
 
-        return res, x
+        return res, x"""
 
     def test_encoding(self, input):
         """Function that tests whether solving the encoding for a 
@@ -559,14 +585,23 @@ class Adaptor:
         # TODO double check whether this behaves correctly
         return res_list
 
-    def _value(self, fo_model, var):
-        if encoding == 'Real':
-            return fo_model.eval(var, model_completion=True)
-        elif encoding == 'FP':
-            return get_float(fo_model, var)
-        else:
-            print('Encoding not supported.')
-            sys.exit()
+def value(encoding, fo_model, var):
+    if encoding == 'Real':
+        return fo_model.eval(var, model_completion=True)
+    elif encoding == 'FP':
+        return get_float(fo_model, var)
+    else:
+        print('Encoding not supported.')
+        sys.exit()
+
+def cast(encoding, var):
+    if encoding == 'Real':
+        return var
+    elif encoding == 'FP':
+        return float(var)
+    else:
+        print('Encoding not supported.')
+        sys.exit()
 
 def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     """Stolen from Stackoverflow
@@ -575,6 +610,18 @@ def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     v = (Ast * 0)()
     return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
 
+def worker_solver(number, model_path, template_name, splits, encoding):
+    
+    # initial preparation
+    my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
+    nn_model_formulas, nn_output_vars, nn_input_vars = my_encoder.encode_splitted(number=splits)
+    if str(template_name) == 'LinearTemplate':
+        template = LinearTemplate(encoding=encoding)
+    else:
+        print('Template \"' + str(template_name) +'\" has to be added here.')
+        sys.exit()
+    
+    print('Started.')
 
 def solve_single_split(formula_str, nn_input_vars, result):
     """Target function for solving splits
