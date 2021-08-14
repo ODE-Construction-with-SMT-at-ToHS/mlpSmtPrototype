@@ -266,7 +266,7 @@ class Adaptor:
             res, x = self._find_deviation(epsilon, refine=0)
             # print('End of while: ' + str(res)+str(x))
 
-    def regression_verification_1d(self, epsilon: float = 0.5, size = 200):
+    def regression_verification_1d(self, epsilon: float = 0.5, epsilon_accuracy_steps = 4, size = 200):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
         TODO: describe difference to optimize template
 
@@ -288,40 +288,53 @@ class Adaptor:
         reg = LinearRegression().fit(x_samples, y_samples)
         new_params = {'a': float(reg.coef_[0][0]), 'b': float(reg.intercept_[0])}
         self.template.set_params(new_params)
-
-        print('    -> template parameters: ', self.template.get_params())
-        print('    -> a = ', self.template.get_params()['a'])
-        print('    -> b = ', self.template.get_params()['b'])
-        print('    -> b rounded: ', round(self.template.get_params()['b'], 7))
-        print('    -> type(a) = ', type(self.template.get_params()['a']))
-        print('    -> type(b) = ', type(self.template.get_params()['b']))
         end_time_regression = time.time()
         print('    -> Function found: f(x) = ', reg.coef_[0][0], 'x +', reg.intercept_[0])
         print('    -> took', end_time_regression - start_time_regression, 'seconds')
         print(self.template.get_params())
 
-        print('Looking for new input')
+
+
+
+        # binary search for epsilon
+        print('Calculating deviation range')
+        lower = 0
+        upper = epsilon
+
+        #sanity check upper bound for binary search (epsilon)
+        print('    -> Sanity check upper bound for binary search (epsilon)')
         if self.splits == 0:
             res, x = self._find_deviation(epsilon, refine=0)
         else:
             res, x = self._find_deviation_splitting(epsilon)
+        if res == unsat:
+            print('        * Passed: epsilon sufficiently large')
+        else:
+            print('        * Error: choose larger epsilon')
 
-        print(res)
-        print(x)
+        for _ in range(epsilon_accuracy_steps):
+            print('Update epsilon range')
+            mid = (lower + upper)/2
+            if self.splits == 0:
+                res, x = self._find_deviation(mid, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(mid)
 
-        # new_params = {}
-        # for key in self.template.get_params():
-        #     new_params[key] = get_float(fo_model, self.template.param_variables()[key])
-        # self.template.set_params(new_params)
+            # epsilon accuracy sufficient -> refine upper error bound (make it lower)
+            if res == unsat:
+                upper = mid
+            # epsilon accuracy to tight tight -> refine lower error bound (make lower error bound larger)
+            else:
+                lower = mid
 
-        # while the encoding is satisfiable
+        print('Maximum deviation within [', lower, ',', upper, ']')
 
-        # do binary search to find close epsilon ---- or ---- directly do regression with max deviation as loss
+        #do regression with max deviation as loss ????
 
         # Plot the results
-        # plt.plot(x_samples, y_samples, 'r')
-        plt.scatter(x_samples, y_samples)
-        # plt.savefig('plots/' + func_class.name + '_learned.png')
+        plt.scatter(x_samples, y_samples, c='deepskyblue')
+        plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
+        plt.savefig('plots/' + func_class.name + '_learned.png')
         plt.show()
         plt.clf()
 
@@ -429,7 +442,7 @@ class Adaptor:
         else:
             end_time_deviation = time.time()
             print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
-            print('Most recent parameters sufficient (epsilon = ' + str(epsilon), ')')
+            print('    -> Most recent parameters correct within epsilon = +-', str(epsilon))
             return res, None
 
     def _init_worker_solvers(self):
