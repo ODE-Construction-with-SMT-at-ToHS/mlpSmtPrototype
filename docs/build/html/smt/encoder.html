@@ -4,15 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>encoder module &#8212; mlp_smt_closed  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="logic module" href="logic.html" />
@@ -33,18 +33,18 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-mlp_smt_closed.smt.encoder">
+  <section id="module-mlp_smt_closed.smt.encoder">
 <span id="encoder-module"></span><h1>encoder module<a class="headerlink" href="#module-mlp_smt_closed.smt.encoder" title="Permalink to this headline">¶</a></h1>
 <p>This module contains a class to encode Keras models in <code class="docutils literal notranslate"><span class="pre">z3</span></code> as well as two helper functions</p>
 <dl class="py class">
-<dt id="mlp_smt_closed.smt.encoder.Encoder">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.smt.encoder.</code><code class="sig-name descname">Encoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modelpath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.encoder.</span></span><span class="sig-name descname"><span class="pre">Encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for encoding Keras models as SMT formulas using <code class="docutils literal notranslate"><span class="pre">z3</span></code>. Only flat inputs and flat layers are supported.
 The encoding is done as described in <a class="reference external" href="https://arxiv.org/abs/2008.01204">this paper</a>.</p>
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modelpath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor. Check whether a model is stored at <code class="docutils literal notranslate"><span class="pre">modelpath</span></code>, it is sequential, and the input is
 flat-shaped. Also, the model is loaded, reshaped and saved in <code class="docutils literal notranslate"><span class="pre">self.weights</span></code></p>
 <dl class="field-list simple">
@@ -55,16 +55,16 @@ flat-shaped. Also, the model is loaded, reshaped and saved in <code class="docut
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder._create_variables">
-<code class="sig-name descname">_create_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._create_variables" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder._create_variables">
+<span class="sig-name descname"><span class="pre">_create_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._create_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates two <code class="docutils literal notranslate"><span class="pre">z3</span></code> variables for each node in every layer, plus additional variables for the input layer.
 The first variable contains the value after applying weights and bias, the second variable contains the value
 after applying the activation function (which also is the output of the corresponding node).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder._encode_activation_function">
-<code class="sig-name descname">_encode_activation_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._encode_activation_function" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder._encode_activation_function">
+<span class="sig-name descname"><span class="pre">_encode_activation_function</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._encode_activation_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes activation function given by the Keras model for each node in every layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -77,8 +77,8 @@ after applying the activation function (which also is the output of the correspo
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder._encode_affine_layers">
-<code class="sig-name descname">_encode_affine_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._encode_affine_layers" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder._encode_affine_layers">
+<span class="sig-name descname"><span class="pre">_encode_affine_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder._encode_affine_layers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encodes affine functions through adding a linear relationship between the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> variable for each
 node. This relationship is fully defined by the weights and biases from the Keras model.</p>
 <dl class="field-list simple">
@@ -92,8 +92,8 @@ node. This relationship is fully defined by the weights and biases from the Kera
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder.encode">
-<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.encode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode Keras model saved at <code class="docutils literal notranslate"><span class="pre">modelpath</span></code> as SMT formula in <code class="docutils literal notranslate"><span class="pre">z3</span></code> for a variable input w.r.t. the MLP the model
 encodes. We used the encoding described <a class="reference external" href="https://arxiv.org/abs/2008.01204">here</a>.</p>
 <dl class="field-list simple">
@@ -115,8 +115,8 @@ encodes. We used the encoding described <a class="reference external" href="http
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.encoder.Encoder.encode_input">
-<code class="sig-name descname">encode_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.encode_input" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.Encoder.encode_input">
+<span class="sig-name descname"><span class="pre">encode_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.Encoder.encode_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign <code class="docutils literal notranslate"><span class="pre">x</span></code> to the corresponding input variable
 TODO: document return</p>
 </dd></dl>
@@ -124,18 +124,18 @@ TODO: document return</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.encoder.gen_sum">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.encoder.</code><code class="sig-name descname">gen_sum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.gen_sum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.gen_sum">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.encoder.</span></span><span class="sig-name descname"><span class="pre">gen_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.gen_sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a sum of all elements in the list.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.encoder.get_float">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.encoder.</code><code class="sig-name descname">get_float</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fo_model</span></em>, <em class="sig-param"><span class="n">var</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.get_float" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts FP to float.</p>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.encoder.get_float">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.encoder.</span></span><span class="sig-name descname"><span class="pre">get_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fo_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.encoder.get_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts z3 value to python float.</p>
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -162,7 +162,6 @@ TODO: document return</p>
 <li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlp/functions.html">functions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlp/plot3d.html">plot3d module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mlp/sampling.html">sampling module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlp/training.html">training module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">encoder module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="logic.html">logic module</a></li>
@@ -208,7 +207,7 @@ TODO: document return</p>
       &copy;2021, László Dirks, Nicolai Radke.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

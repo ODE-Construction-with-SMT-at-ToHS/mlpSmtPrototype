@@ -37,3 +37,16 @@ class LinearA2D:
     @staticmethod
     def f(x):
         return numpy.matmul([[-0.1, -1.0], [1.0, -0.1]], x)
+
+class Brusselator:
+    """ Class representing the dynamics of the Brusselator"""
+    name = 'Brusselator'
+
+    def __init__(self, a, b) -> None:
+        self.a = a
+        self.b = b
+    
+    def f(self, x):
+        x_prime = self.a + x[0]*x[0]*x[1] - self.b*x[0] - x[0]
+        y_prime = self.b*x[0] - x[0]*x[0]*x[1]
+        return (x_prime, y_prime)

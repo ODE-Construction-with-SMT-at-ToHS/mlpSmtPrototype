@@ -4,9 +4,18 @@ This module can be used to create an MLP, train it  a function `f`, save it, and
 supported
 """
 import os
+import sys
+import inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+parentdir = os.path.dirname(parentdir)
+sys.path.insert(0, parentdir)
+
 import tensorflow as tf
 from tensorflow import keras
-
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
 from mlp_smt_closed.mlp.functions import *
 from mlp_smt_closed.mlp.plot3d import *
 from mlp_smt_closed.mlp.sampling import *
@@ -45,6 +54,7 @@ def train1d(func_class):
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
+
     # calculate predictions
     y_predictions = model.predict(x_test)
 
@@ -71,9 +81,8 @@ def train2d(func_class):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(20, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(5, activation=tf.nn.relu),
+        keras.layers.Dense(4, activation=tf.nn.relu),
+        keras.layers.Dense(2, activation=tf.nn.relu),
         keras.layers.Dense(2)
     ])
 
@@ -86,7 +95,7 @@ def train2d(func_class):
                   metrics=['mean_absolute_error', 'mean_squared_error'])
 
     # Train, validate & save the model.
-    model.fit(x_train, y_train, epochs=50, validation_data=(x_test, y_test))
+    model.fit(x_train, y_train, epochs=400, validation_data=(x_test, y_test))
     model_filename = 'models/' + func_class.name + '_model.h5'
     model.save(model_filename)
 
@@ -124,7 +133,6 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-
     # sample_1d(LinearA, 1000+1, [-10, 10], 0.2)
     # sample_1d(QuadraticA, 1000+1, [-10, 10], 0.2)
     # sample_1d(QuadraticB, 1000+1, [-10, 10], 0.2)
@@ -132,6 +140,10 @@ if __name__ == '__main__':
     # train1d(LinearA)
     # train1d(QuadraticA)
     # train1d(QuadraticB)
-    train2d(LinearA2D)
+    # train2d(LinearA2D)
+    # train1d(LinearA)
+    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(LinearA)
+    print(x_samples, y_samples, x_train, x_test, y_train, y_test)
+    print(x_samples.shape)
 
     # open_model(LinearA)
