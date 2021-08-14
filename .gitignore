@@ -1,6 +1,4 @@
 /.idea
 __pycache__/
-mlp_smt_closed/mlp/models
-mlp_smt_closed/mlp/plots/
-mlp_smt_closed/mlp/samples
 /venv
+/mlp_smt_closed/mlp/plots
