@@ -25,7 +25,7 @@ if __name__ == '__main__':
     encoding = 'Real'
     #encoding = 'FP'
     myLinTemplate = LinearTemplate(encoding=encoding)
-    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splits=0, encoding=encoding)
+    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splits=1, encoding=encoding)
 
     # Test encoding
     #myAdaptor.test_encoding((42,))

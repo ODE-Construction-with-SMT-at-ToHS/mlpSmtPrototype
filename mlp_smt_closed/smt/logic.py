@@ -1,8 +1,10 @@
+from os import getpid
+from re import template
 import numpy as np
 
 from mlp_smt_closed.smt.encoder import *
 from mlp_smt_closed.smt.templates import *
-import multiprocessing
+import multiprocessing, threading
 import time, sys
 import matplotlib.pyplot as plt
 from numpy.lib.shape_base import split
@@ -45,6 +47,11 @@ class Adaptor:
         else:
             self.nn_model_formula = None
             self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted(number=splits)
+
+            # Shared communication objects
+            self.jobs = multiprocessing.Queue()
+            self.solutions = multiprocessing.Queue()
+            self.abort = multiprocessing.Value('i',0)
 
             self.processes = []
             self._init_worker_solvers()
@@ -427,21 +434,17 @@ class Adaptor:
 
     def _init_worker_solvers(self):
 
-        # Shared communication objects
-        self.jobs = multiprocessing.Queue()
-        self.solutions = multiprocessing.Queue()
-        self.abort = multiprocessing.Value('i',0)
-
-        for _ in range(len(self.nn_model_formulas)):
+        for _ in range(len(self.nn_model_formulas) - len(self.processes)):
             p = multiprocessing.Process(
                 target=worker_solver,
                 args=(
                     self.jobs,
                     self.solutions,
-                    self.abort,
                     self.model_path,
-                    self.template.__class__.__name__,
+                    str(self.template.__class__.__name__),
                     self.splits,
+                    self.lb,
+                    self.ub,
                     self.encoding
                     )
                 )
@@ -456,25 +459,33 @@ class Adaptor:
 
         # Number of workers
         workers_n = range(len(self.nn_model_formulas))
+        self._init_worker_solvers()
 
         # Announce new jobs
+        pickle_params = {key: (x.numerator_as_long()/x.denominator_as_long()) for key,x in self.template.get_params().items()}
         for i in workers_n:
-            job = (i,epsilon)
+            job = (i,epsilon,pickle_params)
             self.jobs.put(job)
         
         # Await solutions
+        finished_workers = set()
         for _ in workers_n:
-            new_res, new_x = self.solutions.get()
+            worker_id, new_res, new_x = self.solutions.get()
+            finished_workers.add(worker_id)
             if new_res == sat:
                 # Safe result
                 res, x = new_res, new_x
-                # Inform other processes to terminate solving-threads
-                with self.abort.get_lock():
-                    self.abort = 1
+                break
         
-        # Inform other processes not to terminate solving-threads
-        with self.abort.get_lock():
-            self.abort = 0
+        # Kill unfinished processes
+        live_processes = []
+        for p in self.processes:
+            if p.pid in finished_workers:
+                live_processes.append(p)
+            else:
+                p.kill()
+        
+        self.processes = live_processes
 
         end_time_deviation = time.time()
         
@@ -656,7 +667,7 @@ def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
     v = (Ast * 0)()
     return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
 
-def worker_solver(jobs, solutions, abort, model_path, template_name, splits, encoding):
+def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, encoding):
     
     # initial preparation
     my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
@@ -667,14 +678,49 @@ def worker_solver(jobs, solutions, abort, model_path, template_name, splits, enc
         print('Template \"' + str(template_name) +'\" has to be added here.')
         sys.exit()
 
-    while(1):
-        # Block untlin new job is available
-        i, epsilon = jobs.get()
-        print(i)
-        print('Started.')
-        solutions.put((unsat, None))
-        # Start a thread with the new epsilon
-        # Kill the thread, of signaled, or finish and put result somewhere
+    # Encode the template.
+    template_formula = template.smt_encoding()
+    formula_2 = [template_formula]
+
+    # Input conditions.
+    for i in range(len(nn_input_vars)):
+        formula_2.append(nn_input_vars[i] == template.input_variables()[i])
+        formula_2.append(nn_input_vars[i] >= lb[i])
+        formula_2.append(nn_input_vars[i] <= ub[i])
+
+    while 1:
+        # Block until new job is available
+        formula_index, epsilon, new_params = jobs.get()
+        template.set_params(new_params)
+
+        # norm 1 distance
+        deviation = Or(
+                            Or(
+                                [nn_output_vars[i] - template.output_variables()[i] > epsilon
+                                    for i in range(len(nn_output_vars))]),
+                            Or(
+                                [template.output_variables()[i] - nn_output_vars[i] > epsilon
+                                    for i in range(len(nn_output_vars))])
+                        )
+
+        total_split = nn_model_formulas[formula_index] + [deviation] + formula_2
+
+        # Solve the formula
+        solver = Solver()
+        for subformula in total_split:
+            solver.add(subformula)
+        res = solver.check()
+
+        # Extract the model, if sat
+        x = None
+        if res == sat:
+            fo_model = solver.model()
+            x_list = [value(encoding, fo_model, var) for var in nn_input_vars]
+            # TODO make this more elegant and safe
+            x_list = [x.numerator_as_long()/x.denominator_as_long() for x in x_list]
+            x = tuple(x_list)
+
+        solutions.put((getpid(), res, x))
 
 def solve_single_split(formula_str, nn_input_vars, result):
     """Target function for solving splits
