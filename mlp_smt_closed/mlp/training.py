@@ -133,7 +133,7 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-    # sample_1d(LinearA, 1000+1, [-10, 10], 0.2)
+    sample_1d(LinearA, 1000+1, [-10, 10], 0.2)
     # sample_1d(QuadraticA, 1000+1, [-10, 10], 0.2)
     # sample_1d(QuadraticB, 1000+1, [-10, 10], 0.2)
     # sample_2d(LinearA2D, 100, 100, [-10, 10], [-10, 10], 0.05)
@@ -141,9 +141,9 @@ if __name__ == '__main__':
     # train1d(QuadraticA)
     # train1d(QuadraticB)
     # train2d(LinearA2D)
-    # train1d(LinearA)
-    x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(LinearA)
-    print(x_samples, y_samples, x_train, x_test, y_train, y_test)
-    print(x_samples.shape)
+    train1d(LinearA)
+    # x_samples, y_samples, x_train, x_test, y_train, y_test = load_samples(LinearA)
+    # print(x_samples, y_samples, x_train, x_test, y_train, y_test)
+    # print(x_samples.shape)
 
     # open_model(LinearA)
