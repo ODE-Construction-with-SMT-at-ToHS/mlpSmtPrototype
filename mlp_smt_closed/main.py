@@ -31,7 +31,7 @@ if __name__ == '__main__':
     #myAdaptor.test_encoding((42,))
 
     # Test template adjustment
-    myAdaptor.adjust_template(epsilon = 0.1)
+    myAdaptor.adjust_template(epsilon = 0.2)
     # myAdaptor.optimize_template()
 
     end_time_overall = time.time()

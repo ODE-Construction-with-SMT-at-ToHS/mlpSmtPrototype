@@ -420,7 +420,7 @@ class Adaptor:
 
             fo_model = self.solver_2.model()
             # Extract new input for parameter correction.:
-            x_list = [value(self.encoding,fo_model, var) for var in self.nn_input_vars]
+            x_list = [value(self.encoding, fo_model, var) for var in self.nn_input_vars]
             x = tuple(x_list)
             print('    -> New input found: ' + str(x))
             end_time_deviation = time.time()
@@ -462,9 +462,9 @@ class Adaptor:
         self._init_worker_solvers()
 
         # Announce new jobs
-        pickle_params = {key: (x.numerator_as_long()/x.denominator_as_long()) for key,x in self.template.get_params().items()}
+        pickle_params = {key: (x.numerator_as_long(),x.denominator_as_long()) for key,x in self.template.get_params().items()}
         for i in workers_n:
-            job = (i,epsilon,pickle_params)
+            job = (i, epsilon, pickle_params)
             self.jobs.put(job)
 
         # Await solutions
@@ -473,8 +473,8 @@ class Adaptor:
             worker_id, new_res, new_x = self.solutions.get()
             finished_workers.add(worker_id)
             if new_res == sat:
-                # Safe result
-                res, x = new_res, new_x
+                # Save result
+                res, x = new_res, tuple([RealVal(str(r[0])+'/'+str(r[1])) for r in new_x])
                 break
 
         # Kill unfinished processes
@@ -678,11 +678,8 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         print('Template \"' + str(template_name) +'\" has to be added here.')
         sys.exit()
 
-    # Encode the template.
-    template_formula = template.smt_encoding()
-    formula_2 = [template_formula]
-
     # Input conditions.
+    formula_2 = []
     for i in range(len(nn_input_vars)):
         formula_2.append(nn_input_vars[i] == template.input_variables()[i])
         formula_2.append(nn_input_vars[i] >= lb[i])
@@ -691,7 +688,16 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
     while 1:
         # Block until new job is available
         formula_index, epsilon, new_params = jobs.get()
+        print('Solving index: '+ str(formula_index) + ' and epsilon: '+ str(epsilon))
+
+        # Update template parameters
+        new_params = {key: RealVal(str(r[0])+'/'+str(r[1])) for key,r in new_params.items()}
         template.set_params(new_params)
+        print(new_params)
+        print(template.get_params())
+
+        # Encode the template.
+        template_formula = template.smt_encoding()
 
         # norm 1 distance
         deviation = Or(
@@ -703,7 +709,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
                                     for i in range(len(nn_output_vars))])
                         )
 
-        total_split = nn_model_formulas[formula_index] + [deviation] + formula_2
+        total_split = formula_2 + nn_model_formulas[formula_index] + [deviation, template_formula]
 
         # Solve the formula
         solver = Solver()
@@ -717,8 +723,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
             fo_model = solver.model()
             x_list = [value(encoding, fo_model, var) for var in nn_input_vars]
             # TODO make this more elegant and safe
-            x_list = [x.numerator_as_long()/x.denominator_as_long() for x in x_list]
-            x = tuple(x_list)
+            x = [(x.numerator_as_long(),x.denominator_as_long()) for x in x_list]
 
         solutions.put((getpid(), res, x))
 

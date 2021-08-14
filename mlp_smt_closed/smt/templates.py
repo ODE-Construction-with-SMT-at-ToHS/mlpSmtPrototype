@@ -47,7 +47,7 @@ class LinearTemplate(Template):
     """
 
     # f(x) = a*x + b
-    def __init__(self, encoding='FP'):
+    def __init__(self, encoding='Real'):
         self.encoding = encoding
 
         self.params = {'a': 0, 'b': 0}
@@ -112,7 +112,7 @@ class LinearTemplate(Template):
 class Linear2DTemplate(Template):
 
     # f(x) = A*x + b
-    def __init__(self):
+    def __init__(self, encoding='Real'):
         self.params = {'a11': 0,'a12': 0,'a21': 0,'a22': 0, 'b1': 0,'b2': 0}
 
         input_var_names = ['x1','x2']
