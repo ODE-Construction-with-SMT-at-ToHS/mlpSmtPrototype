@@ -12,7 +12,7 @@ class Encoder:
     The encoding is done as described in `this paper <https://arxiv.org/abs/2008.01204>`_.
     """
 
-    def __init__(self, modelpath, enc_real=False):
+    def __init__(self, modelpath, encoding='Real'):
         """
         Constructor. Check whether a model is stored at ``modelpath``, it is sequential, and the input is
         flat-shaped. Also, the model is loaded, reshaped and saved in ``self.weights``
@@ -23,13 +23,14 @@ class Encoder:
         """
 
         # set whether variables are encoded as reals or as FP
-        # TODO: work in progress - one encoding should be eliminated
-        self.enc_real = enc_real
+        self.encoding = encoding
+        if not self.encoding in {'Real','FP'}:
+            print('Encoding \"'+self.encoding+'\" not supported.')
 
         # load model stored at modelpath
         self.model = keras.models.load_model(modelpath)
 
-        # check whether model sequential and ??? (what does the exception do?)
+        # check whether model sequential and its input shape conforms req.
         try:
             # Potential bug
             _, self.dimension_one = self.model.input_shape
@@ -141,7 +142,7 @@ class Encoder:
         self.variables_x = []
         self.variables_y = []
 
-        if self.enc_real:
+        if self.encoding == 'Real':
             # create variables for the (flat) input layer.
             self.variables_x.append([])
             for j in range(self.dimension_one):
@@ -158,7 +159,7 @@ class Encoder:
                     self.variables_y[i].append(Real('y_{}_{}'.format(i, j)))
                     # x-var for output of layer (after applying ReLU)
                     self.variables_x[i+1].append(Real('x_{}_{}'.format(i+1, j)))
-        else:
+        elif self.encoding == 'FP':
             # create variables for the (flat) input layer.
             self.variables_x.append([])
             for j in range(self.dimension_one):
@@ -194,8 +195,6 @@ class Encoder:
                 # Basically matrix multiplication
                 # y_i_j = weights * output of last layer + bias
                 # the equation ("==") is appended as a constraint for a solver
-                # TODO: check whether any precision might be lost, if weights
-                # are not casted into into a float, when using real variables
                 affine_layers.append(
                     self.variables_y[i][j] == 
                     gen_sum([(self.variables_x[i][j_x]* 
