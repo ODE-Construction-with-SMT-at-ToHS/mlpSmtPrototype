@@ -82,10 +82,6 @@ class LinearTemplate(Template):
         encoding = output_var[0] == self.param_vars['a'] * input_value[0] + self.param_vars['b']
         return encoding
 
-    def generic_real_smt_encoding(self, input_value, output_var):
-        encoding = output_var[0] == self.real_param_vars['a'] * input_value[0] + self.real_param_vars['b']
-        return encoding
-
     # overriding abstract method
     def get_params(self):
         return self.params
@@ -105,9 +101,6 @@ class LinearTemplate(Template):
     # overriding abstract method
     def param_variables(self):
         return self.param_vars
-    
-    def real_param_variables(self):
-        return self.real_param_vars
 
 class Linear2DTemplate(Template):
 
@@ -148,11 +141,6 @@ class Linear2DTemplate(Template):
         y2 = output_var[1] == self.param_vars['a21']*input_value[0] + self.param_vars['a22']*input_value[1]  + self.param_vars['b2']
         return And(y1,y2)
 
-    def generic_real_smt_encoding(self, input_value, output_var):
-        y1 = output_var[0] == self.real_param_vars['a11']*input_value[0] + self.real_param_vars['a12']*input_value[1]  + self.real_param_vars['b1']
-        y2 = output_var[1] == self.real_param_vars['a21']*input_value[0] + self.real_param_vars['a22']*input_value[1]  + self.real_param_vars['b2']
-        return And(y1,y2)
-
     # overriding abstract method
     def get_params(self):
         return self.params
@@ -172,6 +160,3 @@ class Linear2DTemplate(Template):
     # overriding abstract method
     def param_variables(self):
         return self.param_vars
-    
-    def real_param_variables(self):
-        return self.real_param_vars

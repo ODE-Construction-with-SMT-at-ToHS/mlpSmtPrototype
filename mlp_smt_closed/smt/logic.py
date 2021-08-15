@@ -37,7 +37,7 @@ class Adaptor:
 
         # Encode the NN-model.
         # call constructor, create Encoder instance
-        self.my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
+        self.my_encoder = Encoder(model_path, encoding=encoding)
         # encode the model
         self.splits = splits
         self.encoding = encoding
@@ -48,17 +48,12 @@ class Adaptor:
             self.nn_model_formula = None
             self.nn_model_formulas, self.nn_output_vars, self.nn_input_vars = self.my_encoder.encode_splitted(number=splits)
 
-            # Shared communication objects
+            # Multiprocessing preparation.
             self.jobs = multiprocessing.Queue()
             self.solutions = multiprocessing.Queue()
-            self.abort = multiprocessing.Value('i',0)
 
             self.processes = []
             self._init_worker_solvers()
-
-            #TODO delete
-            # To make it pickleable
-            self.nn_input_vars_as_str = [str(var) for var in self.nn_input_vars]
 
         # load the actual NN, used to calculate predictions
         self.nn_model = keras.models.load_model(model_path)
@@ -156,7 +151,7 @@ class Adaptor:
             else:
                 res, x = self._find_deviation_splitting(epsilon)
 
-    def optimize_template(self):
+    '''def optimize_template(self):
         """Function for optimizing parameters of a function-template
         to fit an MLP optimally.
         """
@@ -264,7 +259,7 @@ class Adaptor:
             # Encode 2nd condition:
             print('Looking for new input')
             res, x = self._find_deviation(epsilon, refine=0)
-            # print('End of while: ' + str(res)+str(x))
+            # print('End of while: ' + str(res)+str(x))'''
 
     def regression_verification_1d(self, epsilon: float = 0.5, epsilon_accuracy_steps = 4, size = 200):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -476,7 +471,7 @@ class Adaptor:
         self._init_worker_solvers()
 
         # Announce new jobs
-        pickle_params = {key: (x.numerator_as_long(),x.denominator_as_long()) for key,x in self.template.get_params().items()}
+        pickle_params = {key: pickleable_z3num(x) for key,x in self.template.get_params().items()}
         for i in workers_n:
             job = (i, epsilon, pickle_params)
             self.jobs.put(job)
@@ -488,7 +483,7 @@ class Adaptor:
             finished_workers.add(worker_id)
             if new_res == sat:
                 # Save result
-                res, x = new_res, tuple([RealVal(str(r[0])+'/'+str(r[1])) for r in new_x])
+                res, x = new_res, tuple([reverse_pickleablility(x) for x in new_x])
                 break
 
         # Kill unfinished processes
@@ -512,89 +507,10 @@ class Adaptor:
             print()
 
             # Terminate processes
-            # TODO find out whether automatically done
             for p in self.processes:
                 p.kill()
 
         return res, x
-
-        """if self.encoding == 'Real':
-            print('Under construction. Exiting...')
-            sys.exit()
-        
-        # no incremental deviation
-        # Encode the template.
-        template_formula = self.template.smt_encoding()
-        formula_2 = [template_formula]
-
-        # Input conditions.
-        for i in range(len(self.nn_input_vars)):
-            formula_2.append(self.nn_input_vars[i] == self.template.input_variables()[i])
-            formula_2.append(self.nn_input_vars[i] >= self.lb[i])
-            formula_2.append(self.nn_input_vars[i] <= self.ub[i])
-
-        # norm 1 distance
-        deviation = Or(
-                            Or(
-                                [self.nn_output_vars[i] - self.template.output_variables()[i] > epsilon
-                                    for i in range(len(self.nn_output_vars))]),
-                            Or(
-                                [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
-                                    for i in range(len(self.nn_output_vars))])
-                        )
-        formula_2.append(deviation)
-
-        # Solve the splitted encoding in parallel
-        print('    -> solving splits')
-        processes = []
-        result_q = multiprocessing.Queue()
-        for split_formula in self.nn_model_formulas:
-            split_formula.extend(formula_2)
-            # This is neccesarry to be pickable
-            formula_as_string = toSMT2Benchmark(And(split_formula), logic='QF_FPA')
-            # input_vars_as_strings = [toSMT2Benchmark(var, logic='QF_FPA') for var in self.nn_input_vars]
-            p = multiprocessing.Process(
-                target=solve_single_split,
-                args=(
-                    formula_as_string,
-                    self.nn_input_vars_as_str,
-                    result_q)
-                )
-            processes.append(p)
-            p.start()
-
-        # Wait until one process returns sat, or all processes are done.
-        waiting = True
-        while waiting:
-            # time.sleep(0.1)
-            waiting = False
-            for p in processes:
-                if p.is_alive():
-                    waiting = True
-            if not result_q.empty():
-                waiting = False
-
-        # Terminate all processes, which are still alive.
-        for p in processes:
-            if p.is_alive():
-                p.terminate()
-
-        # Pop the new input, if found.
-        res, x = unsat, None
-        if not result_q.empty():
-            res, x = result_q.get()
-
-        end_time_deviation = time.time()
-
-        if res == sat:
-            print('    -> New input found: ' + str(x))
-            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
-        else:
-            print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
-            print('Most recent parameters sufficient (epsilon = ' + str(epsilon) + ')')
-            print()
-
-        return res, x"""
 
     def test_encoding(self, input):
         """Function that tests whether solving the encoding for a
@@ -611,7 +527,6 @@ class Adaptor:
         res_dec = []
         for var in prediction:
             # This is a suspiciously hacky solution.
-            # TODO make this cleaner?!
             res_dec.append(float(eval(str(var))))
 
         # Print the result for comparison.
@@ -653,7 +568,6 @@ class Adaptor:
         for var in self.nn_output_vars:
             res_list.append(fo_model.eval(var, model_completion=True))
 
-        # TODO double check whether this behaves correctly
         return res_list
 
 def value(encoding, fo_model, var):
@@ -674,17 +588,26 @@ def cast(encoding, var):
         print('Encoding not supported.')
         sys.exit()
 
-def toSMT2Benchmark(f, status="unknown", name="benchmark", logic=""):
-    """Stolen from Stackoverflow
-    not sure whats happening"""
+def pickleable_z3num(val):
+    if is_int_value(val):
+        return (val.as_long(),)
+    elif is_rational_value(val):
+        return((val.numerator_as_long(),val.denominator_as_long()))
+    else:
+        print('Error. Value not rational.')
 
-    v = (Ast * 0)()
-    return Z3_benchmark_to_smtlib_string(f.ctx_ref(), name, logic, status, "", 0, v, f.as_ast())
+def reverse_pickleablility(val):
+    if len(val)==1:
+        return RealVal(val[0])
+    elif len(val)==2:
+        return RealVal(str(val[0])+'/'+str(val[1]))
+    else:
+        print('Error. Cannot reverse pickleability.')
 
 def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, encoding):
 
     # initial preparation
-    my_encoder = Encoder(model_path, enc_real=(encoding == 'Real'))
+    my_encoder = Encoder(model_path, encoding=encoding)
     nn_model_formulas, nn_output_vars, nn_input_vars = my_encoder.encode_splitted(number=splits)
     if str(template_name) == 'LinearTemplate':
         template = LinearTemplate(encoding=encoding)
@@ -705,7 +628,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         print('Solving index: '+ str(formula_index) + ' and epsilon: '+ str(epsilon))
 
         # Update template parameters
-        new_params = {key: RealVal(str(r[0])+'/'+str(r[1])) for key,r in new_params.items()}
+        new_params = {key: reverse_pickleablility(x) for key,x in new_params.items()}
         template.set_params(new_params)
         print(new_params)
         print(template.get_params())
@@ -736,46 +659,6 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         if res == sat:
             fo_model = solver.model()
             x_list = [value(encoding, fo_model, var) for var in nn_input_vars]
-            # TODO make this more elegant and safe
-            x = [(x.numerator_as_long(),x.denominator_as_long()) for x in x_list]
+            x = [pickleable_z3num(x) for x in x_list]
 
         solutions.put((getpid(), res, x))
-
-def solve_single_split(formula_str, nn_input_vars, result):
-    """Target function for solving splits
-    """
-
-    # Parse formula string
-    formula = parse_smt2_string(formula_str)
-
-    # Solve the formula
-    solver = Solver()
-    for subformula in formula:
-        solver.add(subformula)
-    print('        * solving single split')
-    res = solver.check()
-    print('        * single split solved: ' + str(res))
-
-    # Extract the model, if sat
-    if res == sat:
-        # Preperation for extracting the new input
-        # The order of the input vars has to be consistent
-        x_list = [None for x in nn_input_vars]
-        x_name_map = dict()
-        for i in range(len(nn_input_vars)):
-            x_name_map[nn_input_vars[i]] = i
-        # This looses the order, but should speed up the look-up
-        nn_input_vars = set(nn_input_vars)
-
-        fo_model = solver.model()
-        for var in fo_model:
-            # This is a bit hacky, but not possible otherwise
-            name = str(var)
-            # print(name)
-            if name in nn_input_vars:
-                value = fo_model[var]
-                float_value = float(eval(str(value)))
-                x_list[x_name_map[name]] = float_value
-
-        x = tuple(x_list)
-        result.put((res, x))
