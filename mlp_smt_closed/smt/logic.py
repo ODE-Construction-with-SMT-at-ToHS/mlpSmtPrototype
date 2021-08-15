@@ -313,7 +313,8 @@ class Adaptor:
             print('        * Error: choose larger epsilon')
 
         for _ in range(epsilon_accuracy_steps):
-            print('Update epsilon range')
+            print('Maximum deviation range: [', lower, ',', upper, ']')
+            print('Searching for tighter bounds')
             mid = (lower + upper)/2
             if self.splits == 0:
                 res, x = self._find_deviation(mid, refine=0)
@@ -327,14 +328,14 @@ class Adaptor:
             else:
                 lower = mid
 
-        print('Maximum deviation within [', lower, ',', upper, ']')
+        print('Final maximum deviation range: [', lower, ',', upper, ']')
+        print('For tighter bounds increase epsilon accuracy steps.')
 
         #do regression with max deviation as loss ????
 
         # Plot the results
         plt.scatter(x_samples, y_samples, c='deepskyblue')
         plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
-        plt.savefig('plots/' + func_class.name + '_learned.png')
         plt.show()
         plt.clf()
 
