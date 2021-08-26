@@ -133,7 +133,7 @@ class Adaptor:
 
                 for key in self.template.get_params():
                     var = self.template.param_variables()[key]
-                    new_params[key] = value(self.encoding,fo_model, var)
+                    new_params[key] = value(self.encoding, fo_model, var)
 
                 print('    -> New parameters found: ' + str(new_params))
                 self.template.set_params(new_params)
@@ -151,78 +151,76 @@ class Adaptor:
             else:
                 res, x = self._find_deviation_splitting(epsilon)
 
-    '''def optimize_template(self):
+    def optimize_template(self, tolerance=0.001):
         """Function for optimizing parameters of a function-template
-        to fit an MLP optimally.
+        to such that the maximal deviation is minimal.
         """
+
+        if not self.encoding == 'Real':
+            print('Optimiziation only possible using real-encoding.')
+            return
 
         # Initial input
         x = self.lb
         print('Initial input: ', x)
-        # Create a solver instances.
+        # Create a solver instance.
         solver_1 = Optimize()
 
         counter = 0
-        prev_distance = None
         epsilon = None
 
         # initialize the result with "satisfiable"
         res = sat
+
+        # keep track of all absolute distances in each dimension
+        all_abs = []
+
+        # Define the maximal deviation
+        max_epsilon = Real('max_epsilon')
 
         # while the encoding is satisfiable
         while res == sat:
             print('Optimizing parameters')
             start_time_opt = time.time()
 
-            # Encode 1st condition, stored in formula_1:
-            # used to check whether there exists a function f such that f(x) = NN(x) +- epsilon
+            # Encode optimiziation problem, stored in formula_1:
             formula_1 = []
 
             # use NN to calculate output y for input x
-            nn_y = self.nn_model.predict([x])[0]
+            nn_y = self.predict(x)
             # create variables for each output value.
             t_output_vars = [Real('y1_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
 
             # add encoding for function f according to template
-            formula_1.append(self.template.generic_real_smt_encoding(x, t_output_vars))
-
-            # Define the deviation incrementally
+            formula_1.append(self.template.generic_smt_encoding(x, t_output_vars))
 
             # Firstly, encode the distance in each dimension
             absolutes = [Real('abs_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
             for i in range(len(self.nn_output_vars)):
                 formula_1.append(absolutes[i] ==
-                                 If(float(nn_y[i]) - t_output_vars[i] >= 0,
-                                    float(nn_y[i]) - t_output_vars[i],
-                                    t_output_vars[i] - float(nn_y[i])
+                                 If(nn_y[i] - t_output_vars[i] >= 0,
+                                    nn_y[i] - t_output_vars[i],
+                                    t_output_vars[i] - nn_y[i]
                                     )
                                  )
+            all_abs.extend(absolutes)
 
             # Secondly, sum up those distances
-            sum_abs = gen_sum(absolutes)
-            distance = Real('distance_{}'.format(counter))
-            if prev_distance is None:
-                dist_enc = distance == sum_abs
-            else:
-                # TODO check whether runtime improves if prev_distance is
-                # not stored, but instead push(), pop() are used with a
-                # new sum over all inputs in each iteration.
-                dist_enc = distance == sum_abs + prev_distance
-                prev_distance = sum_abs
-
-                # pop prev_distance
+            maximze = And(
+                Or([max_epsilon == abs for abs in all_abs]),
+                And([max_epsilon >= abs for abs in all_abs])
+            )
+            if counter > 0:
                 solver_1.pop()
 
             # Assert subformulas.
             for sub in formula_1:
                 solver_1.add(sub)
             solver_1.push()
-            solver_1.add(dist_enc)
-
-            # print(formula_1)
+            solver_1.add(maximze)
 
             # Optimize parameters
-            solver_1.minimize(distance)
+            solver_1.minimize(max_epsilon)
             res = solver_1.check()
             if res == sat:
                 fo_model = solver_1.model()
@@ -231,21 +229,14 @@ class Adaptor:
                 # Update parameters.
                 new_params = {}
                 for key in self.template.get_params():
-                    # print('Real: ' + str(fo_model.eval(self.template.real_param_variables()[key])))
-                    new_params[key] = get_float(fo_model, self.template.real_param_variables()[key])
+                    var = self.template.param_variables()[key]
+                    new_params[key] = value(self.encoding, fo_model, var)
+                
                 print('    -> New parameters found: ' + str(new_params))
                 self.template.set_params(new_params)
 
-                # Optimal tolerance for the considered set of input values:
-                new_epsilon = get_float(fo_model, distance)
-                # TODO: I dont think this does something useful. --Nicolai
-                if not (epsilon is None) and new_epsilon < epsilon:
-                    # Casting issue from Real to pyhton value
-                    print('Optimal parameters found.')
-                    print('For a minimal deviation of: ' + str(epsilon))
-                    break
-                epsilon = new_epsilon
-                print('    -> Deviation:', epsilon)
+                epsilon = value(self.encoding, fo_model, max_epsilon)
+                print('    -> Maximal distance:' + str(value('FP', fo_model, max_epsilon)) + '+-' + str(tolerance))
             else:
                 print('Error! No satisfying parameters found.')
                 print(res)
@@ -258,8 +249,10 @@ class Adaptor:
 
             # Encode 2nd condition:
             print('Looking for new input')
-            res, x = self._find_deviation(epsilon, refine=0)
-            # print('End of while: ' + str(res)+str(x))'''
+            res, x = self._find_deviation(epsilon+tolerance, refine=1)
+            # print('End of while: ' + str(res)+str(x))
+        
+        print 
 
     def regression_verification_1d(self, epsilon: float = 0.5, epsilon_accuracy_steps = 4, size = 200):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -398,6 +391,8 @@ class Adaptor:
         res = self.solver_2.check()
         print('    -> solved')
         if res == sat:
+            fo_model = self.solver_2.model()
+
             # Heuristically search for a greater deviation
             exp_eps = epsilon
             for _ in range(refine):
@@ -421,13 +416,13 @@ class Adaptor:
 
                 # Break the for loop, if no such input can be found
                 print('    -> looking for improved input')
-                if not self.solver_2.check():
+                if self.solver_2.check() == sat:
+                    print('    -> improvement found')
+                    fo_model = self.solver_2.model()
+                else:
                     print('    -> no improvement found')
                     break
-                else:
-                    print('    -> improvement found')
 
-            fo_model = self.solver_2.model()
             # Extract new input for parameter correction.:
             x_list = [value(self.encoding, fo_model, var) for var in self.nn_input_vars]
             x = tuple(x_list)
