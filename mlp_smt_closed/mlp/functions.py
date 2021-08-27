@@ -25,12 +25,19 @@ class FuncClass(ABC):
         pass
 
 
-class LinearA:
+# Linear 1D Functions
+class LinearA(FuncClass):
     """Class for the linear function :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = x-2`"""
-    name = 'LinearA'
+    def name(self):
+        return 'LinearA'
 
-    @staticmethod
-    def f(x):
+    def dimension(self):
+        return 1
+
+    def degree(self):
+        return 1
+
+    def f(self, x):
         return -x + 2
 
 
@@ -48,30 +55,52 @@ class LinearB(FuncClass):
         return -3 * x + 8
 
 
-class QuadraticA:
+# quadratic 1D functions
+class QuadraticA(FuncClass):
     """Class for the quadratic function :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = (x-3)^2 + 1`"""
-    name = 'QuadraticA'
 
-    @staticmethod
-    def f(x):
-        return (x-3)*(x-3) + 1
+    def name(self):
+        return 'QuadraticA'
+
+    def dimension(self):
+        return 1
+
+    def degree(self):
+        return 2
+
+    def f(self, x):
+        return x**2 - 6*x + 10
 
 
-class QuadraticB:
+class QuadraticB(FuncClass):
     """Class for the quadratic function :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = (x-1)^2 \cdot 0.3 - 1`"""
-    name = 'QuadraticB'
+    def name(self):
+        return 'QuadraticB'
 
-    @staticmethod
-    def f(x):
+    def dimension(self):
+        return 1
+
+    def degree(self):
+        return 2
+
+    def f(self, x):
         return (x-1)*(x-1)*0.3-1
 
 
-class LinearA2D:
+# Linear 2D Functions
+class LinearA2D(FuncClass):
     """Class for the linear function :math:`f: \in \mathbb{R}^2 \\rightarrow \mathbb{R}^2, f(x) = \\begin{bmatrix} -0.1 & -1.0 \\\ 1.0 & -0.1 \end{bmatrix} \cdot x`"""
-    name = 'Linear2DA'
 
-    @staticmethod
-    def f(x):
+    def name(self):
+        return 'Linear2DA'
+
+    def dimension(self):
+        return 2
+
+    def degree(self):
+        return 1
+
+    def f(self, x):
         return numpy.matmul([[-0.1, -1.0], [1.0, -0.1]], x)
 
 

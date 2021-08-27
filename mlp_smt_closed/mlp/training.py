@@ -104,7 +104,7 @@ def open_model(func_class):
 
 if __name__ == '__main__':
     # sample(LinearB2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0)
-    # sample(LinearB(), [[-10, 10]], [1001], 0.2)
+    # sample(LinearA(), [[-10, 10]], [1001], 0.2)
     # train(LinearB2D(), 5, 5, 0.001, 101)
-    # train(LinearB(), 5, 5, 0.01, 500)
-    open_model(LinearB())
+    # train(LinearA(), 5, 5, 0.01, 500)
+    open_model(LinearB2D())
