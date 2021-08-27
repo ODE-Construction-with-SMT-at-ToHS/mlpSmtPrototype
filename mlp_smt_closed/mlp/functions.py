@@ -1,6 +1,28 @@
 """This module contains classes for functions which the MLP can learn."""
 
 import numpy
+from abc import ABC, abstractmethod
+
+
+class FuncClass(ABC):
+    @property
+    @abstractmethod
+    def name(self):
+        pass
+
+    @property
+    @abstractmethod
+    def dimension(self):
+        pass
+
+    @property
+    @abstractmethod
+    def degree(self):
+        pass
+
+    @abstractmethod
+    def f(self, x):
+        pass
 
 
 class LinearA:
@@ -10,6 +32,20 @@ class LinearA:
     @staticmethod
     def f(x):
         return -x + 2
+
+
+class LinearB(FuncClass):
+    def name(self):
+        return 'LinearB'
+
+    def dimension(self):
+        return 1
+
+    def degree(self):
+        return 1
+
+    def f(self, x):
+        return -3 * x + 8
 
 
 class QuadraticA:
@@ -37,6 +73,21 @@ class LinearA2D:
     @staticmethod
     def f(x):
         return numpy.matmul([[-0.1, -1.0], [1.0, -0.1]], x)
+
+
+class LinearB2D(FuncClass):
+    def name(self):
+        return 'LinearB2D'
+
+    def dimension(self):
+        return 2
+
+    def degree(self):
+        return 1
+
+    def f(self, x):
+        return numpy.matmul([[-0.1, -1.0], [1.0, -0.1]], x)
+
 
 class Brusselator:
     """ Class representing the dynamics of the Brusselator"""
