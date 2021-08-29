@@ -84,6 +84,11 @@ class Adaptor:
         # initialize the result with "satisfiable"
         res = sat
 
+        # Float precision for real encoding
+        precision = Q(1,10000)
+        param_vars = self.template.param_variables()
+        prec_formula = []
+
         # while the encoding is satisfiable
         while res == sat:
 
@@ -98,6 +103,12 @@ class Adaptor:
 
                 # Create variables for each output variable
                 t_output_vars = [Real('y_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
+
+                if counter > 0:
+                    # Encode precision
+                    for name, val in self.template.get_params().items():
+                        prec_formula.append(Or(param_vars[name]-val>= precision, val-param_vars[name] >=precision))
+
             elif self.encoding == 'FP':
                 epsilon = float(epsilon)
                 # use NN to calculate output y for input x
@@ -107,8 +118,6 @@ class Adaptor:
             else:
                 print('Encoding not supported.')
                 sys.exit()
-
-            counter = counter + 1  # is it easier to understand this if its put at the end of the loop?
 
             # add encoding for function f according to template
             formula_1.append(self.template.generic_smt_encoding(x, t_output_vars))
@@ -125,7 +134,22 @@ class Adaptor:
             # Check for satisfiability.
             print('Looking for new parameters')
             start_time_parameter = time.time()
-            res = solver_1.check()
+
+            if self.encoding == 'Real' and counter > 0:
+                solver_1.push()
+                # Heuristic speed up
+                for sub in prec_formula:
+                    solver_1.add(sub)
+                res = solver_1.check()
+
+                # Try again without precision condition, if unsat
+                solver_1.pop()
+                if res == unsat:
+                    print('second check')
+                    res = solver_1.check()
+            else:
+                res = solver_1.check()
+            
             if res == sat:
                 fo_model = solver_1.model()
                 # Update parameters.
@@ -150,6 +174,8 @@ class Adaptor:
                 res, x = self._find_deviation(epsilon, refine=0)
             else:
                 res, x = self._find_deviation_splitting(epsilon)
+            
+            counter += 1
 
     def optimize_template(self, tolerance=0.001):
         """Function for optimizing parameters of a function-template
@@ -631,7 +657,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         # Encode the template.
         template_formula = template.smt_encoding()
 
-        # norm 1 distance
+        # distance
         deviation = Or(
                             Or(
                                 [nn_output_vars[i] - template.output_variables()[i] > epsilon
