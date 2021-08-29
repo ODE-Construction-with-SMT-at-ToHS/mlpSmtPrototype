@@ -3,6 +3,8 @@ import os
 import sys
 import inspect
 
+from numpy.lib import polynomial
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
@@ -24,15 +26,19 @@ if __name__ == '__main__':
 
     encoding = 'Real'
     #encoding = 'FP'
+    polyTemp = PolynomialTemplate(degree=1,variables=1)
+    print(polyTemp.smt_encoding())
+    print(polyTemp.generic_smt_encoding((3,),(Real('y'),)))
+    print(polyTemp.func((3,)))
     myLinTemplate = LinearTemplate(encoding=encoding)
-    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splits=0, encoding=encoding)
+    myAdaptor = Adaptor(model_path, polyTemp, ((-8,), (8,)), splits=0, encoding=encoding)
 
     # Test encoding
     #myAdaptor.test_encoding((42,))
 
     # Test template adjustment
-    myAdaptor.adjust_template(epsilon = 0.05)
-    #myAdaptor.optimize_template()
+    #myAdaptor.adjust_template(epsilon = 0.05)
+    myAdaptor.optimize_template()
 
     end_time_overall = time.time()
 

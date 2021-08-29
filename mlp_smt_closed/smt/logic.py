@@ -171,7 +171,7 @@ class Adaptor:
             # 2nd condition:
             print('Looking for new input')
             if self.splits == 0:
-                res, x = self._find_deviation(epsilon, refine=0)
+                res, x = self._find_deviation(epsilon, refine=1)
             else:
                 res, x = self._find_deviation_splitting(epsilon)
             
@@ -275,7 +275,7 @@ class Adaptor:
 
             # Encode 2nd condition:
             print('Looking for new input')
-            res, x = self._find_deviation(epsilon+tolerance, refine=1)
+            res, x = self._find_deviation(epsilon+tolerance, refine=0)
             # print('End of while: ' + str(res)+str(x))
         
         print 

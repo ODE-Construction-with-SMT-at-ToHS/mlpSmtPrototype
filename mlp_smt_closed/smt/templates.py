@@ -40,6 +40,117 @@ class Template(ABC):
     def smt_encoding(self):
         pass
 
+class PolynomialTemplate(Template):
+    """
+    Class for PolynomialTemplates
+    """
+
+    def __init__(self, encoding='Real', degree=1, variables=1) -> None:
+        self.encoding = encoding
+        self.degree = degree
+        self.variables = variables
+
+        input_var_names = ['x_{}'.format(i) for i in range(variables)]
+        output_var_names = ['y']
+        param_var_names = ['a']
+        # For each variable we iteratively add each possible exponent
+        for i in range(variables):
+            extended_vars = []
+            for j in range(degree+1):
+                extended_vars.extend([a + ',' + str(j) for a in param_var_names])
+            param_var_names = extended_vars
+        
+        print(param_var_names)
+        self.param_var_names = param_var_names
+        self.params = {name: 1 for name in self.param_var_names}
+
+        if encoding == 'FP':
+            self.input_vars = [FP(name, Float32()) for name in input_var_names]
+            self.output_vars = [FP(name, Float32()) for name in output_var_names]
+            self.param_vars = {name: FP(name, Float32()) for name in param_var_names}
+        elif encoding == 'Real':
+            self.input_vars = [Real(name) for name in input_var_names]
+            self.output_vars = [Real(name) for name in output_var_names]
+            self.param_vars = {name: Real(name) for name in param_var_names}
+    
+    # overriding abstract method
+    def func(self, x):
+        y = 0
+        ctr = 0
+        var_indeces = [i for i in range(self.variables)]
+        var_indeces.sort(reverse=True)
+        for name in self.param_vars:
+            a = self.params[name]
+            ctr_cpy = ctr
+            # The index of a parameter can be mapped to the corresponding exponents
+            for index in var_indeces:
+                exponent = int(ctr_cpy/((self.degree+1)**index))
+                ctr_cpy = ctr_cpy - exponent*((self.degree+1)**index)
+                a = a*(x[index]**exponent)
+            ctr += 1
+            y += a
+
+        return y
+
+    # overriding abstract method
+    def smt_encoding(self):
+        y = 0
+        ctr = 0
+        var_indeces = [i for i in range(self.variables)]
+        var_indeces.sort(reverse=True)
+        for name in self.param_vars:
+            a = self.params[name]
+            ctr_cpy = ctr
+            # The index of a parameter can be mapped to the corresponding exponents
+            for index in var_indeces:
+                exponent = int(ctr_cpy/((self.degree+1)**index))
+                ctr_cpy = ctr_cpy - exponent*((self.degree+1)**index)
+                a = a*(self.input_vars[index]**exponent)
+            ctr += 1
+            y += a
+
+        encoding = self.output_vars[0] == y
+        return encoding
+
+    def generic_smt_encoding(self, input_value, output_var):
+        y = 0
+        ctr = 0
+        var_indeces = [i for i in range(self.variables)]
+        var_indeces.sort(reverse=True)
+        for name in self.param_vars:
+            a = self.param_vars[name]
+            ctr_cpy = ctr
+            # The index of a parameter can be mapped to the corresponding exponents
+            for index in var_indeces:
+                exponent = int(ctr_cpy/((self.degree+1)**index))
+                ctr_cpy = ctr_cpy - exponent*((self.degree+1)**index)
+                a = a*(input_value[index]**exponent)
+            ctr += 1
+            y += a
+
+        encoding = output_var[0] == y
+        return encoding
+
+    # overriding abstract method
+    def get_params(self):
+        return self.params
+
+    # overriding abstract method
+    def set_params(self, params):
+        print(self.params)
+        self.params = params
+
+    # overriding abstract method
+    def input_variables(self):
+        return self.input_vars
+
+    # overriding abstract method
+    def output_variables(self):
+        return self.output_vars
+
+    # overriding abstract method
+    def param_variables(self):
+        return self.param_vars
 
 class LinearTemplate(Template):
     """
@@ -64,9 +175,6 @@ class LinearTemplate(Template):
             self.input_vars = [Real(name) for name in input_var_names]
             self.output_vars = [Real(name) for name in output_var_names]
             self.param_vars = {name: Real(name) for name in param_var_names}
-
-        # Remains for backwards compatibility TODO: remove
-        self.real_param_vars = {name: Real(name) for name in param_var_names}
     
     # overriding abstract method
     def func(self, x):
@@ -120,9 +228,6 @@ class Linear2DTemplate(Template):
             self.input_vars = [Real(name) for name in input_var_names]
             self.output_vars = [Real(name) for name in output_var_names]
             self.param_vars = {name: Real(name) for name in param_var_names}
-
-        # Remains for backwards compatibility TODO: remove
-        self.real_param_vars = {name: Real(name) for name in param_var_names}
     
     # overriding abstract method
     def func(self, x):
