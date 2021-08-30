@@ -13,6 +13,7 @@ from logging import log
 from mlp_smt_closed.arguments import *
 from mlp_smt_closed.smt.logic import *
 from mlp_smt_closed.smt.templates import *
+from mlp_smt_closed.mlp.functions import *
 
 if __name__ == '__main__':
     
@@ -24,13 +25,16 @@ if __name__ == '__main__':
 
     start_time_overall = time.time()
 
+    func_class = LinearA()
+
     encoding = 'Real'
     #encoding = 'FP'
-    polyTemp = PolynomialTemplate(degree=1,variables=1)
+    polyTemp = PolynomialTemplate(degree=func_class.degree(),variables=1)
     print(polyTemp.smt_encoding())
+    print(polyTemp.params)
     print(polyTemp.generic_smt_encoding((3,),(Real('y'),)))
     print(polyTemp.func((3,)))
-    myLinTemplate = LinearTemplate(encoding=encoding)
+    # myLinTemplate = LinearTemplate(encoding=encoding)
     myAdaptor = Adaptor(model_path, polyTemp, ((-8,), (8,)), splits=0, encoding=encoding)
 
     # Test encoding
@@ -38,7 +42,8 @@ if __name__ == '__main__':
 
     # Test template adjustment
     #myAdaptor.adjust_template(epsilon = 0.05)
-    myAdaptor.optimize_template()
+    # myAdaptor.optimize_template()
+    myAdaptor.polyfit_verification_1d(func_class, 0.5, 4, 200)
 
     end_time_overall = time.time()
 

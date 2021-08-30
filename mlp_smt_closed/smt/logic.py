@@ -278,7 +278,8 @@ class Adaptor:
             res, x = self._find_deviation(epsilon+tolerance, refine=0)
             # print('End of while: ' + str(res)+str(x))
         
-        print 
+        print
+
 
     def regression_verification_1d(self, epsilon: float = 0.5, epsilon_accuracy_steps = 4, size = 200):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -288,7 +289,6 @@ class Adaptor:
             epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
             output of the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
-        start_time_regression_verification1d = time.time()
 
         # create samples form input network
         print('Taking samples to do regression')
@@ -306,9 +306,6 @@ class Adaptor:
         print('    -> Function found: f(x) = ', reg.coef_[0][0], 'x +', reg.intercept_[0])
         print('    -> took', end_time_regression - start_time_regression, 'seconds')
         print(self.template.get_params())
-
-
-
 
         # binary search for epsilon
         print('Calculating deviation range')
@@ -334,7 +331,6 @@ class Adaptor:
                 res, x = self._find_deviation(mid, refine=0)
             else:
                 res, x = self._find_deviation_splitting(mid)
-
             # epsilon accuracy sufficient -> refine upper error bound (make it lower)
             if res == unsat:
                 upper = mid
@@ -345,8 +341,6 @@ class Adaptor:
         print('Final maximum deviation range: [', lower, ',', upper, ']')
         print('For tighter bounds increase epsilon accuracy steps.')
 
-        #do regression with max deviation as loss ????
-
         # Plot the results
         plt.scatter(x_samples, y_samples, c='deepskyblue')
         plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
@@ -354,14 +348,99 @@ class Adaptor:
         plt.clf()
 
 
+    def polyfit_verification_1d(self, func_class, epsilon: float = 0.5, epsilon_accuracy_steps = 4, size = 200):
+        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
+        TODO: describe difference to optimize template
+
+        Parameters:
+            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
+            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
+        """
+
+        # create samples form input network
+        print('Taking samples to do Polynomial fit')
+        x_samples = np.linspace(self.lb, self.ub, size)
+        y_samples = self.nn_model.predict(x_samples)
 
 
+        # do polyfit to find parameters
+        print('Doing polynomial fit')
 
-        # print('Looking for new input')
-        # if not self.splitting:
-        #     res, x = self._find_deviation(epsilon, refine=0)
-        # else:
-        #     res, x = self._find_deviation_splitting(epsilon)
+        # reshape from (n,1) to (n,)
+        x_samples = x_samples.reshape((len(x_samples, )))
+        y_samples = y_samples.reshape((len(y_samples, )))
+        start_time_fit = time.time()
+        fit = np.polynomial.polynomial.polyfit(x_samples, y_samples, func_class.degree())
+
+        new_params = {}
+
+        for degree in range(func_class.degree()+1):
+            new_params.update({'a,{}'.format(degree): fit[degree]})
+
+        self.template.set_params(new_params)
+
+        end_time_fit = time.time()
+        # print('    -> Function found: f(x) = ', reg.coef_[0][0], 'x +', reg.intercept_[0])
+        # print('    -> took', end_time_fit - start_time_fit  , 'seconds')
+        # print(self.template.get_params())
+
+        # binary search for epsilon
+        print('Calculating deviation range')
+        lower = 0
+        upper = epsilon
+
+        #sanity check upper bound for binary search (epsilon)
+        print('    -> Sanity check upper bound for binary search (epsilon)')
+        if self.splits == 0:
+            res, x = self._find_deviation(epsilon, refine=0)
+        else:
+            res, x = self._find_deviation_splitting(epsilon)
+        if res == unsat:
+            print('        * Passed: epsilon sufficiently large')
+        else:
+            print('        * Error: choose larger epsilon')
+
+        # this is only to find bugs
+        testval = 0
+        prediction = 0
+        for degree in range(func_class.degree() + 1):
+            prediction += fit[degree] * (testval ** degree)
+        print('predicted value:', prediction)
+        print('NN value', self.nn_model.predict([testval]))
+
+        for _ in range(epsilon_accuracy_steps):
+            print('Maximum deviation range: [', lower, ',', upper, ']')
+            print('Searching for tighter bounds')
+            mid = (lower + upper)/2
+            if self.splits == 0:
+                res, x = self._find_deviation(mid, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(mid)
+            # epsilon accuracy sufficient -> refine upper error bound (make it lower)
+            if res == unsat:
+                upper = mid
+            # epsilon accuracy to tight tight -> refine lower error bound (make lower error bound larger)
+            else:
+                lower = mid
+
+        print('Final maximum deviation range: [', lower, ',', upper, ']')
+        print('For tighter bounds increase epsilon accuracy steps.')
+
+        # calculate predictions for plotting
+        y_predictions = []
+        for i in range(len(x_samples)):
+            y_prediction = 0
+            for degree in range(func_class.degree()+1):
+                y_prediction += fit[degree] * (x_samples[i]**degree)
+            y_predictions += [y_prediction]
+        y_predictions = np.array(y_predictions)
+
+        # plot predictions
+        plt.scatter(x_samples, y_samples, c='deepskyblue')
+        plt.plot(x_samples, y_predictions, 'k')
+        plt.show()
+        plt.clf()
+
 
     def _find_deviation(self, epsilon, refine=1):
         """

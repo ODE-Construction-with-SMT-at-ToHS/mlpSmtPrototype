@@ -86,6 +86,19 @@ class QuadraticB(FuncClass):
     def f(self, x):
         return (x-1)*(x-1)*0.3-1
 
+class PolyDeg3(FuncClass):
+    def name(self):
+        return 'PolyDeg3'
+
+    def dimension(self):
+        return 1
+
+    def degree(self):
+        return 3
+
+    def f(self, x):
+        return 0.4*(x**3) - 2*(x**2) + 3*x - 5
+
 
 # Linear 2D Functions
 class LinearA2D(FuncClass):
