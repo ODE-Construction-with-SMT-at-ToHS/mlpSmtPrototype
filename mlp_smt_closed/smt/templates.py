@@ -214,11 +214,12 @@ class Linear2DTemplate(Template):
 
     # f(x) = A*x + b
     def __init__(self, encoding='Real'):
-        self.params = {'a11': 0,'a12': 0,'a21': 0,'a22': 0, 'b1': 0,'b2': 0}
 
         input_var_names = ['x1','x2']
         output_var_names = ['y1','y2']
-        param_var_names = ['a11','a12','a21','a22','b11','b12','b21','b22']
+        param_var_names = ['a11','a12','a21','a22','b1','b2']
+
+        self.params = {name: 0 for name in param_var_names}
 
         if encoding == 'FP':
             self.input_vars = [FP(name, Float32()) for name in input_var_names]
