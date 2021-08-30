@@ -105,7 +105,7 @@ class LinearA2D(FuncClass):
     """Class for the linear function :math:`f: \in \mathbb{R}^2 \\rightarrow \mathbb{R}^2, f(x) = \\begin{bmatrix} -0.1 & -1.0 \\\ 1.0 & -0.1 \end{bmatrix} \cdot x`"""
 
     def name(self):
-        return 'Linear2DA'
+        return 'LinearA2D'
 
     def dimension(self):
         return 2

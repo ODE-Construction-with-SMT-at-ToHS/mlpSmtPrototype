@@ -25,25 +25,38 @@ if __name__ == '__main__':
 
     start_time_overall = time.time()
 
-    func_class = LinearA()
+    # set func_class, only necessary for if polyfit or regression used
+    func_class = LinearA2D()
 
+    # set encoding type
     encoding = 'Real'
     #encoding = 'FP'
-    polyTemp = PolynomialTemplate(degree=func_class.degree(),variables=1)
-    print(polyTemp.smt_encoding())
-    print(polyTemp.params)
-    print(polyTemp.generic_smt_encoding((3,),(Real('y'),)))
-    print(polyTemp.func((3,)))
+
+
     # myLinTemplate = LinearTemplate(encoding=encoding)
-    myAdaptor = Adaptor(model_path, polyTemp, ((-8,), (8,)), splits=0, encoding=encoding)
+    myLinTemplate = Linear2DTemplate()
+    # polyTemp = PolynomialTemplate(degree=func_class.degree(),variables=1)
+
+    # just for debugging purposes
+    # print(polyTemp.smt_encoding())
+    # print(polyTemp.params)
+    # print(polyTemp.generic_smt_encoding((3,),(Real('y'),)))
+    # print(polyTemp.func((3,)))
+
+    # init Adaptor
+    # myAdaptor = Adaptor(model_path, myLinTemplate, ((-8,), (8,)), splits=0, encoding=encoding)
+    # myAdaptor = Adaptor(model_path, polyTemp, ((-8,), (8,)), splits=0, encoding=encoding)
+    myAdaptor = Adaptor(model_path, myLinTemplate, ((-8, -8), (8, 8)))
 
     # Test encoding
-    #myAdaptor.test_encoding((42,))
+    # myAdaptor.test_encoding((42,))
 
-    # Test template adjustment
-    #myAdaptor.adjust_template(epsilon = 0.05)
+    # find/verify parameters
+    # myAdaptor.adjust_template(epsilon = 0.05)
     # myAdaptor.optimize_template()
-    myAdaptor.polyfit_verification_1d(func_class, 0.5, 4, 200)
+    # myAdaptor.polyfit_verification_1d(func_class, 200, 0.5, 4)
+    # myAdaptor.regression_verification_1d()
+    myAdaptor.regression_verification_nd(func_class, [101, 101])
 
     end_time_overall = time.time()
 

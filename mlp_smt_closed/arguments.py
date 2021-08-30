@@ -21,7 +21,7 @@ def parse_args():
 
     # Optional Arguments
 
-    path_to_model = os.path.join('mlp_smt_closed','mlp', 'models', 'LinearA_model.h5')
+    path_to_model = os.path.join('mlp_smt_closed','mlp', 'models', 'LinearA2D_model.h5')
     parser.add_argument('-model', help='Path to Keras .h5 model file', default=path_to_model, type=_is_valid_file)
 
     # parser.add_argument('-template', help='Specification of which template is to be configured') #possibly enum type?

@@ -103,8 +103,8 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-    # sample(LinearB2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0)
+    sample(LinearA2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0)
     # sample(PolyDeg3(), [[-10, 10]], [1001], 0.2)
-    # train(LinearB2D(), 5, 5, 0.001, 101)
-    train(PolyDeg3(), 8, 7, 0.01, 500)
+    train(LinearA2D(), 5, 5, 0.001, 100)
+    # train(PolyDeg3(), 8, 7, 0.01, 500)
     # open_model(LinearB2D())
