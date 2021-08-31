@@ -359,10 +359,6 @@ class Adaptor:
         for dimension in range(len(self.lb)):
             intervals += [[self.lb[dimension], self.ub[dimension]]]
 
-        print(self.lb)
-        print(self.ub)
-        print(intervals)
-
         # create samples form input network
         print('Taking samples to do regression')
 
@@ -380,8 +376,6 @@ class Adaptor:
 
         # use the array of interval vectors to get an n-dimensional grid
         x_samples = np.vstack(np.meshgrid(*interval_vectors)).reshape(func_class.dimension(), -1).T
-
-        print(x_samples.shape)
 
         # do predictions
         y_samples = self.nn_model.predict(x_samples)
@@ -403,47 +397,40 @@ class Adaptor:
         print('    -> Function found: f(x) = ')
         print(reg.coef_, 'x +', reg.intercept_)
         print('    -> took', end_time_regression - start_time_regression, 'seconds')
-        print(self.template.get_params())
 
         # binary search for epsilon
-        # print('Calculating deviation range')
-        # lower = 0
-        # upper = epsilon
+        print('Calculating deviation range')
+        lower = 0
+        upper = epsilon
 
-        # # sanity check upper bound for binary search (epsilon)
-        # print('    -> Sanity check upper bound for binary search (epsilon)')
-        # if self.splits == 0:
-        #     res, x = self._find_deviation(epsilon, refine=0)
-        # else:
-        #     res, x = self._find_deviation_splitting(epsilon)
-        # if res == unsat:
-        #     print('        * Passed: epsilon sufficiently large')
-        # else:
-        #     print('        * Error: choose larger epsilon')
+        # sanity check upper bound for binary search (epsilon)
+        print('    -> Sanity check upper bound for binary search (epsilon)')
+        if self.splits == 0:
+            res, x = self._find_deviation(epsilon, refine=0)
+        else:
+            res, x = self._find_deviation_splitting(epsilon)
+        if res == unsat:
+            print('        * Passed: epsilon sufficiently large')
+        else:
+            print('        * Error: choose larger epsilon')
 
-        # for _ in range(epsilon_accuracy_steps):
-        #     print('Maximum deviation range: [', lower, ',', upper, ']')
-        #     print('Searching for tighter bounds')
-        #     mid = (lower + upper) / 2
-        #     if self.splits == 0:
-        #         res, x = self._find_deviation(mid, refine=0)
-        #     else:
-        #         res, x = self._find_deviation_splitting(mid)
-        #     # epsilon accuracy sufficient -> refine upper error bound (make it lower)
-        #     if res == unsat:
-        #         upper = mid
-        #     # epsilon accuracy to tight tight -> refine lower error bound (make lower error bound larger)
-        #     else:
-        #         lower = mid
+        for _ in range(epsilon_accuracy_steps):
+            print('Maximum deviation range: [', lower, ',', upper, ']')
+            print('Searching for tighter bounds')
+            mid = (lower + upper) / 2
+            if self.splits == 0:
+                res, x = self._find_deviation(mid, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(mid)
+            # epsilon accuracy sufficient -> refine upper error bound (make it lower)
+            if res == unsat:
+                upper = mid
+            # epsilon accuracy to tight tight -> refine lower error bound (make lower error bound larger)
+            else:
+                lower = mid
 
-        # print('Final maximum deviation range: [', lower, ',', upper, ']')
-        # print('For tighter bounds increase epsilon accuracy steps.')
-
-        # # Plot the results
-        # plt.scatter(x_samples, y_samples, c='deepskyblue')
-        # plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
-        # plt.show()
-        # plt.clf()
+        print('Final maximum deviation range: [', lower, ',', upper, ']')
+        print('For tighter bounds increase epsilon accuracy steps.')
 
     def polyfit_verification_1d(self, func_class, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.

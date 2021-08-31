@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # myAdaptor.optimize_template()
     # myAdaptor.polyfit_verification_1d(func_class, 200, 0.5, 4)
     # myAdaptor.regression_verification_1d()
-    myAdaptor.regression_verification_nd(func_class, [101, 101])
+    myAdaptor.regression_verification_nd(func_class, [101, 101], 0.5, 4)
 
     end_time_overall = time.time()
 
