@@ -1,0 +1,8 @@
+authors:
+- family-names: "Dirks"
+  given-names: "László"
+- family-names: "Radke"
+  given-names: "Nicolai"
+title: "mlp_smt_closed"
+date-released: 2021
+url: "https://github.com/ODE-Construction-with-SMT-at-ToHS/mlpSmtPrototype"
