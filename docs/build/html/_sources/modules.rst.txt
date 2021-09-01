@@ -8,5 +8,5 @@ mlp_smt_closed
    readme_link
    arguments
    main
-   mlp/*
-   smt/*
+   mlp/index
+   smt/index

@@ -58,39 +58,18 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.mlp.sampling.sample_1d">
-<code class="sig-prename descclassname">mlp_smt_closed.mlp.sampling.</code><code class="sig-name descname">sample_1d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">scatter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.sampling.sample_1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function takes <code class="docutils literal notranslate"><span class="pre">size</span></code> samples of the function <code class="docutils literal notranslate"><span class="pre">func_class</span></code>
-<span class="math notranslate nohighlight">\(\in \mathbb{R} \rightarrow \mathbb{R}\)</span> within <code class="docutils literal notranslate"><span class="pre">interval</span></code>. It also scatters the function values (normally
-distributed) according to <code class="docutils literal notranslate"><span class="pre">scatter</span></code>. Then, it divides the samples into training and test samples and stores
-everything in a file in the folder <code class="docutils literal notranslate"><span class="pre">/samples</span></code>.</p>
+<dt id="mlp_smt_closed.mlp.sampling.sample">
+<code class="sig-prename descclassname">mlp_smt_closed.mlp.sampling.</code><code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">intervals</span></em>, <em class="sig-param"><span class="n">sizes</span></em>, <em class="sig-param"><span class="n">scatter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.sampling.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes <code class="docutils literal notranslate"><span class="pre">sizes[0]</span></code> * …  * <code class="docutils literal notranslate"><span class="pre">sizes[n-1]</span></code> samples of the function <code class="docutils literal notranslate"><span class="pre">func_class</span></code>
+<span class="math notranslate nohighlight">\(\in \mathbb{R}^n \rightarrow \mathbb{R}^n\)</span> within <code class="docutils literal notranslate"><span class="pre">intervals[0]</span></code> <span class="math notranslate nohighlight">\(\times\)</span> … <span class="math notranslate nohighlight">\(\times\)</span>
+<code class="docutils literal notranslate"><span class="pre">intervals[n-1]</span></code>. It also scatters the function values (normally distributed) according to <code class="docutils literal notranslate"><span class="pre">scatter</span></code>. Then, it
+divides the samples into training and test samples and stores everything in a file in the folder <code class="docutils literal notranslate"><span class="pre">/samples</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func_class</strong> – function to sample</p></li>
-<li><p><strong>size</strong> – number of samples to be taken</p></li>
-<li><p><strong>interval</strong> – interval in which the samples should be taken</p></li>
-<li><p><strong>scatter</strong> – standard deviation for normal distribution (choose 0 if no scattering desired)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="mlp_smt_closed.mlp.sampling.sample_2d">
-<code class="sig-prename descclassname">mlp_smt_closed.mlp.sampling.</code><code class="sig-name descname">sample_2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">x1_size</span></em>, <em class="sig-param"><span class="n">x2_size</span></em>, <em class="sig-param"><span class="n">x1_interval</span></em>, <em class="sig-param"><span class="n">x2_interval</span></em>, <em class="sig-param"><span class="n">scatter</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.sampling.sample_2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function takes <code class="docutils literal notranslate"><span class="pre">x1_size</span></code> * <code class="docutils literal notranslate"><span class="pre">x2_size</span></code> samples of the function <code class="docutils literal notranslate"><span class="pre">func_class</span></code>
-<span class="math notranslate nohighlight">\(\in \mathbb{R}^2 \rightarrow \mathbb{R}^2\)</span> within <code class="docutils literal notranslate"><span class="pre">x1_interval</span></code> <span class="math notranslate nohighlight">\(\times\)</span> <code class="docutils literal notranslate"><span class="pre">x2_interval</span></code>.
-It also scatters the function values (normally distributed) according to <code class="docutils literal notranslate"><span class="pre">scatter</span></code>. Then, it divides the samples
-into training and test samples and stores everything in a file in the folder <code class="docutils literal notranslate"><span class="pre">/samples</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>func_class</strong> – function to sample</p></li>
-<li><p><strong>x1_size</strong> – number of samples to be taken in the first input dimension</p></li>
-<li><p><strong>x2_size</strong> – number of samples to be taken in the second input dimension</p></li>
-<li><p><strong>x1_interval</strong> – interval of the first input dimension from which the samples should be taken</p></li>
-<li><p><strong>x2_interval</strong> – interval of the second input dimension from which the samples should be taken</p></li>
+<li><p><strong>intervals</strong> – tuple of intervals for the corresponding dimension</p></li>
+<li><p><strong>sizes</strong> – tuple of number of samples to take in the corresponding dimension</p></li>
 <li><p><strong>scatter</strong> – standard deviation for normal distribution (choose 0 if no scattering desired)</p></li>
 </ul>
 </dd>
@@ -122,13 +101,8 @@ into training and test samples and stores everything in a file in the folder <co
 <li class="toctree-l2"><a class="reference internal" href="../readme_link.html">README</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../arguments.html">arguments module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="functions.html">functions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot3d.html">plot3d module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">sampling module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="training.html">training module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../smt/encoder.html">encoder module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../smt/logic.html">logic module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../smt/templates.html">templates module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">mlp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../smt/index.html">smt</a></li>
 </ul>
 </li>
 </ul>
@@ -138,8 +112,10 @@ into training and test samples and stores everything in a file in the folder <co
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../modules.html">mlp_smt_closed</a><ul>
+  <li><a href="index.html">mlp</a><ul>
       <li>Previous: <a href="plot3d.html" title="previous chapter">plot3d module</a></li>
       <li>Next: <a href="training.html" title="next chapter">training module</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
