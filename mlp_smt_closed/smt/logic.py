@@ -143,8 +143,8 @@ class Adaptor:
                 res = solver_1.check()
 
                 # Try again without precision condition, if unsat
-                solver_1.pop()
                 if res == unsat:
+                    solver_1.pop()
                     print('second check')
                     res = solver_1.check()
             else:
@@ -163,7 +163,7 @@ class Adaptor:
                 self.template.set_params(new_params)
             else:
                 print('    -> Bound to strict: No parameters found.')
-                break
+                return False
 
             end_time_parameter = time.time()
             print('    -> took', end_time_parameter-start_time_parameter, 'seconds')
@@ -176,6 +176,9 @@ class Adaptor:
                 res, x = self._find_deviation_splitting(epsilon)
             
             counter += 1
+        
+        #Satisficing parameters found.
+        return True
 
     def optimize_template(self, tolerance=0.001):
         """Function for optimizing parameters of a function-template
@@ -552,6 +555,8 @@ class Adaptor:
             formula_2.append(self.nn_input_vars[i] == self.template.input_variables()[i])
             formula_2.append(self.nn_input_vars[i] >= self.lb[i])
             formula_2.append(self.nn_input_vars[i] <= self.ub[i])
+        print('*****************formula_2:')
+        print(formula_2)
 
         # norm 1 distance TODO: combine with loop below
         deviation = Or(
@@ -562,6 +567,8 @@ class Adaptor:
                                 [self.template.output_variables()[i] - self.nn_output_vars[i] > epsilon
                                     for i in range(len(self.nn_output_vars))])
                         )
+        print('*****************deviation:')
+        print(deviation)
 
         # Assert subformulas.
         self.solver_2.reset()
@@ -742,10 +749,10 @@ class Adaptor:
 
         # Check for satisfiability.
         res = solver.check()
-        fo_model = solver.model()
         if res != sat:
             print('ERROR. NN-Formula is not satisfiable.')
             sys.exit()
+        fo_model = solver.model()
 
         # Convert to output list according to output vars.
         res_list = []

@@ -105,7 +105,8 @@ class PolynomialTemplate(Template):
             for index in var_indeces:
                 exponent = int(ctr_cpy/((self.degree+1)**index))
                 ctr_cpy = ctr_cpy - exponent*((self.degree+1)**index)
-                a = a*(self.input_vars[index]**exponent)
+                if not exponent == 0:
+                    a = a*(self.input_vars[index]**exponent)
             ctr += 1
             y += a
 
@@ -124,7 +125,8 @@ class PolynomialTemplate(Template):
             for index in var_indeces:
                 exponent = int(ctr_cpy/((self.degree+1)**index))
                 ctr_cpy = ctr_cpy - exponent*((self.degree+1)**index)
-                a = a*(input_value[index]**exponent)
+                if not exponent == 0:
+                    a = a*(input_value[index]**exponent)
             ctr += 1
             y += a
 
@@ -151,6 +153,24 @@ class PolynomialTemplate(Template):
     # overriding abstract method
     def param_variables(self):
         return self.param_vars
+    
+    def test_encoding(self, input):
+        formula = [self.smt_encoding()]
+        for i in range(len(self.input_vars)):
+            formula.append(input[i] == self.input_vars[i])
+
+        solver = Solver()
+        for e in formula:
+            solver.add(e)
+        
+        res = solver.check()
+        print(formula)
+        if res != sat:
+            print('ERROR. Template-Encoding is not satisfiable.')
+        else:
+            fo_model = solver.model()
+            print(fo_model.eval(self.output_vars[0], model_completion=True))
+
 
 class LinearTemplate(Template):
     """
@@ -161,7 +181,7 @@ class LinearTemplate(Template):
     def __init__(self, encoding='Real'):
         self.encoding = encoding
 
-        self.params = {'a': 0, 'b': 0}
+        self.params = {'a': 1, 'b': 1}
 
         input_var_names = ['x']
         output_var_names = ['y']
