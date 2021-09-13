@@ -45,6 +45,8 @@ def train(func_class, nodes_l1, nodes_l2, learning_rate, epochs):
     model = keras.Sequential([
         keras.layers.Dense(nodes_l1, activation=tf.nn.relu),
         keras.layers.Dense(nodes_l2, activation=tf.nn.relu),
+        keras.layers.Dense(10, activation=tf.nn.relu),
+        keras.layers.Dense(5, activation=tf.nn.relu),
         keras.layers.Dense(func_class.dimension())
     ])
 
@@ -58,7 +60,7 @@ def train(func_class, nodes_l1, nodes_l2, learning_rate, epochs):
 
     # Train, validate & save the model.
     model.fit(x_train, y_train, epochs=epochs, validation_data=(x_test, y_test))
-    model_filename = 'models/' + func_class.name() + '_model.h5'
+    model_filename = 'models_infeasible/' + func_class.name() + '_model.h5'
     model.save(model_filename)
 
     # calculate predictions
@@ -68,7 +70,7 @@ def train(func_class, nodes_l1, nodes_l2, learning_rate, epochs):
         # Plot the results
         plt.plot(x_samples, y_samples, 'r')
         plt.scatter(x_test, y_prediction)
-        plt.savefig('plots/' + func_class.name() + '_learned.png')
+        plt.savefig('plots_infeasible/' + func_class.name() + '_learned.png')
         plt.show()
         plt.clf()
     elif func_class.dimension() == 2:
@@ -103,8 +105,10 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-    sample(LinearA2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0)
-    # sample(PolyDeg3(), [[-10, 10]], [1001], 0.2)
-    train(LinearA2D(), 5, 5, 0.001, 100)
-    # train(PolyDeg3(), 8, 7, 0.01, 500)
+    sample(LinearA2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0.02)
+    # sample(PolyDeg3(), [[-10, 10]], [1001], 0.02)
+    # sample(QuadraticA(), [[-10, 10]], [1001], 0.02)
+    train(LinearA2D(), 20, 20, 0.0001, 500)
+    # train(PolyDeg3(), 20, 20, 0.001, 500)
+    # train(QuadraticA(), 20, 20, 0.001, 500)
     # open_model(LinearB2D())

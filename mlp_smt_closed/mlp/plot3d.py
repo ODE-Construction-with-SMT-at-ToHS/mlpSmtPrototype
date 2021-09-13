@@ -49,7 +49,7 @@ def plot_dist_map(x_test, y_test, y_prediction, name):
     ax.set_zlabel('prediction error')
     plt.draw()
     # save plot
-    fig.savefig(os.path.join('plots',name + '_learned.png'))
+    fig.savefig(os.path.join('plots_infeasible',name + '_learned.png'))
     # show plot
     plt.show()
     plt.clf()
