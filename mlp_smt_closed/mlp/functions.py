@@ -69,7 +69,7 @@ class QuadraticA(FuncClass):
         return 2
 
     def f(self, x):
-        return x**2 - 6*x + 10
+        return 0.1 * (x**2 - 6*x + 10)
 
 
 class QuadraticB(FuncClass):
@@ -97,7 +97,7 @@ class PolyDeg3(FuncClass):
         return 3
 
     def f(self, x):
-        return 0.4*(x**3) - 2*(x**2) + 3*x - 5
+        return 0.025*(0.4*(x**3) - 2*(x**2) + 3*x - 5)
 
 
 # Linear 2D Functions

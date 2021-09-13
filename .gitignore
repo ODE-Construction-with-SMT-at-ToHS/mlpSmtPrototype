@@ -2,3 +2,6 @@
 __pycache__/
 /venv
 /mlp_smt_closed/mlp/plots
+/mlp_smt_closed/mlp/plots_infeasible
+/mlp_smt_closed/mlp/models
+/mlp_smt_closed/mlp/models_infeasible
