@@ -163,7 +163,7 @@ class Adaptor:
                 self.template.set_params(new_params)
             else:
                 print('    -> Bound to strict: No parameters found.')
-                return False
+                return False, str(epsilon)
 
             end_time_parameter = time.time()
             print('    -> took', end_time_parameter-start_time_parameter, 'seconds')
@@ -178,7 +178,7 @@ class Adaptor:
             counter += 1
         
         #Satisficing parameters found.
-        return True
+        return True, str(epsilon)
 
     def optimize_template(self, tolerance=0.001):
         """Function for optimizing parameters of a function-template
@@ -269,7 +269,7 @@ class Adaptor:
             else:
                 print('Error! No satisfying parameters found.')
                 print(res)
-                break
+                return False, str(epsilon)
 
             counter += 1
 
@@ -281,7 +281,7 @@ class Adaptor:
             res, x = self._find_deviation(epsilon+tolerance, refine=0)
             # print('End of while: ' + str(res)+str(x))
         
-        print
+        return True, str(epsilon)
 
     def regression_verification_1d(self, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -323,6 +323,7 @@ class Adaptor:
             print('        * Passed: epsilon sufficiently large')
         else:
             print('        * Error: choose larger epsilon')
+            return False, epsilon
 
         for _ in range(epsilon_accuracy_steps):
             print('Maximum deviation range: [', lower, ',', upper, ']')
@@ -343,10 +344,12 @@ class Adaptor:
         print('For tighter bounds increase epsilon accuracy steps.')
 
         # Plot the results
-        plt.scatter(x_samples, y_samples, c='deepskyblue')
+        '''plt.scatter(x_samples, y_samples, c='deepskyblue')
         plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
         plt.show()
-        plt.clf()
+        plt.clf()'''
+
+        return True, (lower, upper)
 
     def regression_verification_nd(self, func_class, sizes, epsilon: float = 0.5, epsilon_accuracy_steps=4):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -416,6 +419,7 @@ class Adaptor:
             print('        * Passed: epsilon sufficiently large')
         else:
             print('        * Error: choose larger epsilon')
+            return False, epsilon
 
         for _ in range(epsilon_accuracy_steps):
             print('Maximum deviation range: [', lower, ',', upper, ']')
@@ -434,6 +438,8 @@ class Adaptor:
 
         print('Final maximum deviation range: [', lower, ',', upper, ']')
         print('For tighter bounds increase epsilon accuracy steps.')
+
+        return True, (lower, upper)
 
     def polyfit_verification_1d(self, func_class, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
@@ -486,6 +492,7 @@ class Adaptor:
             print('        * Passed: epsilon sufficiently large')
         else:
             print('        * Error: choose larger epsilon')
+            return False, epsilon
 
         # this is only to find bugs
         testval = 0
@@ -523,10 +530,11 @@ class Adaptor:
         y_predictions = np.array(y_predictions)
 
         # plot predictions
-        plt.scatter(x_samples, y_samples, c='deepskyblue')
+        '''plt.scatter(x_samples, y_samples, c='deepskyblue')
         plt.plot(x_samples, y_predictions, 'k')
         plt.show()
-        plt.clf()
+        plt.clf()'''
+        return True, (lower, upper)
 
 
     def _find_deviation(self, epsilon, refine=1):
