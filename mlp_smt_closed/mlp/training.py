@@ -7,6 +7,7 @@ import os
 import sys
 import inspect
 
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from mlp_smt_closed.mlp.functions import *
@@ -43,15 +44,20 @@ def train(func_class, nodes_l1, nodes_l2, learning_rate, epochs):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(nodes_l1, activation=tf.nn.relu),
-        keras.layers.Dense(nodes_l2, activation=tf.nn.relu),
-        keras.layers.Dense(10, activation=tf.nn.relu),
-        keras.layers.Dense(5, activation=tf.nn.relu),
+        keras.layers.Dense(100, activation=tf.nn.relu),
+        keras.layers.Dense(100, activation=tf.nn.relu),
         keras.layers.Dense(func_class.dimension())
     ])
 
     # Use the MSE regression loss (learning rate!?)
-    optimizer = tf.keras.optimizers.RMSprop(learning_rate)
+    # optimizer = tf.keras.optimizers.RMSprop(learning_rate)
+    boundaries = [50]
+    values = [0.01, 0.0001]
+    learning_rate = keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
+
+    # Later, whenever we perform an optimization step, we pass in the step.
+
+    optimizer = keras.optimizers.RMSprop(learning_rate=learning_rate)
 
     # configure model
     model.compile(loss='mean_squared_error',
@@ -105,10 +111,17 @@ def open_model(func_class):
 
 
 if __name__ == '__main__':
-    sample(LinearA2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0.02)
+    # sample(LinearA2D(), [[-10, 10], [-10, 10]], [100+1, 100+1], 0.02)
     # sample(PolyDeg3(), [[-10, 10]], [1001], 0.02)
     # sample(QuadraticA(), [[-10, 10]], [1001], 0.02)
-    train(LinearA2D(), 20, 20, 0.0001, 500)
+    platoon_intervals = [[-10, 10] for _ in range(15)]
+    platoon_sizes = [2 for _ in range(15)]
+    sample(Platoon(), platoon_intervals, platoon_sizes, 0)
+    train(Platoon(), 20, 20, 0.01, 100)
+
+
+    # train(LinearA2D(), 20, 20, 0.0001, 500)
     # train(PolyDeg3(), 20, 20, 0.001, 500)
     # train(QuadraticA(), 20, 20, 0.001, 500)
     # open_model(LinearB2D())
+
