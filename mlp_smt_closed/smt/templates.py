@@ -230,6 +230,7 @@ class LinearTemplate(Template):
     def param_variables(self):
         return self.param_vars
 
+
 class Linear2DTemplate(Template):
 
     # f(x) = A*x + b
@@ -266,6 +267,96 @@ class Linear2DTemplate(Template):
         y1 = output_var[0] == self.param_vars['a11']*input_value[0] + self.param_vars['a12']*input_value[1]  + self.param_vars['b1']
         y2 = output_var[1] == self.param_vars['a21']*input_value[0] + self.param_vars['a22']*input_value[1]  + self.param_vars['b2']
         return And(y1,y2)
+
+    # overriding abstract method
+    def get_params(self):
+        return self.params
+
+    # overriding abstract method
+    def set_params(self, params):
+        self.params = params
+
+    # overriding abstract method
+    def input_variables(self):
+        return self.input_vars
+
+    # overriding abstract method
+    def output_variables(self):
+        return self.output_vars
+
+    # overriding abstract method
+    def param_variables(self):
+        return self.param_vars
+
+
+class GenericLinearTemplate(Template):
+    """
+    Class representing the set of linear functions :math:`f` with :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
+    """
+
+    # f(x) = A*x + b
+    def __init__(self, encoding='Real', n=1, m=1):
+    
+        # n columns, m rows
+        self.n = n
+        self.m = m
+
+        input_var_names = ['x_{}'.format(i) for i in range(n)]
+        output_var_names = ['y_{}'.format(i) for i in range(m)]
+        param_var_names = []
+
+        for j in range(m):
+            for i in range(n):
+                param_var_names.append('y_{}_{}'.format(j,i))
+        
+        for j in range(m):
+            param_var_names.append('b_{}'.format(j))
+        
+        self.params = {name: 0 for name in param_var_names}
+        self.param_var_names = param_var_names
+
+        if encoding == 'FP':
+            self.input_vars = [FP(name, Float32()) for name in input_var_names]
+            self.output_vars = [FP(name, Float32()) for name in output_var_names]
+            self.param_vars = {name: FP(name, Float32()) for name in param_var_names}
+        elif encoding == 'Real':
+            self.input_vars = [Real(name) for name in input_var_names]
+            self.output_vars = [Real(name) for name in output_var_names]
+            self.param_vars = {name: Real(name) for name in param_var_names}
+        
+    # overriding abstract method
+    def func(self, x):
+        output = []
+        for j in range(self.m):
+            y = self.params[self.param_var_names[self.n*self.m + j]]
+            for i in range(self.n):
+                y+= self.params[self.param_var_names[j*self.n + i]] * x[i]
+            output.append(y)
+        
+        return tuple(output)
+    
+    # overriding abstract method
+    def smt_encoding(self):
+        
+        output = []
+        for j in range(self.m):
+            y = self.params[self.param_var_names[self.n*self.m + j]]
+            for i in range(self.n):
+                y+= self.params[self.param_var_names[j*self.n + i]] * self.input_vars[i]
+            output.append(self.output_vars[j] == y)
+        
+        return And(output)
+
+    def generic_smt_encoding(self, input_value, output_var):
+
+        output = []
+        for j in range(self.m):
+            y = self.param_vars[self.param_var_names[self.n*self.m + j]]
+            for i in range(self.n):
+                y+= self.param_vars[self.param_var_names[j*self.n + i]] * input_value[i]
+            output.append(output_var[j] == y)
+        
+        return And(output)
 
     # overriding abstract method
     def get_params(self):
