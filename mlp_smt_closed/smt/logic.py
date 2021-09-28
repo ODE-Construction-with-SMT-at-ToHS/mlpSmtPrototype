@@ -395,10 +395,11 @@ class Adaptor:
         new_params = {}
         for row_dim in range(func_class.dimension()):
             for col_dim in range(func_class.dimension()):
-                new_params.update({'a{}{}'.format(row_dim+1,col_dim+1): reg.coef_[row_dim][col_dim]})
+                # new_params.update({'a{}{}'.format(row_dim+1,col_dim+1): reg.coef_[row_dim][col_dim]})
                 # new_params.update({'a{}{}'.format(str(row_dim+1).zfill(2), str(col_dim+1).zfill(2)): reg.coef_[row_dim][col_dim]})
+                new_params.update({'a_{}_{}'.format(str(row_dim), str(col_dim)): reg.coef_[row_dim][col_dim]})
         for row_dim in range(func_class.dimension()):
-            new_params.update({'b{}'.format(row_dim+1): reg.intercept_[row_dim]})
+            new_params.update({'b_{}'.format(row_dim): reg.intercept_[row_dim]})
         self.template.set_params(new_params)
         end_time_regression = time.time()
         print('    -> Function found: f(x) = ')

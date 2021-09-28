@@ -307,7 +307,7 @@ class GenericLinearTemplate(Template):
 
         for j in range(m):
             for i in range(n):
-                param_var_names.append('y_{}_{}'.format(j,i))
+                param_var_names.append('a_{}_{}'.format(j,i))
         
         for j in range(m):
             param_var_names.append('b_{}'.format(j))
@@ -338,6 +338,9 @@ class GenericLinearTemplate(Template):
     # overriding abstract method
     def smt_encoding(self):
         
+        print(self.param_var_names)
+        print(self.params)
+
         output = []
         for j in range(self.m):
             y = self.params[self.param_var_names[self.n*self.m + j]]
