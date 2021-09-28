@@ -61,7 +61,7 @@ class Adaptor:
         # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
         self.solver_2 = Solver()
 
-    def adjust_template(self, epsilon = 0.5):
+    def adjust_template(self, epsilon = 0.5, log_time=False):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
         TODO: describe difference to optimize template
 
@@ -88,6 +88,10 @@ class Adaptor:
         precision = Q(1,10000)
         param_vars = self.template.param_variables()
         prec_formula = []
+
+        # timelog stores the time consumed by the two major subroutines.
+        timelog = []
+        last_t = time.time()
 
         # while the encoding is satisfiable
         while res == sat:
@@ -133,7 +137,6 @@ class Adaptor:
 
             # Check for satisfiability.
             print('Looking for new parameters')
-            start_time_parameter = time.time()
 
             if self.encoding == 'Real' and counter > 0:
                 solver_1.push()
@@ -150,6 +153,12 @@ class Adaptor:
             else:
                 res = solver_1.check()
             
+            # Log the timeconsumption of the adjusting part of the algo.
+            curr_t = time.time()
+            if log_time:
+                timelog.append(('adj',curr_t-last_t))
+                last_t=curr_t
+
             if res == sat:
                 fo_model = solver_1.model()
                 # Update parameters.
@@ -163,10 +172,9 @@ class Adaptor:
                 self.template.set_params(new_params)
             else:
                 print('    -> Bound to strict: No parameters found.')
+                if log_time:
+                    return False, str(epsilon), timelog
                 return False, str(epsilon)
-
-            end_time_parameter = time.time()
-            print('    -> took', end_time_parameter-start_time_parameter, 'seconds')
 
             # 2nd condition:
             print('Looking for new input')
@@ -176,11 +184,19 @@ class Adaptor:
                 res, x = self._find_deviation_splitting(epsilon)
             
             counter += 1
+            
+            # Log the timeconsumption of the find deviation part of the algo.
+            curr_t = time.time()
+            if log_time:
+                timelog.append(('find',curr_t-last_t))
+                last_t=curr_t
         
         #Satisficing parameters found.
+        if log_time:
+            return True, str(epsilon), timelog
         return True, str(epsilon)
 
-    def optimize_template(self, tolerance=0.001):
+    def optimize_template(self, tolerance=0.001, log_time=False):
         """Function for optimizing parameters of a function-template
         to such that the maximal deviation is minimal.
         """
@@ -206,6 +222,10 @@ class Adaptor:
 
         # Define the maximal deviation
         max_epsilon = Real('max_epsilon')
+        
+        # timelog stores the time consumed by the two major subroutines.
+        timelog = []
+        last_t = time.time()
 
         # while the encoding is satisfiable
         while res == sat:
@@ -251,6 +271,13 @@ class Adaptor:
             # Optimize parameters
             solver_1.minimize(max_epsilon)
             res = solver_1.check()
+            
+            # Log the timeconsumption of the optimizing part of the algo.
+            curr_t = time.time()
+            if log_time:
+                timelog.append(('opt',curr_t-last_t))
+                last_t=curr_t
+            
             if res == sat:
                 fo_model = solver_1.model()
                 # print(fo_model)
@@ -269,18 +296,27 @@ class Adaptor:
             else:
                 print('Error! No satisfying parameters found.')
                 print(res)
+                if log_time:
+                    return False, str(epsilon), timelog
                 return False, str(epsilon)
-
-            counter += 1
-
-            end_time_opt = time.time()
-            print('    -> Took', end_time_opt-start_time_opt, 'seconds')
 
             # Encode 2nd condition:
             print('Looking for new input')
-            res, x = self._find_deviation(epsilon+tolerance, refine=0)
-            # print('End of while: ' + str(res)+str(x))
+            if self.splits == 0:
+                res, x = self._find_deviation(epsilon + tolerance, refine=0)
+            else:
+                res, x = self._find_deviation_splitting(epsilon + tolerance)
+            
+            counter += 1
+            
+            # Log the timeconsumption of the find deviation part of the algo.
+            curr_t = time.time()
+            if log_time:
+                timelog.append(('find',curr_t-last_t))
+                last_t=curr_t
         
+        if log_time:
+            return True, str(epsilon), timelog
         return True, str(epsilon)
 
     def regression_verification_1d(self, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
