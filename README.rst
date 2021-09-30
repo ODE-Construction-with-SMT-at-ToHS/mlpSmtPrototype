@@ -27,8 +27,8 @@ Code Structure
    *  ``./mlp`` contains everything related to creating, training and saving the MLP
    *  ``./smt`` contains everything related to finding a closed form solution for a given MLP
 
-How to use
-##########
+Usage
+#####
 TODO...
 
 Documentation

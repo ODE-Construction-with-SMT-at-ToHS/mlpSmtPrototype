@@ -1,3 +1,5 @@
+"""This module contains the main function which starts our software depending on the arguments specified"""
+
 import time
 import os
 import sys
