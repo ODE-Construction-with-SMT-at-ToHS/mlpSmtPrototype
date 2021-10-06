@@ -40,9 +40,10 @@ class Template(ABC):
     def smt_encoding(self):
         pass
 
+
 class PolynomialTemplate(Template):
     """
-    Class for PolynomialTemplates
+    Class for polynomial templates
     """
 
     def __init__(self, encoding='Real', degree=1, variables=1) -> None:
@@ -174,7 +175,8 @@ class PolynomialTemplate(Template):
 
 class LinearTemplate(Template):
     """
-    Class representing the set of linear functions :math:`f` with :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
+    Class representing the set of linear functions :math:`f` with
+    :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
     """
 
     # f(x) = a*x + b
@@ -185,7 +187,7 @@ class LinearTemplate(Template):
 
         input_var_names = ['x']
         output_var_names = ['y']
-        param_var_names = ['a','b']
+        param_var_names = ['a', 'b']
 
         if encoding == 'FP':
             self.input_vars = [FP(name, Float32()) for name in input_var_names]
@@ -236,9 +238,9 @@ class Linear2DTemplate(Template):
     # f(x) = A*x + b
     def __init__(self, encoding='Real'):
 
-        input_var_names = ['x1','x2']
-        output_var_names = ['y1','y2']
-        param_var_names = ['a11','a12','a21','a22','b1','b2']
+        input_var_names = ['x1', 'x2']
+        output_var_names = ['y1', 'y2']
+        param_var_names = ['a11', 'a12', 'a21', 'a22', 'b1', 'b2']
 
         self.params = {name: 0 for name in param_var_names}
 
@@ -253,20 +255,20 @@ class Linear2DTemplate(Template):
     
     # overriding abstract method
     def func(self, x):
-        y1 = self.params['a11']*x[0] + self.params['a12']*x[1]  + self.params['b1']
-        y2 = self.params['a21']*x[0] + self.params['a22']*x[1]  + self.params['b2']
+        y1 = self.params['a11']*x[0] + self.params['a12']*x[1] + self.params['b1']
+        y2 = self.params['a21']*x[0] + self.params['a22']*x[1] + self.params['b2']
         return y1, y2
 
     # overriding abstract method
     def smt_encoding(self):
-        y1 = self.output_vars[0] == self.params['a11']*self.input_vars[0] + self.params['a12']*self.input_vars[1]  + self.params['b1']
-        y2 = self.output_vars[1] == self.params['a21']*self.input_vars[0] + self.params['a22']*self.input_vars[1]  + self.params['b2']
-        return And(y1,y2)
+        y1 = self.output_vars[0] == self.params['a11']*self.input_vars[0] + self.params['a12']*self.input_vars[1] + self.params['b1']
+        y2 = self.output_vars[1] == self.params['a21']*self.input_vars[0] + self.params['a22']*self.input_vars[1] + self.params['b2']
+        return And(y1, y2)
 
     def generic_smt_encoding(self, input_value, output_var):
-        y1 = output_var[0] == self.param_vars['a11']*input_value[0] + self.param_vars['a12']*input_value[1]  + self.param_vars['b1']
-        y2 = output_var[1] == self.param_vars['a21']*input_value[0] + self.param_vars['a22']*input_value[1]  + self.param_vars['b2']
-        return And(y1,y2)
+        y1 = output_var[0] == self.param_vars['a11']*input_value[0] + self.param_vars['a12']*input_value[1] + self.param_vars['b1']
+        y2 = output_var[1] == self.param_vars['a21']*input_value[0] + self.param_vars['a22']*input_value[1] + self.param_vars['b2']
+        return And(y1, y2)
 
     # overriding abstract method
     def get_params(self):
@@ -291,7 +293,8 @@ class Linear2DTemplate(Template):
 
 class GenericLinearTemplate(Template):
     """
-    Class representing the set of linear functions :math:`f` with :math:`f: \in \mathbb{R} \\rightarrow \mathbb{R}, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
+    Class representing the set of linear functions :math:`f` with
+    :math:`f: \in \mathbb{R}^n \\rightarrow \mathbb{R}^n, f(x) = a \cdot x + b, a,b \in \mathbb{R}`
     """
 
     # f(x) = A*x + b

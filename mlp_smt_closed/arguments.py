@@ -40,12 +40,14 @@ def parse_args():
                         help='choose to fit the MLP to a linear or polynomial function')
     parser.add_argument('-d', '--degree', default=1, type=int, help='degree of the polynomial')
     parser.add_argument('-i', '--intervals', default=((-8,), (8,)),
-                        help='interval in which the parameters should fit')
+                        help='interval in which the parameters should fit. Note that in some terminals, this argument '
+                             'has to be passed as a string.')
     parser.add_argument('--sizes', default=[200],
-                        help='number of samples taken in case "--method ls"')
+                        help='number of samples taken in case "--method ls". Note that in some terminals, this argument'
+                             ' has to be passed as a string.')
     parser.add_argument('-e', '--epsilon', default=0.05, type=float,
-                        help='Attention: the interpretation of epsilon is context dependent! Read the README or the '
-                             'Documentation for details.')
+                        help='Attention: the interpretation of epsilon is context dependent! Read the the Documentation'
+                             ' for details.')
     parser.add_argument('--steps', default=4, type=int,
                         help='number of interval refinement steps taken in case "--method ls"')
     parser.add_argument('-p', '--plot', action='store_true',

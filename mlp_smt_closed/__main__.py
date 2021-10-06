@@ -11,7 +11,7 @@ if __name__ == '__main__':
     encoding = 'Real'
     # encoding = 'FP'
 
-    # parse arguements
+    # parse arguments
     args = parse_args()
 
     # load keras model to get output dimension (necessary for template-choice, currently only n x n matrices
@@ -35,30 +35,20 @@ if __name__ == '__main__':
         if args.optimize:
             adaptor.optimize_template()
         else:
-            adaptor.adjust_template(epsilon = args.epsilon)
+            adaptor.adjust_template(epsilon=args.epsilon)
     # else: least squares (ls) was chosen
     else:
-        # distiguish between linear and polynomial
+        # distinguish between linear and polynomial
         if args.template == 'linear':
-            if output_dimension == 1:
-                func_class = LinearA()
-            elif output_dimension == 2:
-                func_class = LinearA2D()
-            elif output_dimension == 15:
-                func_class = Platoon()
-            else:
-                print("Error: No support for this dimension yet. Try 'smt' instead of 'ls'.")
+            # the following is quite an ugly workaround: func_class is only used to indirectly pass dimensionality and
+            # degree. func_class.f(x) and func_class.name() are not used at any point!
+            func_class = LinGen(output_dimension)
             adaptor.regression_verification_nd(func_class, args.sizes, args.epsilon, args.steps)
         # else: polynomial was chosen
         else:
-            if args.degree == 1:
-                func_class = LinearA()
-            elif args.degree == 2:
-                func_class = QuadraticA()
-            elif args.degree == 3:
-                func_class = PolyDeg3()
-            else:
-                print("Error: No support for this degree yet. Try 'smt' instead of 'ls'.")
+            # the following is quite an ugly workaround: func_class is only used to indirectly pass dimensionality and
+            # degree. func_class.f(x) and func_class.name() are not used at any point!
+            func_class = PolyGen(args.degree)
             adaptor.polyfit_verification_1d(func_class, args.sizes, args.epsilon, args.steps, args.plot)
     
     '''

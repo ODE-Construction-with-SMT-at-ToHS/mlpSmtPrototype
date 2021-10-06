@@ -27,9 +27,13 @@ Code Structure
    *  ``./mlp`` contains everything related to creating, training and saving the MLP
    *  ``./smt`` contains everything related to finding a closed form solution for a given MLP
 
+Installation
+############
+Execute ``pip install -r requirements.txt`` to install all requirements.
+
 Usage
 #####
-TODO...
+Execute ``python -m mlp_smt_closed`` in the root directory to run this project. Executing ``python -m mlp_smt_closed --help`` will print information on the usage of the package provided. For a more detailed description of the available options consider the paper or the documentation.
 
 Documentation
 #############
