@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument('--steps', default=4, type=int,
                         help='number of interval refinement steps taken in case "--method ls"')
     parser.add_argument('-p', '--plot', action='store_true',
-                        help='plot fit if supported for this dimension' )
+                        help='plot fit if supported for this dimension')
 
     args = parser.parse_args()
 

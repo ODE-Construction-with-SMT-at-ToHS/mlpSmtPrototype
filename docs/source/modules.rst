@@ -7,6 +7,6 @@ mlp_smt_closed
 
    readme_link
    arguments
-   main
+   __main__
    mlp/index
    smt/index

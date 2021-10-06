@@ -3,11 +3,9 @@ This module can be used to create an MLP, train it  a function `f`, save it, and
 `f` :math:`\in \mathbb{R} \\rightarrow \mathbb{R}` or `f` :math:`\in \mathbb{R}^2 \\rightarrow \mathbb{R}^2` is
 supported
 """
-import os
 import sys
 import inspect
 
-import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from mlp_smt_closed.mlp.functions import *
@@ -44,16 +42,16 @@ def train(func_class, nodes_l1, nodes_l2, learning_rate, epochs):
 
     # Create a simple mlp model.
     model = keras.Sequential([
-        keras.layers.Dense(100, activation=tf.nn.relu),
-        keras.layers.Dense(100, activation=tf.nn.relu),
+        keras.layers.Dense(nodes_l1, activation=tf.nn.relu),
+        keras.layers.Dense(nodes_l2, activation=tf.nn.relu),
         keras.layers.Dense(func_class.dimension())
     ])
 
     # Use the MSE regression loss (learning rate!?)
     # optimizer = tf.keras.optimizers.RMSprop(learning_rate)
-    boundaries = [50]
-    values = [0.01, 0.0001]
-    learning_rate = keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
+    # boundaries = [50]
+    # values = [0.01, 0.0001]
+    # learning_rate = keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
 
     # Later, whenever we perform an optimization step, we pass in the step.
 
@@ -118,10 +116,7 @@ if __name__ == '__main__':
     platoon_sizes = [2 for _ in range(15)]
     sample(Platoon(), platoon_intervals, platoon_sizes, 0)
     train(Platoon(), 20, 20, 0.01, 100)
-
-
     # train(LinearA2D(), 20, 20, 0.0001, 500)
     # train(PolyDeg3(), 20, 20, 0.001, 500)
     # train(QuadraticA(), 20, 20, 0.001, 500)
     # open_model(LinearB2D())
-
