@@ -4,15 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>logic module &#8212; mlp_smt_closed  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="templates module" href="templates.html" />
@@ -33,53 +34,116 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-mlp_smt_closed.smt.logic">
+  <section id="module-mlp_smt_closed.smt.logic">
 <span id="logic-module"></span><h1>logic module<a class="headerlink" href="#module-mlp_smt_closed.smt.logic" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="mlp_smt_closed.smt.logic.Adaptor">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">Adaptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_path</span></em>, <em class="sig-param"><span class="n">template</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">splits</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">'Real'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">Adaptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Real'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class can be used to find a closed form for a trained MLP , given a function template.</p>
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.adjust_template">
-<code class="sig-name descname">adjust_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">0.5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.adjust_template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method for finding parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
-TODO: describe difference to optimize template</p>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Real'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor. Encodes the model (/trained MLP) stored at <code class="docutils literal notranslate"><span class="pre">model_path</span></code>, loads the model stored at
+<code class="docutils literal notranslate"><span class="pre">model_path</span></code>, creates the <code class="docutils literal notranslate"><span class="pre">z3</span></code> solver instance for finding deviations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>= 0.5</strong> (<em>epsilon</em>) – Tolerance of template. Within the domain <code class="docutils literal notranslate"><span class="pre">interval</span></code> (specified at construction time), the</p></li>
-<li><p><strong>of the closed form and the MLP are not allowed to differ more than epsilon</strong> (<em>output</em>) – </p></li>
+<li><p><strong>model_path</strong> – path to export of keras model file.</p></li>
+<li><p><strong>template</strong> – Template() instance # TODO has to be made compatible with args-parser</p></li>
+<li><p><strong>interval</strong> – tuple of tuples representing an interval, limiting the function domain. Within this domain, the
+output of the closed form and the MLP are not allowed to differ more than a (later specified) tolerance</p></li>
+<li><p><strong>splits</strong> – #splits + 1 threads are going to be created when searching for deviations</p></li>
+<li><p><strong>encoding</strong> – specifies whether floats or reals are used during the computation</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.optimize_template">
-<code class="sig-name descname">optimize_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.optimize_template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function for optimizing parameters of a function-template
-to such that the maximal deviation is minimal.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.polyfit_verification_1d">
-<code class="sig-name descname">polyfit_verification_1d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">epsilon_accuracy_steps</span><span class="o">=</span><span class="default_value">4</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.polyfit_verification_1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method for finding parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
-TODO: describe difference to optimize template</p>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor._find_deviation">
+<span class="sig-name descname"><span class="pre">_find_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor._find_deviation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is used to find an x value, for which <span class="math notranslate nohighlight">\(|f(x) - NN(x)|\)</span> relatively large. Therefore the
+function iteratively searches in for greater differences in each iteration. The central idea is that using x
+values for which the difference is large, will improve the parameter-estimation in the first part of the
+algorithm more than x values closer to the current estimation for f.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>= 0.5</strong> (<em>epsilon</em>) – Tolerance of template. Within the domain <code class="docutils literal notranslate"><span class="pre">interval</span></code> (specified at construction time), the</p></li>
-<li><p><strong>of the closed form and the MLP are not allowed to differ more than epsilon</strong> (<em>output</em>) – </p></li>
+<li><p><strong>epsilon</strong> – distance in which new x values are searched initially. If found: doubled for next iteration</p></li>
+<li><p><strong>refine</strong> – number of iterations of searching for new x-values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>bool to check whether a new value with minimum deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code> is found</p></li>
+<li><p>new x value, if found.,</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor._find_deviation_splitting">
+<span class="sig-name descname"><span class="pre">_find_deviation_splitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor._find_deviation_splitting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the same as <code class="docutils literal notranslate"><span class="pre">_find_deviation</span></code> but splits the computation at nodes of the MLP</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor._init_worker_solvers">
+<span class="sig-name descname"><span class="pre">_init_worker_solvers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor._init_worker_solvers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper-function for handling multiple threads</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.adjust_template">
+<span class="sig-name descname"><span class="pre">adjust_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.adjust_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for finding some parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
+In contrast to <code class="docutils literal notranslate"><span class="pre">optimize_template</span></code>, the parameters found do not have any other properties. Results are
+displayed in the terminal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>epsilon</strong> – Tolerance of template. Within the domain <code class="docutils literal notranslate"><span class="pre">interval</span></code> (specified at construction time), the output of
+the closed form and the MLP are not allowed to differ more than <code class="docutils literal notranslate"><span class="pre">epsilon</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.optimize_template">
+<span class="sig-name descname"><span class="pre">optimize_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.optimize_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for finding some parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
+In the step of finding new parameters, this method finds parameters such that l1 distance summed over all
+points considered between the function and the MLP is minimal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.polyfit_verification_1d">
+<span class="sig-name descname"><span class="pre">polyfit_verification_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[200]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_accuracy_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.polyfit_verification_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods first samples then MLP and uses a least-squares implementation to find parameters for a
+polynomial template. Then binary search is used to find an interval that is guaranteed to contain the maximum
+deviation between the function found and the MLP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func_class</strong> – Generic FuncClass instance to to have access to func_class.dimension. This is a bad workaround and
+should be changed</p></li>
+<li><p><strong>sizes</strong> (<em>list</em>) – contains #samples taken</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – initial upper bound for the interval in which binary search is performed</p></li>
+<li><p><strong>epsilon_accuracy_steps</strong> (<em>int</em>) – number of steps done in the binary search.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – in case of a 1D fit the result can be plotted</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.predict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that calculates a prediction of the NN based on its
 encoding.</p>
 <dl class="field-list simple">
@@ -90,39 +154,29 @@ encoding.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.regression_verification_1d">
-<code class="sig-name descname">regression_verification_1d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">epsilon_accuracy_steps</span><span class="o">=</span><span class="default_value">4</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.regression_verification_1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method for finding parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
-TODO: describe difference to optimize template</p>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.regression_verification_nd">
+<span class="sig-name descname"><span class="pre">regression_verification_nd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_accuracy_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.regression_verification_nd" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods first samples then MLP and uses a least-squares implementation to find parameters for a linear
+template. Then binary search is used to find an interval that is guaranteed to contain the maximum deviation
+between the function found and the MLP.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> – </p></li>
-<li><p><strong>= 0.5</strong> (<em>epsilon</em>) – Tolerance of template. Within the domain <code class="docutils literal notranslate"><span class="pre">interval</span></code> (specified at construction time), the</p></li>
-<li><p><strong>of the closed form and the MLP are not allowed to differ more than epsilon</strong> (<em>output</em>) – </p></li>
+<li><p><strong>func_class</strong> – Generic FuncClass instance to to have access to func_class.dimension. This is a bad workaround and
+should be changed</p></li>
+<li><p><strong>sizes</strong> (<em>list</em>) – contains #samples taken per dimension. The resulting number of samples is the product over all elements
+in this list.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – initial upper bound for the interval in which binary search is performed</p></li>
+<li><p><strong>epsilon_accuracy_steps</strong> – number of steps done in the binary search.</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – in case of a 1D fit the result can be plotted</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.regression_verification_nd">
-<code class="sig-name descname">regression_verification_nd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_class</span></em>, <em class="sig-param"><span class="n">sizes</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">epsilon_accuracy_steps</span><span class="o">=</span><span class="default_value">4</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.regression_verification_nd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method for finding parameters of a function-template to fit the MLP with maximal deviation <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>.
-TODO: describe difference to optimize template</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>= 0.5</strong> (<em>epsilon</em>) – Tolerance of template. Within the domain <code class="docutils literal notranslate"><span class="pre">interval</span></code> (specified at construction time), the</p></li>
-<li><p><strong>of the closed form and the MLP are not allowed to differ more than epsilon</strong> (<em>output</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="mlp_smt_closed.smt.logic.Adaptor.test_encoding">
-<code class="sig-name descname">test_encoding</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.test_encoding" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.Adaptor.test_encoding">
+<span class="sig-name descname"><span class="pre">test_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.Adaptor.test_encoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that tests whether solving the encoding for a
 MLP-model produces a correct model of the encoding.</p>
 <dl class="field-list simple">
@@ -135,31 +189,31 @@ MLP-model produces a correct model of the encoding.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.logic.cast">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">cast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encoding</span></em>, <em class="sig-param"><span class="n">var</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.cast" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.cast">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">cast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.cast" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.logic.pickleable_z3num">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">pickleable_z3num</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.pickleable_z3num" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.pickleable_z3num">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">pickleable_z3num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.pickleable_z3num" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.logic.reverse_pickleablility">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">reverse_pickleablility</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.reverse_pickleablility" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.reverse_pickleablility">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">reverse_pickleablility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.reverse_pickleablility" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.logic.value">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encoding</span></em>, <em class="sig-param"><span class="n">fo_model</span></em>, <em class="sig-param"><span class="n">var</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.value" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.value">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fo_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="mlp_smt_closed.smt.logic.worker_solver">
-<code class="sig-prename descclassname">mlp_smt_closed.smt.logic.</code><code class="sig-name descname">worker_solver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">jobs</span></em>, <em class="sig-param"><span class="n">solutions</span></em>, <em class="sig-param"><span class="n">model_path</span></em>, <em class="sig-param"><span class="n">template_name</span></em>, <em class="sig-param"><span class="n">splits</span></em>, <em class="sig-param"><span class="n">lb</span></em>, <em class="sig-param"><span class="n">ub</span></em>, <em class="sig-param"><span class="n">encoding</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.worker_solver" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.smt.logic.worker_solver">
+<span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.smt.logic.</span></span><span class="sig-name descname"><span class="pre">worker_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.smt.logic.worker_solver" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -178,12 +232,12 @@ MLP-model produces a correct model of the encoding.</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">mlp_smt_closed</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../readme_link.html">README</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../arguments.html">arguments module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../__main__.html">__main__ module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlp/index.html">mlp</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">smt</a></li>
 </ul>
@@ -207,7 +261,7 @@ MLP-model produces a correct model of the encoding.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -229,7 +283,7 @@ MLP-model produces a correct model of the encoding.</p>
       &copy;2021, László Dirks, Nicolai Radke.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

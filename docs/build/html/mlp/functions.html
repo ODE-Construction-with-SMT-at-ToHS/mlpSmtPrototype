@@ -4,15 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>functions module &#8212; mlp_smt_closed  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="plot3d module" href="plot3d.html" />
@@ -33,239 +34,264 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-mlp_smt_closed.mlp.functions">
+  <section id="module-mlp_smt_closed.mlp.functions">
 <span id="functions-module"></span><h1>functions module<a class="headerlink" href="#module-mlp_smt_closed.mlp.functions" title="Permalink to this headline">¶</a></h1>
 <p>This module contains classes for functions which the MLP can learn.</p>
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.Brusselator">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">Brusselator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Brusselator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class representing the dynamics of the Brusselator</p>
-<dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.Brusselator.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Brusselator.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="mlp_smt_closed.mlp.functions.Brusselator.name">
-<code class="sig-name descname">name</code><em class="property"> = 'Brusselator'</em><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Brusselator.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.FuncClass">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">FuncClass</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.FuncClass">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">FuncClass</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.FuncClass.degree">
-<em class="property">abstract property </em><code class="sig-name descname">degree</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<p>Abstract parent class for all functions</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.FuncClass.degree">
+<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the degree of the function</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.FuncClass.dimension">
+<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the dimensionality of the function. Note that at this point only a very small portion
+of multidimensional functions are supported, namely all of the form <span class="math notranslate nohighlight">\(f: x \in \mathbb{R}^n \mapsto a\cdot
+x+b\)</span> with <span class="math notranslate nohighlight">\(a \in \mathbb{R}^{n \times n}, b \in \mathbb{R}^n\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.FuncClass.dimension">
-<em class="property">abstract property </em><code class="sig-name descname">dimension</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.FuncClass.f">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
-<dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.FuncClass.f">
-<em class="property">abstract </em><code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.FuncClass.name">
-<em class="property">abstract property </em><code class="sig-name descname">name</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.FuncClass.name">
+<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.FuncClass.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the name of the function.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.LinearA">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">LinearA</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinGen">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">LinGen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
-<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = x-2\)</span></p>
+<p>Generic class for Linear Functions. This class is not for Network training purposes but only necessary
+because of bad construction. Only dimension and degree should be used.</p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinGen.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinGen.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>return 1 as this is a linear function</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinGen.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinGen.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the dimension passed at construction time</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinGen.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinGen.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns error, should not be used</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinGen.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinGen.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns error, should not be used</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.LinearA2D">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">LinearA2D</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">LinearA</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
-<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R}^2 \rightarrow \mathbb{R}^2, f(x) = \begin{bmatrix} -0.1 &amp; -1.0 \\ 1.0 &amp; -0.1 \end{bmatrix} \cdot x\)</span></p>
+<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = -x+2\)</span></p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA2D.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA2D.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA2D.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearA2D.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns ‘LinearA’</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.LinearB">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">LinearB</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">LinearA2D</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
+<p>Class for the linear function <span class="math notranslate nohighlight">\(f: \in \mathbb{R}^2 \rightarrow \mathbb{R}^2,
+f(x) = \begin{bmatrix} -0.1 &amp; -1.0 \\ 1.0 &amp; -0.1 \end{bmatrix} \cdot x\)</span></p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 2</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.LinearA2D.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearA2D.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns ‘LinearA2D’</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.LinearB2D">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">LinearB2D</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB2D" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.Platoon">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">Platoon</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Platoon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
+<p>This function is taken is a <a class="reference external" href="https://ths.rwth-aachen.de/research/projects/hypro/n_vehicle_platoon/">benchmark from the HyPro project</a></p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB2D.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB2D.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.Platoon.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Platoon.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB2D.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB2D.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.Platoon.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Platoon.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 15</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB2D.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB2D.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.Platoon.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Platoon.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.LinearB2D.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.LinearB2D.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.Platoon.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.Platoon.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns ‘Platoon’</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.PolyDeg3">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">PolyDeg3</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyDeg3">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">PolyDeg3</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
+<p>Class for the cubic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R},
+0.025\cdot(0.4\cdot(x^3) - 2\cdot(x^2) + 3\cdot x - 5)\)</span></p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.PolyDeg3.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyDeg3.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 3</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.PolyDeg3.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyDeg3.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.PolyDeg3.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyDeg3.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.PolyDeg3.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyDeg3.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyDeg3.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns ‘PolyDeg3’</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticA">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">QuadraticA</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyGen">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">PolyGen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
-<p>Class for the quadratic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = (x-3)^2 + 1\)</span></p>
+<p>Generic class for Polynomial Functions. This class is not for Network training purposes but only necessary
+because of bad construction. Only dimension and degree should be used.</p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticA.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyGen.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyGen.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns degree passed at construction time</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticA.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyGen.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyGen.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1, as only 1D polynomials are supported</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticA.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyGen.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyGen.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns error, should not be used</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticA.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.PolyGen.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.PolyGen.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns error, should not be used</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticB">
-<em class="property">class </em><code class="sig-prename descclassname">mlp_smt_closed.mlp.functions.</code><code class="sig-name descname">QuadraticB</code><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlp_smt_closed.mlp.functions.</span></span><span class="sig-name descname"><span class="pre">QuadraticA</span></span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlp_smt_closed.mlp.functions.FuncClass" title="mlp_smt_closed.mlp.functions.FuncClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlp_smt_closed.mlp.functions.FuncClass</span></code></a></p>
-<p>Class for the quadratic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = (x-1)^2 \cdot 0.3 - 1\)</span></p>
+<p>Class for the quadratic function <span class="math notranslate nohighlight">\(f: \in \mathbb{R} \rightarrow \mathbb{R}, f(x) = 0.1 \cdot (x^2-6x+10)\)</span></p>
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticB.degree">
-<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.degree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.degree">
+<span class="sig-name descname"><span class="pre">degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 2</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticB.dimension">
-<code class="sig-name descname">dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.dimension" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns 1</p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticB.f">
-<code class="sig-name descname">f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.f" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the value of the <span class="math notranslate nohighlight">\(f\)</span> for input <span class="math notranslate nohighlight">\(x\)</span></p>
+</dd></dl>
 
 <dl class="py method">
-<dt id="mlp_smt_closed.mlp.functions.QuadraticB.name">
-<code class="sig-name descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticB.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="mlp_smt_closed.mlp.functions.QuadraticA.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mlp_smt_closed.mlp.functions.QuadraticA.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns ‘QuadraticA’</p>
+</dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -284,12 +310,12 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">mlp_smt_closed</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../readme_link.html">README</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../arguments.html">arguments module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../__main__.html">__main__ module</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">mlp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../smt/index.html">smt</a></li>
 </ul>
@@ -313,7 +339,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -335,7 +361,7 @@
       &copy;2021, László Dirks, Nicolai Radke.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

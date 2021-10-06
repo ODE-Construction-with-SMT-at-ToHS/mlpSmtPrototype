@@ -43,7 +43,7 @@ if __name__ == '__main__':
             # the following is quite an ugly workaround: func_class is only used to indirectly pass dimensionality and
             # degree. func_class.f(x) and func_class.name() are not used at any point!
             func_class = LinGen(output_dimension)
-            adaptor.regression_verification_nd(func_class, args.sizes, args.epsilon, args.steps)
+            adaptor.regression_verification_nd(func_class, args.sizes, args.epsilon, args.steps, args.plot)
         # else: polynomial was chosen
         else:
             # the following is quite an ugly workaround: func_class is only used to indirectly pass dimensionality and

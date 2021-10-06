@@ -17,14 +17,17 @@ class Adaptor:
 
     def __init__(self, model_path, template, interval, splits=0, encoding='Real') -> None:
         """ Constructor. Encodes the model (/trained MLP) stored at ``model_path``, loads the model stored at
-        ``model_path``, creates a ``z3`` solver instance. # TODO: comment on solver purpose
+        ``model_path``, creates the ``z3`` solver instance for finding deviations.
 
 
         Parameters:
             model_path: path to export of keras model file.
             template: Template() instance # TODO has to be made compatible with args-parser
-            interval: tuple of tuples representing an interval, limiting the function domain. Within this domain, the
-            output of the closed form and the MLP are not allowed to differ more than a (later specified) tolerance
+            interval:
+                tuple of tuples representing an interval, limiting the function domain. Within this domain, the
+                output of the closed form and the MLP are not allowed to differ more than a (later specified) tolerance
+            splits: #splits + 1 threads are going to be created when searching for deviations
+            encoding: specifies whether floats or reals are used during the computation
         """
 
         # TODO add some sanity check to detect dimension errors early on.
@@ -62,16 +65,18 @@ class Adaptor:
         # load the actual NN, used to calculate predictions
         self.nn_model = keras.models.load_model(model_path)
 
-        # Create a solver instance. #TODO: why is solver_2 created first???, comment on purpose of this solver
+        # Create a solver instance. which is used for finding deviations later
         self.solver_2 = Solver()
 
     def adjust_template(self, epsilon = 0.5, log_time=False):
-        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
-        TODO: describe difference to optimize template
+        """Method for finding some parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
+        In contrast to ``optimize_template``, the parameters found do not have any other properties. Results are
+        displayed in the terminal.
 
         Parameters:
-            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
-            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
+            epsilon:
+                Tolerance of template. Within the domain ``interval`` (specified at construction time), the output of
+                the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
 
         # Initial input
@@ -89,7 +94,7 @@ class Adaptor:
         res = sat
 
         # Float precision for real encoding
-        precision = Q(1,10000)
+        precision = Q(1, 10000)
         param_vars = self.template.param_variables()
         prec_formula = []
 
@@ -201,10 +206,10 @@ class Adaptor:
         return True, str(epsilon)
 
     def optimize_template(self, tolerance=0.001, log_time=False):
-        """Function for optimizing parameters of a function-template
-        to such that the maximal deviation is minimal.
+        """Method for finding some parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
+        In the step of finding new parameters, this method finds parameters such that l1 distance summed over all
+        points considered between the function and the MLP is minimal.
         """
-
         if not self.encoding == 'Real':
             print('Optimiziation only possible using real-encoding.')
             return
@@ -323,84 +328,26 @@ class Adaptor:
             return True, str(epsilon), timelog
         return True, str(epsilon)
 
-    def regression_verification_1d(self, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
-        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
-        TODO: describe difference to optimize template
+    def regression_verification_nd(self, func_class, sizes, epsilon: float = 0.5, epsilon_accuracy_steps=4, plot=False):
+        """This methods first samples then MLP and uses a least-squares implementation to find parameters for a linear
+        template. Then binary search is used to find an interval that is guaranteed to contain the maximum deviation
+        between the function found and the MLP.
 
         Parameters:
-            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
-            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
+            func_class:
+                Generic FuncClass instance to to have access to func_class.dimension. This is a bad workaround and
+                should be changed
+            sizes (list):
+                contains #samples taken per dimension. The resulting number of samples is the product over all elements
+                in this list.
+            epsilon (float):
+                initial upper bound for the interval in which binary search is performed
+            epsilon_accuracy_steps:
+                number of steps done in the binary search.
+            plot (bool):
+                in case of a 1D fit the result can be plotted
         """
 
-        # create samples form input network
-        print('Taking samples to do regression')
-        x_samples = np.linspace(self.lb, self.ub, size)
-        y_samples = self.nn_model.predict(x_samples)
-
-        # do regression to find parameters
-        print('Doing regression')
-        start_time_regression = time.time()
-        reg = LinearRegression().fit(x_samples, y_samples)
-        new_params = {'a': float(reg.coef_[0][0]), 'b': float(reg.intercept_[0])}
-        self.template.set_params(new_params)
-        end_time_regression = time.time()
-        print('    -> Function found: f(x) = ', reg.coef_[0][0], 'x +', reg.intercept_[0])
-        print('    -> took', end_time_regression - start_time_regression, 'seconds')
-        print(self.template.get_params())
-
-        # binary search for epsilon
-        print('Calculating deviation range')
-        lower = 0
-        upper = epsilon
-
-        #sanity check upper bound for binary search (epsilon)
-        print('    -> Sanity check upper bound for binary search (epsilon)')
-        if self.splits == 0:
-            res, x = self._find_deviation(epsilon, refine=0)
-        else:
-            res, x = self._find_deviation_splitting(epsilon)
-        if res == unsat:
-            print('        * Passed: epsilon sufficiently large')
-        else:
-            print('        * Error: choose larger epsilon')
-            return False, epsilon
-
-        for _ in range(epsilon_accuracy_steps):
-            print('Maximum deviation range: [', lower, ',', upper, ']')
-            print('Searching for tighter bounds')
-            mid = (lower + upper)/2
-            if self.splits == 0:
-                res, x = self._find_deviation(mid, refine=0)
-            else:
-                res, x = self._find_deviation_splitting(mid)
-            # epsilon accuracy sufficient -> refine upper error bound (make it lower)
-            if res == unsat:
-                upper = mid
-            # epsilon accuracy to tight tight -> refine lower error bound (make lower error bound larger)
-            else:
-                lower = mid
-
-        print('Final maximum deviation range: [', lower, ',', upper, ']')
-        print('For tighter bounds increase epsilon accuracy steps.')
-
-        # Plot the results
-        '''plt.scatter(x_samples, y_samples, c='deepskyblue')
-        plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
-        plt.show()
-        plt.clf()'''
-
-        return True, (lower, upper)
-
-    def regression_verification_nd(self, func_class, sizes, epsilon: float = 0.5, epsilon_accuracy_steps=4):
-        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
-        TODO: describe difference to optimize template
-
-        Parameters:
-            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
-            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
-        """
-        
-        
         # workaround in case the intervals are passed as an argument (in this case, they are passed as a string)
         if type(sizes) == str:
             sizes = eval(sizes)
@@ -487,18 +434,34 @@ class Adaptor:
         print('Final maximum deviation range: [', lower, ',', upper, ']')
         print('For tighter bounds increase epsilon accuracy steps.')
 
+        if func_class.dimension() == 1 and plot:
+            plt.scatter(x_samples, y_samples, c='deepskyblue')
+            plt.plot(x_samples, reg.coef_[0][0] * x_samples + reg.intercept_[0], 'k')
+            plt.show()
+            plt.clf()
+
         return True, (lower, upper)
 
     def polyfit_verification_1d(self, func_class, size=[200], epsilon: float = 0.5, epsilon_accuracy_steps=4,
                                 plot=False):
-        """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
-        TODO: describe difference to optimize template
+        """This methods first samples then MLP and uses a least-squares implementation to find parameters for a
+        polynomial template. Then binary search is used to find an interval that is guaranteed to contain the maximum
+        deviation between the function found and the MLP.
 
         Parameters:
-            epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
-            output of the closed form and the MLP are not allowed to differ more than ``epsilon``
+            func_class:
+                Generic FuncClass instance to to have access to func_class.dimension. This is a bad workaround and
+                should be changed
+            sizes (list):
+                contains #samples taken
+            epsilon (float):
+                initial upper bound for the interval in which binary search is performed
+            epsilon_accuracy_steps (int):
+                number of steps done in the binary search.
+            plot (bool):
+                in case of a 1D fit the result can be plotted
         """
-        
+
         # workaround in case the size is passed as an argument (in this case, it is passed as a string)
         if type(size) == str:
             size = eval(size)
@@ -600,10 +563,10 @@ class Adaptor:
 
     def _find_deviation(self, epsilon, refine=1):
         """
-        This function is used to find an x value, for which |f(x) - NN(x)| relatively large. Therefore the function
-        iteratively searches in for greater differences in each iteration. The central idea is that using x values for
-        which the difference is large, will improve the parameter-estimation in the first part of the algorithm more
-        than x values closer to the current estimation for f.
+        This function is used to find an x value, for which :math:`|f(x) - NN(x)|` relatively large. Therefore the
+        function iteratively searches in for greater differences in each iteration. The central idea is that using x
+        values for which the difference is large, will improve the parameter-estimation in the first part of the
+        algorithm more than x values closer to the current estimation for f.
 
         Args:
             epsilon: distance in which new x values are searched initially. If found: doubled for next iteration
@@ -702,6 +665,7 @@ class Adaptor:
             return res, None
 
     def _init_worker_solvers(self):
+        """Helper-function for handling multiple threads"""
 
         for _ in range(len(self.nn_model_formulas) - len(self.processes)):
             p = multiprocessing.Process(
@@ -721,6 +685,7 @@ class Adaptor:
             p.start()
 
     def _find_deviation_splitting(self, epsilon):
+        """Does the same as ``_find_deviation`` but splits the computation at nodes of the MLP"""
 
         start_time_deviation = time.time()
 
@@ -830,6 +795,7 @@ class Adaptor:
 
         return res_list
 
+
 def value(encoding, fo_model, var):
     if encoding == 'Real':
         return fo_model.eval(var, model_completion=True)
@@ -838,6 +804,7 @@ def value(encoding, fo_model, var):
     else:
         print('Encoding not supported.')
         sys.exit()
+
 
 def cast(encoding, var):
     if encoding == 'Real':
@@ -848,6 +815,7 @@ def cast(encoding, var):
         print('Encoding not supported.')
         sys.exit()
 
+
 def pickleable_z3num(val):
     if is_int_value(val):
         return (val.as_long(),)
@@ -856,6 +824,7 @@ def pickleable_z3num(val):
     else:
         print('Error. Value not rational.')
 
+
 def reverse_pickleablility(val):
     if len(val)==1:
         return RealVal(val[0])
@@ -863,6 +832,7 @@ def reverse_pickleablility(val):
         return RealVal(str(val[0])+'/'+str(val[1]))
     else:
         print('Error. Cannot reverse pickleability.')
+
 
 def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, encoding):
 
