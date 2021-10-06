@@ -21,7 +21,7 @@ def parse_args():
     """
 
     # default path to model
-    path_to_model = os.path.join('mlp_smt_closed', 'mlp', 'models', 'LinearA2D_model.h5')
+    path_to_model = os.path.join('mlp_smt_closed', 'mlp', 'models', 'LinearA' + '_model.h5')
 
     # init parser
     parser = argparse.ArgumentParser(description="DESCRIPTION", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -39,13 +39,17 @@ def parse_args():
     parser.add_argument('-t', '--template', default='linear', choices=['linear', 'polynomial'],
                         help='choose to fit the MLP to a linear or polynomial function')
     parser.add_argument('-d', '--degree', default=1, type=int, help='degree of the polynomial')
-    parser.add_argument('-i', '--intervals', default=((-8,), (8,)), help='interval in which the parameters should fit')
-    parser.add_argument('--sizes', default=[1001], type=int, help='number of samples taken in case "--method ls"')
-    parser.add_argument('-e', '--epsilon', default=0.5,
+    parser.add_argument('-i', '--intervals', default=((-8,), (8,)),
+                        help='interval in which the parameters should fit')
+    parser.add_argument('--sizes', default=[200],
+                        help='number of samples taken in case "--method ls"')
+    parser.add_argument('-e', '--epsilon', default=0.05, type=float,
                         help='Attention: the interpretation of epsilon is context dependent! Read the README or the '
                              'Documentation for details.')
     parser.add_argument('--steps', default=4, type=int,
                         help='number of interval refinement steps taken in case "--method ls"')
+    parser.add_argument('-p', '--plot', action='store_true',
+                        help='plot fit if supported for this dimension' )
 
     args = parser.parse_args()
 

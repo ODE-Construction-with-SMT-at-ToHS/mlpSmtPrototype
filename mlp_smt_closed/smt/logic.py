@@ -31,6 +31,10 @@ class Adaptor:
         self.template = template
         self.model_path = model_path
 
+        # workaround in case the intervals are passed as an argument (in this case, they are passed as a string)
+        if type(interval) == str:
+            interval = eval(interval)
+
         # lower and upper Bound
         # all values within this bound should be estimated within the epsilon-tolerance
         self.lb, self.ub = interval
@@ -395,6 +399,11 @@ class Adaptor:
             epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
             output of the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
+        
+        
+        # workaround in case the intervals are passed as an argument (in this case, they are passed as a string)
+        if type(sizes) == str:
+            sizes = eval(sizes)
 
         # transform intervals into different format
         intervals = []
@@ -439,7 +448,7 @@ class Adaptor:
         self.template.set_params(new_params)
         end_time_regression = time.time()
         print('    -> Function found: f(x) = ')
-        print(reg.coef_, 'x +', reg.intercept_)
+        print()
         print('    -> took', end_time_regression - start_time_regression, 'seconds')
 
         # binary search for epsilon
@@ -474,12 +483,14 @@ class Adaptor:
             else:
                 lower = mid
 
+        print(func_class.dimension())
         print('Final maximum deviation range: [', lower, ',', upper, ']')
         print('For tighter bounds increase epsilon accuracy steps.')
 
         return True, (lower, upper)
 
-    def polyfit_verification_1d(self, func_class, size = 200, epsilon: float = 0.5, epsilon_accuracy_steps = 4):
+    def polyfit_verification_1d(self, func_class, size=[200], epsilon: float = 0.5, epsilon_accuracy_steps=4,
+                                plot=False):
         """Method for finding parameters of a function-template to fit the MLP with maximal deviation ``epsilon``.
         TODO: describe difference to optimize template
 
@@ -487,6 +498,16 @@ class Adaptor:
             epsilon = 0.5: Tolerance of template. Within the domain ``interval`` (specified at construction time), the
             output of the closed form and the MLP are not allowed to differ more than ``epsilon``
         """
+        
+        # workaround in case the size is passed as an argument (in this case, it is passed as a string)
+        if type(size) == str:
+            size = eval(size)
+
+        # reshape size
+        if len(size) == 1:
+            size=size[0]
+        else:
+            print('Error: polynomial fit can only handle 1D functions, you provided', len(size), 'sizes')
 
         # create samples form input network
         print('Taking samples to do Polynomial fit')
@@ -520,7 +541,7 @@ class Adaptor:
         lower = 0
         upper = epsilon
 
-        #sanity check upper bound for binary search (epsilon)
+        # sanity check upper bound for binary search (epsilon)
         print('    -> Sanity check upper bound for binary search (epsilon)')
         if self.splits == 0:
             res, x = self._find_deviation(epsilon, refine=0)
@@ -559,19 +580,21 @@ class Adaptor:
         print('For tighter bounds increase epsilon accuracy steps.')
 
         # calculate predictions for plotting
-        y_predictions = []
-        for i in range(len(x_samples)):
-            y_prediction = 0
-            for degree in range(func_class.degree()+1):
-                y_prediction += fit[degree] * (x_samples[i]**degree)
-            y_predictions += [y_prediction]
-        y_predictions = np.array(y_predictions)
 
-        # plot predictions
-        '''plt.scatter(x_samples, y_samples, c='deepskyblue')
-        plt.plot(x_samples, y_predictions, 'k')
-        plt.show()
-        plt.clf()'''
+        if plot:
+            y_predictions = []
+            for i in range(len(x_samples)):
+                y_prediction = 0
+                for degree in range(func_class.degree()+1):
+                    y_prediction += fit[degree] * (x_samples[i]**degree)
+                y_predictions += [y_prediction]
+            y_predictions = np.array(y_predictions)
+
+            # plot predictions
+            plt.scatter(x_samples, y_samples, c='deepskyblue')
+            plt.plot(x_samples, y_predictions, 'k')
+            plt.show()
+            plt.clf()
         return True, (lower, upper)
 
 
