@@ -792,11 +792,15 @@ class Adaptor:
         for v in input_formula.values():
             solver.add(v)
 
+        print('P1.1.3.1')
         # Check for satisfiability.
         res = solver.check()
+        print('P1.1.3.2')
         if res != sat:
             print('ERROR. NN-Formula is not satisfiable.')
             sys.exit()
+        
+        print('P1.1.3.3')
         fo_model = solver.model()
 
         # Convert to output list according to output vars.
