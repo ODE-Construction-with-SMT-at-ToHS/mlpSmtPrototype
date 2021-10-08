@@ -777,7 +777,7 @@ class Adaptor:
 
         # Create whole encoding, if not yet done
         self.nn_model_formula, _, _ = self.my_encoder.encode()
-
+        print('P1.1.1')
         # Create a solver instance.
         solver = Solver()
 
@@ -786,7 +786,9 @@ class Adaptor:
             solver.add(v)
 
         # Encode the input.
+        print('P1.1.2')
         input_formula = self.my_encoder.encode_input(input)
+        print('P1.1.3')
         for v in input_formula.values():
             solver.add(v)
 
@@ -799,8 +801,10 @@ class Adaptor:
 
         # Convert to output list according to output vars.
         res_list = []
+        print('P1.1.4')
         for var in self.nn_output_vars:
             res_list.append(fo_model.eval(var, model_completion=True))
+        print('P1.1.5')
 
         return res_list
 
