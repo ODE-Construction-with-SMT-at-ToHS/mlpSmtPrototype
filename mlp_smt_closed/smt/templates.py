@@ -80,7 +80,7 @@ class PolynomialTemplate(Template):
         ctr = 0
         var_indeces = [i for i in range(self.variables)]
         var_indeces.sort(reverse=True)
-        for name in self.param_vars:
+        for name in self.param_var_names:
             a = self.params[name]
             ctr_cpy = ctr
             # The index of a parameter can be mapped to the corresponding exponents
@@ -99,7 +99,7 @@ class PolynomialTemplate(Template):
         ctr = 0
         var_indeces = [i for i in range(self.variables)]
         var_indeces.sort(reverse=True)
-        for name in self.param_vars:
+        for name in self.param_var_names:
             a = self.params[name]
             ctr_cpy = ctr
             # The index of a parameter can be mapped to the corresponding exponents
@@ -119,7 +119,7 @@ class PolynomialTemplate(Template):
         ctr = 0
         var_indeces = [i for i in range(self.variables)]
         var_indeces.sort(reverse=True)
-        for name in self.param_vars:
+        for name in self.param_var_names:
             a = self.param_vars[name]
             ctr_cpy = ctr
             # The index of a parameter can be mapped to the corresponding exponents

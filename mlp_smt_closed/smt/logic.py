@@ -239,7 +239,6 @@ class Adaptor:
         # while the encoding is satisfiable
         while res == sat:
             print('Optimizing parameters')
-            start_time_opt = time.time()
 
             # Encode optimiziation problem, stored in formula_1:
             formula_1 = []
