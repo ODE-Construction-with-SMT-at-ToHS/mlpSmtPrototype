@@ -111,13 +111,16 @@ class Adaptor:
             # considered
             formula_1 = []
 
+            print('P1.1')
             if self.encoding == 'Real':
                 # Use the encoding to calculate output for input x
                 nn_y = self.predict(x)
 
+                print('P1.2')
                 # Create variables for each output variable
                 t_output_vars = [Real('y_{}_{}'.format(counter, i)) for i in range(len(self.nn_output_vars))]
 
+                print('P1.3')
                 if counter > 0:
                     # Encode precision
                     for name, val in self.template.get_params().items():
@@ -133,6 +136,7 @@ class Adaptor:
                 print('Encoding not supported.')
                 sys.exit()
 
+            print('P1.4')
             # add encoding for function f according to template
             formula_1.append(self.template.generic_smt_encoding(x, t_output_vars))
 
