@@ -102,6 +102,7 @@ class Adaptor:
         timelog = []
         last_t = time.time()
 
+        print('P1')
         # while the encoding is satisfiable
         while res == sat:
 
@@ -143,6 +144,7 @@ class Adaptor:
             # Assert subformulas to solver.
             for sub in formula_1:
                 solver_1.add(sub)
+            print('P2')
 
             # Check for satisfiability.
             print('Looking for new parameters')
@@ -167,7 +169,8 @@ class Adaptor:
             if log_time:
                 timelog.append(('adj',curr_t-last_t))
                 last_t=curr_t
-
+            
+            print('P3')
             if res == sat:
                 fo_model = solver_1.model()
                 # Update parameters.
@@ -185,6 +188,7 @@ class Adaptor:
                     return False, str(epsilon), timelog
                 return False, str(epsilon)
 
+            print('P4')
             # 2nd condition:
             print('Looking for new input')
             if self.splits == 0:
@@ -199,6 +203,8 @@ class Adaptor:
             if log_time:
                 timelog.append(('find',curr_t-last_t))
                 last_t=curr_t
+            
+            print('P5')
         
         #Satisficing parameters found.
         if log_time:
