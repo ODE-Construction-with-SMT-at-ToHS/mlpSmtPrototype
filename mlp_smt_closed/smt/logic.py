@@ -310,6 +310,9 @@ class Adaptor:
                 self.template.set_params(new_params)
 
                 epsilon = value(self.encoding, fo_model, max_epsilon)
+                #Hacky workaround?
+                if self.splits > 0:
+                    epsilon = value('FP', fo_model, max_epsilon)
                 print('    -> Maximal distance:' + str(value('FP', fo_model, max_epsilon)) + '+-' + str(tolerance))
             else:
                 print('Error! No satisfying parameters found.')
@@ -323,7 +326,7 @@ class Adaptor:
             if self.splits == 0:
                 res, x = self._find_deviation(epsilon + tolerance, refine=0)
             else:
-                res, x = self._find_deviation_splitting(epsilon + tolerance)
+                res, x = self._find_deviation_splitting(float(epsilon + tolerance))
             
             counter += 1
             
@@ -676,6 +679,15 @@ class Adaptor:
     def _init_worker_solvers(self):
         """Helper-function for handling multiple threads"""
 
+        n=1
+        m=1
+        if str(self.template.__class__.__name__) == 'GenericLinearTemplate':
+            n = self.template.n
+            m = self.template.m
+        elif str(self.template.__class__.__name__) == 'PolynomialTemplate':
+            n = self.template.degree
+            m = self.template.variables
+
         for _ in range(len(self.nn_model_formulas) - len(self.processes)):
             p = multiprocessing.Process(
                 target=worker_solver,
@@ -687,7 +699,9 @@ class Adaptor:
                     self.splits,
                     self.lb,
                     self.ub,
-                    self.encoding
+                    self.encoding,
+                    n,
+                    m
                     )
                 )
             self.processes.append(p)
@@ -702,13 +716,18 @@ class Adaptor:
 
         # Number of workers
         workers_n = range(len(self.nn_model_formulas))
+        print('Initializing.')        
         self._init_worker_solvers()
+        print('Initialization done.')     
 
         # Announce new jobs
         pickle_params = {key: pickleable_z3num(x) for key,x in self.template.get_params().items()}
         for i in workers_n:
             job = (i, epsilon, pickle_params)
+            print('job ' + str(i) + ' ' + str(epsilon))
             self.jobs.put(job)
+        
+        print(self.processes)
 
         # Await solutions
         finished_workers = set()
@@ -721,14 +740,14 @@ class Adaptor:
                 break
 
         # Kill unfinished processes
-        live_processes = []
+        '''live_processes = []
         for p in self.processes:
             if p.pid in finished_workers:
                 live_processes.append(p)
             else:
                 p.kill()
 
-        self.processes = live_processes
+        self.processes = live_processes'''
 
         end_time_deviation = time.time()
 
@@ -839,7 +858,8 @@ def pickleable_z3num(val):
     elif is_rational_value(val):
         return((val.numerator_as_long(),val.denominator_as_long()))
     else:
-        print('Error. Value not rational.')
+        print('Warning. Value remains unmodified.')
+        return (val,)
 
 
 def reverse_pickleablility(val):
@@ -851,13 +871,18 @@ def reverse_pickleablility(val):
         print('Error. Cannot reverse pickleability.')
 
 
-def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, encoding):
+def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, encoding, n, m):
 
     # initial preparation
     my_encoder = Encoder(model_path, encoding=encoding)
     nn_model_formulas, nn_output_vars, nn_input_vars = my_encoder.encode_splitted(number=splits)
     if str(template_name) == 'LinearTemplate':
         template = LinearTemplate(encoding=encoding)
+    elif str(template_name) == 'GenericLinearTemplate':
+        template = GenericLinearTemplate(encoding=encoding, n=n, m=m)
+    elif str(template_name) == 'PolynomialTemplate':
+        template = PolynomialTemplate(degree=n,variables=m)
+    
     else:
         print('Template \"' + str(template_name) +'\" has to be added here.')
         sys.exit()
@@ -870,6 +895,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         formula_2.append(nn_input_vars[i] <= ub[i])
 
     while 1:
+        print('waiting*********************************************')
         # Block until new job is available
         formula_index, epsilon, new_params = jobs.get()
         print('Solving index: '+ str(formula_index) + ' and epsilon: '+ str(epsilon))
@@ -877,8 +903,6 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         # Update template parameters
         new_params = {key: reverse_pickleablility(x) for key,x in new_params.items()}
         template.set_params(new_params)
-        print(new_params)
-        print(template.get_params())
 
         # Encode the template.
         template_formula = template.smt_encoding()
@@ -896,6 +920,7 @@ def worker_solver(jobs, solutions,  model_path, template_name, splits, lb, ub, e
         total_split = formula_2 + nn_model_formulas[formula_index] + [deviation, template_formula]
 
         # Solve the formula
+        print("solviiiiingggggggggggggggggggg")
         solver = Solver()
         for subformula in total_split:
             solver.add(subformula)
