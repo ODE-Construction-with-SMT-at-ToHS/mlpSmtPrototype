@@ -209,10 +209,16 @@ class Adaptor:
                 last_t=curr_t
             
             print('P5')
-        
+                
+        # Terminate processes
+        for p in self.processes:
+            p.terminate()
+            p.join()
+            
         #Satisficing parameters found.
         if log_time:
             return True, str(epsilon), timelog
+        
         return True, str(epsilon)
 
     def optimize_template(self, tolerance=0.001, log_time=False):
@@ -336,8 +342,14 @@ class Adaptor:
                 timelog.append(('find',curr_t-last_t))
                 last_t=curr_t
         
+        # Terminate processes
+        for p in self.processes:
+            p.terminate()
+            p.join()
+
         if log_time:
             return True, str(epsilon), timelog
+
         return True, str(epsilon)
 
     def regression_verification_nd(self, func_class, sizes, epsilon: float = 0.5, epsilon_accuracy_steps=4, plot=False):
@@ -425,6 +437,10 @@ class Adaptor:
             print('        * Passed: epsilon sufficiently large')
         else:
             print('        * Error: choose larger epsilon')
+            # Terminate processes
+            for p in self.processes:
+                p.terminate()
+                p.join()
             return False, epsilon
 
         for _ in range(epsilon_accuracy_steps):
@@ -452,6 +468,11 @@ class Adaptor:
             plt.show()
             plt.clf()
 
+        # Terminate processes
+        for p in self.processes:
+            p.terminate()
+            p.join()
+        
         return True, (lower, upper)
 
     def polyfit_verification_1d(self, func_class, size=[200], epsilon: float = 0.5, epsilon_accuracy_steps=4,
@@ -570,6 +591,12 @@ class Adaptor:
             plt.plot(x_samples, y_predictions, 'k')
             plt.show()
             plt.clf()
+        
+        # Terminate processes
+        for p in self.processes:
+            p.terminate()
+            p.join()
+        
         return True, (lower, upper)
 
 
@@ -758,10 +785,6 @@ class Adaptor:
             print('    -> took', end_time_deviation - start_time_deviation, 'seconds')
             print('Most recent parameters sufficient (epsilon = ' + str(epsilon) + ')')
             print()
-
-            # Terminate processes
-            for p in self.processes:
-                p.kill()
 
         return res, x
 
