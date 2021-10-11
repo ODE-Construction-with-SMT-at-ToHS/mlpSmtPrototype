@@ -737,7 +737,7 @@ class Adaptor:
             if new_res == sat:
                 # Save result
                 res, x = new_res, tuple([reverse_pickleablility(x) for x in new_x])
-                break
+                #break
 
         # Kill unfinished processes
         '''live_processes = []
