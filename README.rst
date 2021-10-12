@@ -11,7 +11,7 @@ mlp_smt_closed
 General
 #######
 This project is a prototype for an algorithm to find a closed form for a multilayer perceptron. For a more detailed
-description of the algorithm and its versions, read our `(not yet written) paper <link-to.paper>`_.
+description of the algorithm and its versions, read our `paper <https://github.com/ODE-Construction-with-SMT-at-ToHS/mlpSmtPrototype/blob/main/paper/main.pdf>`_.
 
 Features
 ########
