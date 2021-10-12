@@ -1,0 +1,51 @@
+\scalebox{0.75}{
+    \begin{tikzpicture}[scale = 1.15]
+        \coordinate (smt_in) at (0,0);
+        \coordinate (smt_find_parameters) at (0, -2);
+        \coordinate (smt_find_deviation) at (0, -6);
+        \coordinate (smt_unsat) at (4, -2);
+        \coordinate (smt_parameters) at (-1.5, -4);
+        \coordinate (smt_deviation) at (1.5, -4);
+        \coordinate (smt_sat) at (4, -6);
+        
+        \coordinate (sqr_in) at (8,0);
+        \coordinate (sqr_least_squares) at (8, -2);
+        \coordinate (sqr_parameters) at (8, -4);
+        \coordinate (sqr_find_deviation) at (8, -6);
+        \coordinate (sqr_interval) at (8, -8);
+
+
+        \node[input, align=left] (n_smt_in) at (smt_in) {\textbf{In:} MLP, $\epsilon$,\\ template};
+        \node[fproc] (n_smt_find_parameters) at (smt_find_parameters) {\lstinline{find_parameters}};
+        \node[fproc] (n_smt_find_deviation) at (smt_find_deviation) {\lstinline{find_deviation}};
+        \node[output, align=center] (n_smt_unsat) at (smt_unsat) {UNSAT};
+        \node[output, align=left] (n_smt_sat) at (smt_sat) {parameters};
+        \node[fio] (n_smt_parameters) at (smt_parameters) {\;\;\;};
+        \node[align=left] at (smt_parameters) {parameters};
+        \node[fio] (n_smt_deviation) at (smt_deviation) {\;\;\;};
+        \node[align=center] at (smt_deviation) {deviation};
+    
+        \node[input, align=center] (n_sqr_in) at (sqr_in) {\textbf{In:} MLP,\\template};
+        \node[fproc] (n_sqr_least_squares) at (sqr_least_squares) {\lstinline{least_squares}};
+        \node[fproc] (n_sqr_find_deviation) at (sqr_find_deviation) {\lstinline{find_deviation}};
+        \node[output, align=left] (n_sqr_interval) at (sqr_interval) {parameters,\\interval};
+        \node[fio] (n_sqr_parameters) at (sqr_parameters) {\;\;\;};
+        \node at (sqr_parameters) {parameters};
+
+
+        \draw[-Latex, very thick] (n_smt_in) -- (n_smt_find_parameters);
+        \draw[-Latex, very thick] (n_smt_find_parameters) --node[above]{unsat} (n_smt_unsat);
+        \draw[-Latex, very thick] (n_smt_find_parameters) --node[left]{sat} (n_smt_parameters);
+        \draw[-Latex, very thick] (n_smt_parameters) -- (n_smt_find_deviation);
+        \draw[-Latex, very thick] (n_smt_find_deviation) --node[right]{sat} (n_smt_deviation);
+        \draw[-Latex, very thick] (n_smt_find_deviation) --node[above]{unsat} (n_smt_sat);
+        \draw[-Latex, very thick] (n_smt_deviation) -- (n_smt_find_parameters);
+
+
+        \draw[-Latex, very thick] (n_sqr_in) -- (n_sqr_least_squares);
+        \draw[-Latex, very thick] (n_sqr_least_squares) -- (n_sqr_parameters);
+        \draw[-Latex, very thick] (n_sqr_parameters) -- (n_sqr_find_deviation);
+        \draw[-Latex, very thick] (n_sqr_find_deviation) -- (n_sqr_interval);
+        \draw[-Latex, very thick] (n_sqr_find_deviation) edge[loop]node[right, align=left]{inter-\\val} (n_sqr_find_deviation);
+    \end{tikzpicture}
+}

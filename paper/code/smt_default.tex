@@ -1,0 +1,16 @@
+\begin{lstlisting}[caption={Finding parameters within $\epsilon$.}, label=lst:smt_default, mathescape=true]
+def find_parameters(template, MLP, $\epsilon$, x):
+
+    # encode conditions
+    encoding = $ ( \exists \text{parameters}: f = \text{template(parameters)}$
+                $\land \ |f(x) - \text{mlp}(x)| \leq \epsilon )$
+
+    # use an external solver to find a solution
+    Solver.add(encoding)
+    result = Solver.check()
+
+    if result == SAT:
+        model = Solver.model()
+        return model(parameters)
+    return UNSAT
+\end{lstlisting}

@@ -1,0 +1,19 @@
+\begin{lstlisting}[caption={Finding parameters minimizing $\epsilon_{\text{max}}$.}, label=lst:smt_optimize, mathescape=true]
+def find_parameters(template, MLP, X):
+
+    # encode conditions
+    encoding = $\big( \; \exists \, \text{parameters}, \epsilon_{\text{max}}:$
+                $ f = \text{template(parameters)}$
+                $\bigwedge_{x \in X} \ |f(x) - \text{mlp}(x)| \leq \epsilon_{\text{max}}$
+                $\land \ (\bigvee_{x \in X} \ |f(x) - \text{mlp}(x)| = \epsilon_{\text{max}}) \; \big)$
+
+    # use an external solver to find a minimal 
+    # solution
+    Solver.add(encoding)
+    result = Solver.minimize($\epsilon_{\text{max}}$)
+
+    if result == SAT:
+        model = Solver.model()
+        return model(parameters)
+    return UNSAT
+\end{lstlisting}

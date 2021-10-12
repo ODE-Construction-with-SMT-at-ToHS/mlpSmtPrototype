@@ -1,0 +1,56 @@
+\section{Related Work}
+    \label{sec:rel}
+    To the best of our knowledge, extracting function from a trained MLP has not been investigated. However, part of our approach is MLP formalization and the verification of its properties (for details see Section~\ref{subsec:nn_verify}). Neural network verification is a big field of study and there exists an abundance of approaches we could have used or adapted for our own implementation. It should be mentioned that the problem of network verification is mostly not interpreted as proving a direct functional relation between input and output. Thus, if an existing approaches is used for our task, we would most likely have to adapt it. For an in depth overview of verification algorithms for neural networks we refer to \cite{liu2019algorithms}. As performance was not a main priority, we omitted related work and did our own straight forward encoding and solving using \lstinline{z3} as described in Section~\ref{sec:imp}. Future work with focus on performance could use existing, more sophisticated approaches.
+
+\begin{comment}
+    A selection of some well know approaches is listed below. 
+    %Very small portion of the related work existing w.r.t. the "verification part"
+    %(background: a big field of study focuses on verifying certain "good" properties/specifications that NNs should have, often to prove the absence of adversary examples/ close miss-classifications => formalization of the NN (e.g. through z3), but not necessarily "general/functional" input-output relations)\par
+    %todo: beatify list, sentences ...
+    \paragraph{}
+    \begin{itemize}
+        \item A Unified View of Piecewise Linear Neural Network Verification
+            \begin{itemize}
+            	\item https://arxiv.org/pdf/1711.00455.pdf
+            	\item model function as part of network then check whether >/=/< 0.
+            	\item only linear dependencies of input/output        
+        	\end{itemize}
+        \item Reluplex: An Efficient SMT Solver for Verifying Deep Neural Networks
+            \begin{itemize}
+            	\item https://arxiv.org/abs/1702.01135
+            	\item fast modelling of NNs with ReLU functions (fancy techniques)
+            	\item input [a,b] -> output [c,d] ?        
+        	\end{itemize}
+        \item Verification of a Trained Neural Network Accuracy (old paper)
+            \begin{itemize}
+                \item https://ieeexplore.ieee.org/document/938410 (maybe first time that some kind of verification was applied???)
+                \item error bounds in comparison to lookup table for input intervals
+                \item grid, bound on growth rates between grid points
+            \end{itemize}
+        \item Challenging SMT solvers to verify neuralnetworks
+            \begin{itemize}
+            	\item https://dl.acm.org/doi/10.5555/2350156.2350160
+            	\item formalize NN in logic to prove the following properties
+    		    \begin{itemize}
+    		        \item stability
+            		\item local safety 
+            		\item global safety        
+    		    \end{itemize}
+    	    \end{itemize}
+        \item Safety verification of deep neural networks (very often cited!)
+            \begin{itemize}
+            	\item https://link.springer.com/chapter/10.1007/978-3-319-63387-9\_1
+            	\item proof existance of "no-change-of-class" region around all points-> absence of weird behaviour
+        	\end{itemize}
+        \item Verification of Non-Linear Specifications for Neural Networks
+            \begin{itemize}
+                \item https://arxiv.org/abs/1902.09592
+            	\item incomplete method to verify non-linear properties
+            \end{itemize}
+        \item NNV tool (Abrahams tip)
+        \item NNENUM - Stanley Bak:
+
+nnenum: Verification of ReLU Neural Networks with Optimized Abstraction Refinement. NFM 2021: 19-36
+        \end{itemize}
+\end{comment}
+    

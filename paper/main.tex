@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{biblatex}
+\usepackage{listings,comment}
+\usepackage{verbatim}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{tablefootnote}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes.geometric}
+\usepackage{tcolorbox}
+
+\addbibresource{mlp_smt_closed.bib}
+
+\input{tikz/colors}
+
+\lstset{
+    language=Python,
+    abovecaptionskip=\bigskipamount,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray}\textit,
+    basicstyle=\ttfamily,
+    captionpos=b,
+}
+\renewcommand{\lstlistingname}{Algorithm}% Listing -> Algorithm
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Algorithms
+
+
+\title{Finding Simplified Closed Form Approximations of MLPs.}
+\author{László Dirks, Nicolai Radke}
+\date{July 2021}
+
+\begin{document}
+    \maketitle
+    \input{chapters/introduction}
+    \input{chapters/preliminaries}
+    \input{chapters/mlp_smt_closed}
+    \input{chapters/implementation}
+    \input{chapters/evaluation}
+    \input{chapters/related_work}
+    \input{chapters/conclusion}
+    \printbibliography
+\end{document}

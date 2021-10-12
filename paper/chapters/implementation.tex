@@ -1,0 +1,5 @@
+\section{Implementation}
+\label{sec:imp}
+    The implementation can be found in our GitHub repository \cite{Dirks_mlp_smt_closed}.  We used the language Python for the implementation.\par %TODO: reference documentation if running
+    To create, train and store MLPs, we used \lstinline{tensorflow} with \lstinline{keras} and \lstinline{sklearn}. For solving the formulas we used \lstinline{z3}. \par
+    For curve fitting we used existing least-squares fit implementations. For linear regression we used \lstinline{sklearn.linear_model.LinearRegression}, for polynomial fitting \lstinline{numpy.polynomial.polynomial.polyfit}.

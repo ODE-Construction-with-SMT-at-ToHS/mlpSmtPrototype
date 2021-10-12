@@ -1,0 +1,25 @@
+\begin{lstlisting}[caption={Method to fit parameters and find a deviation interval}, label=lst:fit_verify, mathescape=true]
+def fit_verify(mlp_model, target_function, interval, 
+               size, epsilon, accuracy_steps):
+
+    # take samples
+    x, mlp(x) = sample(mlp_model, interval, size)
+
+    # find parameters of target function
+    parameters = least_squares(x, mlp(x), 
+                               target_function)
+
+    # binary search to narrow down deviation 
+    # interval
+    lower = 0
+    upper = epsilon
+    for _ in range(accuracy_steps)
+        mid = (lower + upper)/2
+        if find_deviation(mid):
+            lower = mid
+        else:
+            upper = mid
+    deviation_interval = [lower, upper]
+
+    return parameters, deviation_interval
+\end{lstlisting}

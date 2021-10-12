@@ -1,0 +1,92 @@
+\section{Evaluation}
+    \label{sec:eva}
+    \begin{table}
+        \centering
+        \begin{tabular}{|p{2cm}|p{4cm}|p{4cm}|}
+            \hline
+                            & SMT                                       & Least-Squares Curve Fitting \\
+            \hline
+            \hline
+            similarities    & \multicolumn{2}{p{8cm}|}{\tabitem tries to find a curve fitting to the MLP} \\
+                            & \multicolumn{2}{p{8cm}|}{\tabitem uses an SMT solver to check whether parameters fulfil given bounds} \\
+            \hline
+            differences     & \tabitem \textit{incrementally} includes outliers to find parameters   
+                                                                        & \tabitem uses existing methods \textit{once} to find parameters
+            \\              & \tabitem indirectly considers all points when finding new parameters
+                                                                        & \tabitem only considers a finite set of points to find parameters
+            \\
+                            & \tabitem can guarantee that parameters with certain accuracy do not exist
+                                                                        & \tabitem can only give guarantee for the accuracy of parameters found by the fitting function
+            \\
+                            &                                           & \tabitem incapable of improving parameters\tablefootnote{It may be possible to improve the parameters through modifying meta-parameters of the fitting function, e.g. the number of samples. However, this does not guarantee improvement. Also including an outlier in the fitting process does not give any guarantees w.r.t. accuracy.}\\
+            \hline
+        \end{tabular}
+        \caption{Methodical comparison of the SMT approach and existing curve fitting approaches.}
+        \label{tab:com}
+    \end{table}.
+    Due to the novelty of this approach (see Section~\ref{sec:rel}), it is impossible for us to compare it to existing ones. Due to the methodical differences of the presented approaches (see Table~\ref{tab:com}), comparing them quantitatively with each other is also not sensible. Therefore we can (1) qualitatively evaluate the approaches and (2) quantitatively evaluate the approaches through comparing the performance of the same approach on different MLPs.\par
+    A methodical comparison can be found in Table~\ref{tab:com}.\par
+    \begin{table}[h]
+        \centering
+            \begin{tabular}{|l|r|r|r|r|}
+                 \hline
+                 Template &  \#Nodes    & $\epsilon$ & \#Splits     & Runtime in \si{\s}\\
+                 \hline
+                 \hline
+                 1D linear function        &    12             & 0,5         & 0& 1,23\\
+                                           &                   &           & 1& 4,18\\ \hline
+                 2D linear function        &    14             & 0,5         & 0& -\\
+                                           &                   &           & 1& 6174.98\\ \hline
+                 1D polynomial             &    12             & 0,5         & 0& 8,10 \\
+                 of degree 2               &                   &           & 1& 7,44\\ \hline
+                 1D polynomial             &    17             & 0,5         & 0& 6.34\\
+                 of degree 3               &                   &           & 1& 6.87\\ \hline
+                 1D linear function        &    57             & 0,5         & 0& -\\
+                                           &                   &           & 1& -\\ \hline
+            \end{tabular}
+        \caption{Test results for the method described in section \ref{subsubsec:smt1}. A timeout is denoted with -.}
+        \label{tab:smt_default}
+    \end{table}
+    \begin{table}
+        \centering
+            \begin{tabular}{|l|r|r|r|r|}
+                 \hline
+                 Template &  \#Nodes    & $\epsilon$ & \#Splits     & Runtime in \si{\s}\\
+                 \hline
+                 \hline
+                 1D linear function        &    12             & 0,02         & 0& 4,38\\
+                                           &                   &              & 1& 5,87\\ \hline
+                 2D linear function        &    14             &           & 0& -\\
+                                           &                   &           & 1& -\\ \hline
+                 1D linear function        &    57             &             & 0& -\\
+                                           &                   &           & 1& -\\ \hline
+                 
+            \end{tabular}
+        \caption{Test results for the method described in section \ref{subsubsec:smt2}. A timeout is denoted with -. The found bounds for $\epsilon$ are rounded to two decimal places.}
+        \label{tab:smt_optimize}
+    \end{table}
+    \begin{table}
+        \centering
+            \begin{tabular}{|l|r|r|r|r|}
+                 \hline
+                 Template &  \#Nodes    & $\epsilon$ & \#Splits     & Runtime in \si{\s}\\
+                 \hline
+                 \hline
+                 1D linear function        &    12             & [0,02; 0,03] & 0& 3,07\\
+                                           &                   &           & 1& 5,25\\ \hline
+                 2D linear function        &    14             & [0,08; 0,09] & 0& 36,90 \\
+                                           &                   &           & 1& 30,57 \\ \hline
+                 1D polynomial             &    12             & [0,31; 0,33] & 0& 1,47 \\
+                 of degree 2               &                   &           & 1& 3,53\\ \hline
+                 1D polynomial             &    17             & [0,25; 0,27] & 0& 1,63 \\
+                 of degree 3               &                   &           & 1& 3,80\\ \hline
+                 1D linear function        &    57             &             & 0& -\\
+                                           &                   &           & 1& -\\ \hline
+            \end{tabular}
+        \caption{Test results for the method described in section \ref{subsec:sqa}. A timeout is denoted with -.}
+        \label{tab:least_squares}
+    \end{table}
+    All tests were executed on the Intel Xeon Platinum 8160 Processors “SkyLake” (2.1 GHz) with 8 GB of memory. Each test with zero splits was given one CPU core and each test with one split was given two CPU cores and a timeout of 5 hours. Only the tests for the MLP with 57 nodes were given 16 GB of memory.\par
+    Table~\ref{tab:smt_default} and~\ref{tab:smt_optimize} show runtimes of the methods described in Section~\ref{subsubsec:smt1} and~\ref{subsubsec:smt2}, respectively. The number of timeouts show that optimizing the parameters w.r.t. $\epsilon$ did not improve the runtime and lead to a notable number of timeouts. Splitting at certain nodes for parallelization did also not improve runtime.
+    Table~\ref{tab:least_squares} shows the results of the method described in Section~\ref{subsec:sqa}. We can see that this approach worked quite well and was also able to give relatively small deviation intervals using only 4 interval-refinement steps. However, \lstinline{find_deviation} repeatedly lead to a timeout on a network with 57 nodes.\par
+    We can generally observe that larger models lead to timeouts. Although repeatedly tried, we were not able to get results for any model with more than 20 nodes.

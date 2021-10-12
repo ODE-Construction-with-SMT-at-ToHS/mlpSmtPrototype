@@ -1,0 +1,19 @@
+\begin{lstlisting}[caption={Method to find a deviation between the function and the MLP}, label=lst:nn_verify, mathescape=true]
+def find_deviation(template, parameters, MLP, 
+                   ub, lb):
+    
+    # insert parameters in template to define f
+    f = template(parameters)
+	
+    # encode conditions
+    encoding = $\exists x: |\text{MLP}(x)-\text{f}(x)| > \epsilon \land (\text{lb} \leq x \leq \text{ub})$
+    
+    # use an external solver to find a solution
+    Solver.add(encoding)
+    result = Solver.check()
+    
+    if result == SAT:
+        model = Solver.model()
+        return model($x$)
+    return UNSAT
+\end{lstlisting}

@@ -1,0 +1,24 @@
+\section{Preliminaries}
+    \label{sec:pre}
+    \subsection{Multilayer Perceptrons}
+        \begin{figure}
+            \centering
+                \input{tikz/neural_network}
+            \caption[]{Structure of a fully connected MLP consisting of 4 layers: one input layer (\tikz{\node[circle, fill=rwthlightgreen, minimum size=5pt, inner sep=0pt, outer sep=0pt]{}}), two hidden layers(\tikz{\node[circle, fill=mgray, minimum size=5pt, inner sep=0pt, outer sep=0pt]{}}) and one output layer (\tikz{\node[circle, fill=rwthlightbordeaux, minimum size=5pt, inner sep=0pt, outer sep=0pt]{}}). It computes a function $f:\mathbb{R}^2 \rightarrow \mathbb{R}^2, x = (x_2, x_2) \mapsto \text{mlp}(x)=(\text{mlp}(x)_1,\text{mlp}(x)_2)$}
+            \label{fig:mlp}
+        \end{figure}
+        A multilayer perceptron (MLP) is a type of neural network (NN). An MLP computes a function $f: \mathbb{R}^N \rightarrow \mathbb{R}^M, x \mapsto f(x)$. It can depicted using a number of layers consisting of nodes (see Figure~\ref{fig:mlp}). A multilayer perceptron has $L \geq 3$ layers: one input layer, at least one hidden layer and one output layer.\par
+        The input layer $l_{\text{in}}$ consists of $N$ nodes, the output layer $l_{\text{out}}$ consists of $M$ nodes, hidden layers can have an arbitrary number of nodes.\par 
+        The $j$-th node in layer $l$ is connected to a value $x_{l,j}$ which is computed from the values of all nodes in the previous layer $l-1$. We define $x_{l_{\text{in}},n} := x_n, n \in [1,...,N]$ and $f(x)_m := x_{l_{\text{out}, m}}, m \in [1,...,M]$. For layers other than the input layer $l-1$ with $I$ nodes and $l$ with $J$ nodes we define $x_{l,j} = h(\sum_{i=1}^{I} x_{l-1,i}\cdot\alpha_{i,j}+\beta_j)$ with an activation function $h$, weights $\alpha_{i,j} \in \mathbb{R}$ and biases $\beta_j \in \mathbb{R}$.
+        Weights and biases are trained using error backpropagation. For details on this step we refer to \cite{bishop2006pattern}.
+        There are multiple choices for the activation function. For the sake of simplicity, we only consider the rectified linear unit (ReLU) activation function, which is defined as follows:
+        \begin{equation*}
+            \text{ReLU}(x) \; = \; 
+                \begin{cases}
+                    x & x \geq 0 \\
+                    0 & \text{else}
+                \end{cases} \; = \; \text{max}(x,0)
+        \end{equation*}
+        To be precise, the system described above is a fully connected feed forward neural network. In the following $\text{MLP}(x) := \text{mlp}(x)$ denotes the output of an MLP with input $x$.\par
+    \subsection{Satisfiability and Logic}
+        In this paper we use logical formulas to formalize the neural network and the function template. While the network can be described through linear constraints, this is not possible for the templates which may have an arbitrary form. Thus, we use quantifier free nonlinear real arithmetic (\texttt{QF\_NRA}). To deal with these formulas, we use an SMT solver. We assume standard settings and notations.

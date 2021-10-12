@@ -1,0 +1,9 @@
+\section{Conclusion \& Outlook}
+\label{sec:con}
+We presented approaches for finding a closed form of MLPs which combined relatively simple ideas and existing methods.\par
+%theoretical consequences of fixes
+The first approach described in Section~\ref{subsec:smt} used a counterexample-guided search algorithm for parameters using a type of NN-verification. The evaluation showed that this approach does work in practice, however, scalability to larger networks or more complex functions is still an issue. Future work could try different methods to scale the approach to more realistic network sizes. Another topic of interest could be to directly optimize the parameters w.r.t. the maximum deviation and not their sum.\par % try to optimize w.r.t. max deviation in first place
+%completeness???
+Reusing the NN-verification of the first approach, the second approach used existing least-squares implementations to find parameters. Of course, finding parameters initially is much faster process. However, the least-squares the optimization considers only a finite set of points and optimizes w.r.t. least squares and therefore solves a different problem. As the function \lstinline{find_deviation} was used in this approach as well, scalability issues were apparent too.\par
+Another possible topic for future work, which would affect both approaches, could be to rewrite the function \lstinline{find_deviation} so that it returns the maximum difference between the MLP and the function found. However, being an optimization problem, the runtime of this alternative implementation would be even longer.\par
+In conclusion, we were able to present usable approaches for finding a closed form of MLPs. To be usable for real-world applications, future work is necessary.

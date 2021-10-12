@@ -1,0 +1,77 @@
+\section{Approximating an MLP}
+\label{sec:mlp}
+\begin{figure}
+    \centering
+        \input{tikz/high_level_algs}
+    \caption[]{High-level flow-chart diagram for Algorithms \ref{lst:smt_default}, \ref{lst:smt_optimize} (left) and~\ref{lst:fit_verify}~(right) using Algorithm~\ref{lst:nn_verify}.}
+    \label{fig:alg}
+\end{figure}
+In this section we give a detailed description of the algorithms we implemented. A high-level flow-chart diagram of the algorithms can be found in Figure~\ref{fig:alg}.
+
+
+\subsection{Finding deviations}
+    \label{subsec:nn_verify}
+    \begin{tcolorbox}[arc=0mm, colback=rwthlightgray, outer arc=0mm, colframe = white, size=small, bottom=-9mm]
+        \input{code/nn_verify}
+    \end{tcolorbox}
+    \vspace{9mm}
+    All of the approaches we propose rely on the \lstinline{find_deviation} method, which verifies whether found parameters for the function template yield a function that approximates the behaviour of the given MLP on a specified interval within some error bound $\epsilon$. For this we encode the input-output relation of the MLP as introduced in \cite{DBLP:journals/corr/abs-2008-01204}. Pseudocode of the presented algorithm can be found in Algorithm~\ref{lst:nn_verify}.\par
+    We construct a formula encoding the existence of values for the variables $x$ and $y$ such that $\text{MLP}(x)=y$. Accordingly, we encode the existence of values for the variables $x'$ and $y'$ such that $f(x')=y'$. Be $lb$ a lower bound and $ub$ an upper bound defining an input subspace. We assert both the encoding of the MLP and the function, with the found parameters to an of-the-shelf SMT-solver and further encode
+    \begin{align*}
+    	x = x' \land x \geq lb \land x \leq ub \\
+    	y - y' > \epsilon \lor y' - y > \epsilon
+    \end{align*}
+    The concatenation of these formulas is satisfiable if and only if there is some input in the specified subspace such that the output of $f$ and the MLP deviate more than $\epsilon$.
+    The model returned by the solver provides this input value.\par
+    To improve the solving time we developed a strategy to split the encoding of this problem into smaller sub-problems, which then can be solved in parallel. This is accomplished by omitting the encoding of the behaviour of the activation function ReLU for a node and instead solving two formulas, where the input of the node is limited such that the output of the node is linear to the input. We refer to this as a \textit{split}.
+
+\subsection{SMT-based Parameter Search}
+    \label{subsec:smt}
+    In this section, we describe two SMT-based variants for finding parameters of the given template. The left side of Figure~\ref{fig:alg} is an abstraction which works for both variants. The two variants differ in their realization of the \lstinline{find_parameters} method.
+    \subsubsection{Template Adjustment within $\epsilon$}
+    \label{subsubsec:smt1}
+        \begin{tcolorbox}[arc=0mm, colback=rwthlightgray, outer arc=0mm, colframe = white, size=small, bottom=-9mm]
+            \input{code/smt_default}
+        \end{tcolorbox}
+        \vspace{9mm}
+        Our fist approach consists of the routine summarized in Algorithm~\ref{lst:smt_default}.
+        The input to our algorithm consists of a function template, an MLP, a maximal deviation $\epsilon$ and an lower and upper bound for the input $lb, ub$. We start by encoding the output $y$ of the template function for some arbitrary, fixed input (e.g. $x=lb$) in dependence of the parameters and add the requirement that $y-\text{mlp}(x) \leq \epsilon \land \text{mlp}(x)-y \leq \epsilon$. Note that here $\text{mlp}(x)$ and $x$ are constant values and $\epsilon$ is part of the input. The resulting formula has a model if and only if the there are parameters for the template such that the resulting function deviates at most $\epsilon$ from the MLP.\par
+        In the second step we call the \lstinline{find_deviation} method to determine whether the found parameters are within the $\epsilon$ error bound for the entire subspace. If this is the the case, the method terminates. Otherwise the we use the counterexample provided by \lstinline{find_deviation} to repeat the first step.\par
+        During the process the first step will be repeated for different inputs. For efficiency we use an incremental solver and assert the encoding for a different input in each iteration on top of the previous formulas. This way the resulting parameters satisfy the requirement of the maximal deviation for the entire set of input samples.
+        
+    \subsubsection{Template Adjustment with Optimal $\epsilon$}
+    \label{subsubsec:smt2}
+        \begin{tcolorbox}[arc=0mm, colback=rwthlightgray, outer arc=0mm, colframe = white, size=small, bottom=-9mm]
+            \input{code/smt_optimize}
+        \end{tcolorbox}
+        \vspace{9mm}
+        The approach described in this section is summarized in Algorithm~\ref{lst:smt_optimize}. If we only consider function templates, which can be encoded using linear real arithmetic, we can use existing solvers \cite{DBLP:conf/tacas/BjornerPF15} to find the minimal $\epsilon$ and parameters for the template such that for the resulting function $f$ it holds that for all $x \leq ub, x \geq lb$, $|f(x) - \text{mlp}(x)| \leq \epsilon$.\par
+        This can be accomplished by modifying the first step of the previously introduced approach.
+        Be $X= \{x_0, ..., x_{k-1} \}$ the set of input values in the k-th iteration.
+        In stead of encoding the requirement $y_i-\text{mlp}(x_i) \leq \epsilon\; \land\; \text{mlp}(x_i)-y_i \leq \epsilon$ for all $x_i \in X$,
+        we encode for each $x_i \in X$ the deviation of the MLP output and the function:
+        \begin{align*}
+            (y_i - \text{mlp}(x_i) \geq 0) &\rightarrow (e_i = y_i - \text{mlp}(x_i) )\; \land \\
+            (\text{mlp}(x_i) - y_i > 0) &\rightarrow (e_i = \text{mlp}(x_i) - y_i)
+        \end{align*}
+        With that we can encode the maximal deviation:
+        \begin{align*}
+            \bigvee_{x_i \in X} ( \epsilon_{\text{max}} = e_i )\; \land \\
+            \bigwedge_{x_i \in X} ( \epsilon_{\text{max}} \geq e_i)
+        \end{align*}
+        Finally, let the solver find a model of the encoding with the target function of minimizing $\epsilon_{\text{max}}$.
+
+
+    \subsection{Least-Squares Fit}
+        \label{subsec:sqa}
+        \vspace{0.3cm}
+        \begin{tcolorbox}[arc=0mm, colback=rwthlightgray, outer arc=0mm,colframe = white, size=small, bottom=-9mm]
+            \input{code/fit_verify}
+        \end{tcolorbox}
+        \vspace{9mm}
+        Another approach we tested is using existing, traditional least-squares fit. Pseudo-code of the the method can be found in Algorithm~\ref{lst:fit_verify}, the right side of Figure~\ref{fig:alg} shows a high-level flow-chart diagram of the approach.\par
+        We used existing implementations of linear regression for linear functions of arbitrary dimension and polynomial fitting for 1D polynomials of arbitrary degree. Details on the functions used are in Section~\ref{sec:imp}.\par
+        These methods take a number of $(x,f(x))$ pairs and then find the parameters for the best fitting curve. Thus, we take input/output samples of the neural network. The current implementation takes evenly spaced samples in a specified interval.\par
+        In contrast to the SMT methods from Section~\ref{subsec:smt}, we are not able to enforce the parameters to fulfill certain properties. Therefore, we are not able to use $x$ values with large deviation to refine the parameters. We are only able to check whether there exists a value $x$ a with minimum deviation $\epsilon$, meaning ${\text{mlp}(x)-f(x)\leq\epsilon}$. Therefore we use binary search to find an interval that is guaranteed to contain the maximal distance between the curve found and the output of the MLP. Since MLPs using only ReLU activation functions are picewise linear, it would also be possible to find the maximum deviation analytically. This could be part of further research.\par
+        %\paragraph{Correctness}
+        %In the first part of the algorithm we use existing least-squares implementations and rely on their correctness. As binary search is a well-known and widely-used concept in computer science we omit a proof of correctness in this paper. A proof for soundness and completeness of \lstinline{find_deviation} can be found in Section~\ref{subsec:nn_verify}. 

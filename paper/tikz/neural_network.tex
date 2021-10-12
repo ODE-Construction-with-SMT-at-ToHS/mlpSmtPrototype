@@ -1,0 +1,67 @@
+
+\begin{tikzpicture}[scale = 2.5,
+                    neuron/.style={circle}, 
+                    input/.style={fill=rwthlightgreen}, 
+                    hidden/.style={fill=mgray},
+                    output/.style={fill=rwthlightbordeaux}]
+
+    \node[] (nin1) at (-0.5,0) {$x_1$};
+    \node[] (nin2) at (-0.5, -1) {$x_2$};
+    % input layer
+    \node[neuron, input] (n00) at (0,0){$x_{1,1}$};
+    \node[neuron, input] (n01) at (0,-1){$x_{1,2}$};
+    \node at (0,-2) {$l_\text{in} = l_1$};
+    % hidden layer 1
+    \node[neuron, hidden] (n10) at (1,0.5){$x_{2,1}$};
+    \node[neuron, hidden] (n11) at (1,-0.5){$x_{2,2}$};
+    \node[neuron, hidden] (n12) at (1,-1.5){$x_{2,3}$};
+    \node at (1,-2) {$l_2$};
+    % hidden layer 2
+    \node[neuron, hidden] (n20) at (2,0.5){$x_{3,1}$};
+    \node[neuron, hidden] (n21) at (2,-0.5){$x_{3,2}$};
+    \node[neuron, hidden] (n22) at (2,-1.5){$x_{3,3}$};
+    \node at (2,-2) {$l_3$};
+    % output layer
+    \node[neuron, output] (n30) at (3,0){$x_{4,1}$};
+    \node[neuron, output] (n31) at (3,-1){$x_{4,2}$};
+    \node at (3,-2) {$l_\text{out} = l_4$};
+    
+    \node[] (nout1) at (3.7,0) {$\text{mlp}(x)_1$};
+    \node[] (nout2) at (3.7,-1) {$\text{mlp}(x)_2$};
+
+    
+    % arrows to input
+    \draw[-Latex] (nin1) -- (n00);
+    \draw[-Latex] (nin2) -- (n01);
+    
+    % connections input -> hidden 1
+    \draw[-Latex] (n00) -- (n10);
+    \draw[-Latex] (n00) -- (n11);
+    \draw[-Latex] (n00) -- (n12);
+    \draw[-Latex] (n01) -- (n10);
+    \draw[-Latex] (n01) -- (n11);
+    \draw[-Latex] (n01) -- (n12);
+    
+    % connections hidden 1 -> hidden 2
+    \draw[-Latex] (n10) -- (n20);
+    \draw[-Latex] (n10) -- (n21);
+    \draw[-Latex] (n10) -- (n22);
+    \draw[-Latex] (n11) -- (n20);
+    \draw[-Latex] (n11) -- (n21);
+    \draw[-Latex] (n11) -- (n22);
+    \draw[-Latex] (n12) -- (n20);
+    \draw[-Latex] (n12) -- (n21);
+    \draw[-Latex] (n12) -- (n22);
+    
+    % connections hidden 2 -> output
+    \draw[-Latex] (n20) -- (n30);
+    \draw[-Latex] (n20) -- (n31);
+    \draw[-Latex] (n21) -- (n30);
+    \draw[-Latex] (n21) -- (n31);
+    \draw[-Latex] (n22) -- (n30);
+    \draw[-Latex] (n22) -- (n31);
+
+    % arrows from output
+    \draw[-Latex] (n30) -- (nout1);
+    \draw[-Latex] (n31) -- (nout2);
+\end{tikzpicture}
